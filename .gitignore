@@ -15,3 +15,6 @@ src/modules/template
 infrastructure/terraform/development/.terraform
 infrastructure/terraform/development/.terraform.lock.hcl
 infrastructure/terraform/development/terraform.tfstate
+infrastructure/terraform/development/terraform.tfstate.backup
+
+ssh
