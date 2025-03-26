@@ -9,19 +9,26 @@ import { ValidationPipe } from '@nestjs/common';
 import GlobalExceptionHandler from './common/common-application/handler/GlobalExceptionHandler';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import AppModule from './AppModule';
-import CookieConfig from './config/CookieConfig';
 import fastifyCookie from '@fastify/cookie';
+import { RuntimeException } from '@nestjs/core/errors/exceptions';
+import CookieConfig from './config/CookieConfig';
 
 export default class Application {
   private _app: NestFastifyApplication;
+  private cookieConfig: CookieConfig;
 
-  constructor(private readonly cookieConfig: CookieConfig) {}
+  constructor() {}
 
   public async init(): Promise<void> {
     this._app = await NestFactory.create<NestFastifyApplication>(
       AppModule,
       new FastifyAdapter(),
     );
+
+    this.cookieConfig = this._app.get(CookieConfig);
+    if (this.cookieConfig === undefined) {
+      throw new RuntimeException('CookieConfig is not defined');
+    }
 
     /**
      * Global Pipe 설정
