@@ -39,7 +39,6 @@ export default class User {
     this._createdAt = now;
     this._role = UserRole.STUDENT;
     this._numberOfManagedClasses = 0;
-    this._permissions = [];
   }
 
   @Expose()
