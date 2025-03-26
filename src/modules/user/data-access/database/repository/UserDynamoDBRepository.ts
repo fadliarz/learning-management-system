@@ -90,12 +90,14 @@ export default class UserDynamoDBRepository {
     const response = await this.dynamoDBDocumentClient.send(
       new QueryCommand({
         TableName: this.dynamoDBConfig.USER_TABLE,
-        KeyConditionExpression: '#id = :value0',
+        KeyConditionExpression: '#id = :value0 AND #userId = :value1',
         ExpressionAttributeNames: {
           '#id': 'id',
+          '#userId': 'userId',
         },
         ExpressionAttributeValues: {
           ':value0': email,
+          ':value1': 0,
         },
         Limit: 1,
       }),
@@ -104,7 +106,7 @@ export default class UserDynamoDBRepository {
       throw domainException;
     }
     return {
-      userId: response.Items[0].userId,
+      userId: (response.Items[0] as UniqueEmailKey).storedUserId,
     };
   }
 
