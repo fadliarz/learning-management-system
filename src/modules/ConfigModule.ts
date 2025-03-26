@@ -11,12 +11,14 @@ import UserRepositoryImpl from './user/data-access/database/adapter/UserReposito
 import UserDynamoDbRepository from './user/data-access/database/repository/UserDynamoDBRepository';
 import PrivilegeRepositoryImpl from './privilege/data-access/database/adapter/PrivilegeRepositoryImpl';
 import PrivilegeDynamoDBRepository from './privilege/data-access/database/repository/PrivilegeDynamoDBRepository';
+import CookieConfig from '../config/CookieConfig';
 
 @Global()
 @Module({
   imports: [],
   providers: [
     DynamoDBConfig,
+    CookieConfig,
     {
       provide: DependencyInjection.DYNAMODB_DOCUMENT_CLIENT,
       useFactory: (dynamoDBConfig: DynamoDBConfig) => {
@@ -47,6 +49,7 @@ import PrivilegeDynamoDBRepository from './privilege/data-access/database/reposi
   ],
   exports: [
     DynamoDBConfig,
+    CookieConfig,
     {
       provide: DependencyInjection.DYNAMODB_DOCUMENT_CLIENT,
       useFactory: (dynamoDBConfig: DynamoDBConfig) => {
