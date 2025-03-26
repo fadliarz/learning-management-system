@@ -22,7 +22,6 @@ export default class DynamoDBConfig {
 
   constructor(private readonly _configService: ConfigService) {
     this._USER_TABLE = this._configService.getOrThrow<string>('USER_TABLE');
-
     this._CLASS_TABLE = this._configService.getOrThrow<string>('CLASS_TABLE');
     this._ATTACHMENT_TABLE =
       this._configService.getOrThrow<string>('ATTACHMENT_TABLE');
