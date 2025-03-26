@@ -53,7 +53,7 @@ export default class Application {
   }
 
   public async listen(): Promise<void> {
-    await this._app.listen(process.env.PORT || 8989);
+    await this._app.listen(process.env.PORT || 2212);
   }
 
   private startMemoryUsageLogging(): void {
