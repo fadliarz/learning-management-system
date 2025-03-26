@@ -18,15 +18,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: Install NestJS CLI
-        run: npm install -g @nestjs/cli
-
-      - name: Build the app
-        run: npm run build
-
       - name: Deploy to EC2
         run: |
           mkdir -p ~/.ssh
@@ -36,6 +27,7 @@ jobs:
           cd /home/ec2-user/learning-management-system
           git pull origin main
           npm install --production
+          npm run build
           export USER_TABLE=${{ secrets.USER_TABLE }}
           export ATTACHMENT_TABLE=${{ secrets.ATTACHMENT_TABLE }}
           export CATEGORY_TABLE=${{ secrets.CATEGORY_TABLE }}
