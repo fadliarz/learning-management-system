@@ -9,11 +9,13 @@ import { ValidationPipe } from '@nestjs/common';
 import GlobalExceptionHandler from './common/common-application/handler/GlobalExceptionHandler';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import AppModule from './AppModule';
+import CookieConfig from './config/CookieConfig';
+import fastifyCookie from '@fastify/cookie';
 
 export default class Application {
   private _app: NestFastifyApplication;
 
-  constructor() {}
+  constructor(private readonly cookieConfig: CookieConfig) {}
 
   public async init(): Promise<void> {
     this._app = await NestFactory.create<NestFastifyApplication>(
@@ -36,6 +38,13 @@ export default class Application {
      * Global Exception Handler
      */
     this._app.useGlobalFilters(new GlobalExceptionHandler());
+
+    /**
+     * Cookie
+     */
+    await this._app.register(fastifyCookie, {
+      secret: this.cookieConfig.COOKIE_SECRET_KEY,
+    });
 
     /**
      * Swagger
