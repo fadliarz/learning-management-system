@@ -3,7 +3,6 @@ import { Expose } from 'class-transformer';
 import ISO8601ToDate from '../../../../../common/common-domain/decorator/ISO8601ToDate';
 import TimeFactory from '../../../../../common/common-domain/helper/TimeFactory';
 import ImmutableFieldException from '../../../../../common/common-domain/exception/ImmutableFieldException';
-import postgres from 'postgres';
 
 export default class ClassAssignment {
   private _assignmentId: number;

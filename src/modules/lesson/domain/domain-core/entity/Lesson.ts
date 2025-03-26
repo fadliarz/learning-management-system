@@ -2,7 +2,6 @@ import { Expose } from 'class-transformer';
 import TimeFactory from '../../../../../common/common-domain/helper/TimeFactory';
 import ISO8601ToDate from '../../../../../common/common-domain/decorator/ISO8601ToDate';
 import ImmutableFieldException from '../../../../../common/common-domain/exception/ImmutableFieldException';
-import postgres from 'postgres';
 
 export default class Lesson {
   private _lessonId: number;
