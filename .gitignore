@@ -1,0 +1,17 @@
+node_modules
+dist
+prod
+.idea
+
+coverage
+.vscode
+
+.env
+.env.*
+
+ignore
+src/modules/template
+
+infrastructure/terraform/development/.terraform
+infrastructure/terraform/development/.terraform.lock.hcl
+infrastructure/terraform/development/terraform.tfstate

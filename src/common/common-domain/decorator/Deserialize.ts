@@ -1,0 +1,13 @@
+import { Transform } from 'class-transformer';
+
+export default function Deserialize() {
+  return Transform(({ value }) => {
+    if (value === undefined) return;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    if (typeof value !== 'string') return value;
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    return JSON.parse(value);
+  });
+}

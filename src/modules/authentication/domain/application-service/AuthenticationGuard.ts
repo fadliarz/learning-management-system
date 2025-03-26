@@ -1,0 +1,64 @@
+import {
+  CanActivate,
+  ExecutionContext,
+  Inject,
+  Injectable,
+} from '@nestjs/common';
+import { AuthenticationService } from './ports/output/service/AuthenticationService';
+import { FastifyRequest } from 'fastify';
+import AuthenticationException from '../domain-core/exception/AuthenticationException';
+import { JwtService } from '@nestjs/jwt';
+import UserRepository from '../../../user/domain/application-service/ports/output/repository/UserRepository';
+import User from '../../../user/domain/domain-core/entity/User';
+import { AccessTokenPayload } from '../domain-core/entity/AccessTokenPayload';
+import { DependencyInjection } from '../../../../common/common-domain/DependencyInjection';
+
+@Injectable()
+export class AuthenticationGuard implements CanActivate {
+  constructor(
+    private readonly jwtService: JwtService,
+    @Inject(DependencyInjection.USER_REPOSITORY)
+    private readonly userRepository: UserRepository,
+    @Inject(DependencyInjection.AUTHENTICATION_SERVICE)
+    private readonly authenticationService: AuthenticationService,
+  ) {}
+
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const request: FastifyRequest = context
+      .switchToHttp()
+      .getRequest<FastifyRequest>();
+    const authHeader = request.headers.authorization;
+    if (!authHeader) {
+      throw new AuthenticationException();
+    }
+    const accessToken = authHeader.split(' ')[1];
+    if (!accessToken) {
+      throw new AuthenticationException();
+    }
+
+    try {
+      const accessTokenPayload: AccessTokenPayload =
+        this.jwtService.verify<AccessTokenPayload>(accessToken);
+
+      const now: number = Date.now();
+      if (accessTokenPayload.expiredAt <= now) {
+        const refreshToken = request.headers['x-refresh-token'];
+        if (!refreshToken || typeof refreshToken !== 'string') {
+          throw new AuthenticationException();
+        }
+        await this.authenticationService.requestNewAccessToken(refreshToken);
+      }
+
+      const user: User = await this.userRepository.findByIdOrThrow({
+        userId: accessTokenPayload.userId,
+        domainException: new AuthenticationException(),
+      });
+      user.refreshTokens = [];
+      request.executor = user;
+    } catch (exception) {
+      throw new AuthenticationException();
+    }
+
+    return true;
+  }
+}
