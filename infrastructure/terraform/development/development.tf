@@ -7,11 +7,34 @@ terraform {
   }
 }
 
+
 provider aws {
   alias   = "lms-dev"
   profile = "lms-dev"
   region  = "ap-southeast-3"
 }
+
+
+resource "aws_dynamodb_table" "video-table" {
+  provider     = aws.lms-dev
+  name         = "VIDEO_TABLE"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "lessonId"
+  range_key    = "videoId"
+
+  attribute {
+    name = "lessonId"
+    type = "N"
+  }
+  attribute {
+    name = "videoId"
+    type = "N"
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+}
+
 
 resource "aws_dynamodb_table" "user-schedule-table" {
   provider     = aws.lms-dev
@@ -26,27 +49,6 @@ resource "aws_dynamodb_table" "user-schedule-table" {
   }
   attribute {
     name = "scheduleId"
-    type = "N"
-  }
-
-  stream_enabled   = true
-  stream_view_type = "NEW_AND_OLD_IMAGES"
-}
-
-
-resource "aws_dynamodb_table" "scholarship-table" {
-  provider     = aws.lms-dev
-  name         = "SCHOLARSHIP_TABLE"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "id"
-  range_key    = "scholarshipId"
-
-  attribute {
-    name = "id"
-    type = "S"
-  }
-  attribute {
-    name = "scholarshipId"
     type = "N"
   }
 
@@ -73,6 +75,47 @@ resource "aws_dynamodb_table" "user-assignment-table" {
   stream_enabled   = true
   stream_view_type = "NEW_AND_OLD_IMAGES"
 }
+
+resource "aws_dynamodb_table" "user-table" {
+  provider     = aws.lms-dev
+  name         = "USER_TABLE"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
+  range_key    = "userId"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+  attribute {
+    name = "userId"
+    type = "N"
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+}
+
+resource "aws_dynamodb_table" "scholarship-table" {
+  provider     = aws.lms-dev
+  name         = "SCHOLARSHIP_TABLE"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
+  range_key    = "scholarshipId"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+  attribute {
+    name = "scholarshipId"
+    type = "N"
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+}
+
 
 resource "aws_dynamodb_table" "privilege-table" {
   provider     = aws.lms-dev
@@ -114,7 +157,6 @@ resource "aws_dynamodb_table" "lesson-table" {
   stream_view_type = "NEW_AND_OLD_IMAGES"
 }
 
-// ToDo: GSI
 resource "aws_dynamodb_table" "instructor-table" {
   provider     = aws.lms-dev
   name         = "INSTRUCTOR_TABLE"
@@ -123,7 +165,7 @@ resource "aws_dynamodb_table" "instructor-table" {
   range_key    = "classId"
 
   attribute {
-    name = "userIId"
+    name = "userId"
     type = "N"
   }
   attribute {
@@ -136,6 +178,26 @@ resource "aws_dynamodb_table" "instructor-table" {
     hash_key        = "classId"
     range_key       = "userId"
     projection_type = "ALL"
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+}
+
+resource "aws_dynamodb_table" "form-submission-table" {
+  provider     = aws.lms-dev
+  name         = "FORM_SUBMISSION_TABLE"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "formId"
+  range_key    = "submissionId"
+
+  attribute {
+    name = "formId"
+    type = "S"
+  }
+  attribute {
+    name = "submissionId"
+    type = "N"
   }
 
   stream_enabled   = true
@@ -290,22 +352,3 @@ resource "aws_dynamodb_table" "attachment-table" {
   stream_view_type = "NEW_AND_OLD_IMAGES"
 }
 
-resource "aws_dynamodb_table" "user-table" {
-  provider     = aws.lms-dev
-  name         = "USER_TABLE"
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "id"
-  range_key    = "userId"
-
-  attribute {
-    name = "id"
-    type = "S"
-  }
-  attribute {
-    name = "userId"
-    type = "N"
-  }
-
-  stream_enabled   = true
-  stream_view_type = "NEW_AND_OLD_IMAGES"
-}
