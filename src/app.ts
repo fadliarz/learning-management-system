@@ -1,4 +1,5 @@
 import 'reflect-metadata';
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -52,7 +53,7 @@ export default class Application {
   }
 
   public async listen(): Promise<void> {
-    await this._app.listen(8989);
+    await this._app.listen(process.env.PORT || 8989);
   }
 
   private startMemoryUsageLogging(): void {
