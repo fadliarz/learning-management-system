@@ -30,8 +30,6 @@ export class AuthenticationGuard implements CanActivate {
       .switchToHttp()
       .getRequest<FastifyRequest>();
 
-    console.log(request.cookies);
-
     const accessToken: string | undefined =
       request.cookies[this.cookieConfig.ACCESS_TOKEN_KEY];
     if (!accessToken) {
