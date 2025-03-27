@@ -87,6 +87,7 @@ export default class LessonDynamoDBRepository {
             ],
           }),
         );
+        return;
       } catch (exception) {
         if (exception instanceof CourseNotFoundException) throw exception;
         RETRIES++;

@@ -91,6 +91,7 @@ export default class VideoDynamoDBRepository {
             ],
           }),
         );
+        return;
       } catch (exception) {
         if (exception instanceof LessonNotFoundException) throw exception;
         RETRIES++;
@@ -253,6 +254,7 @@ export default class VideoDynamoDBRepository {
             }),
           );
         }
+        return;
       } catch (exception) {
         if (exception instanceof VideoNotFoundException) throw exception;
         RETRIES++;
@@ -412,6 +414,7 @@ export default class VideoDynamoDBRepository {
             ],
           }),
         );
+        return;
       } catch (exception) {
         if (exception instanceof VideoNotFoundException) throw exception;
         RETRIES++;

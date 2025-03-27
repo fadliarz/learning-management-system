@@ -16,6 +16,7 @@ import TimerService from '../../../../../common/common-domain/TimerService';
 import CategoryKey from '../entity/CategoryKey';
 import UniqueCategoryKey from '../entity/UniqueCategoryKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import CategoryTitleAlreadyExistsException from '../../../domain/domain-core/exception/CategoryTitleAlreadyExistsException';
 
 @Injectable()
 export default class CategoryDynamoDBRepository {
@@ -134,6 +135,7 @@ export default class CategoryDynamoDBRepository {
           categoryId: categoryEntity.categoryId,
           domainException: new CategoryNotFoundException(),
         });
+        if (categoryEntity.title === oldCategoryEntity.title) return;
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({
             TransactItems: [
@@ -144,7 +146,7 @@ export default class CategoryDynamoDBRepository {
                     categoryId: categoryEntity.categoryId,
                   }),
                   ConditionExpression:
-                    'attribute_exists(categoryId) AND #title = :value0',
+                    'attribute_exists(id) AND attribute_exists(categoryId) AND #title = :value0',
                   UpdateExpression: 'SET #title = :value1',
                   ExpressionAttributeNames: {
                     '#title': 'title',
@@ -158,26 +160,32 @@ export default class CategoryDynamoDBRepository {
               {
                 Put: {
                   TableName: this.dynamoDBConfig.CATEGORY_TABLE,
-                  ConditionExpression: 'attribute_not_exists(categoryId)',
-                  Item: { id: 'CATEGORY#' + categoryEntity.title },
+                  ConditionExpression:
+                    'attribute_not_exists(id) AND attribute_not_exists(categoryId)',
+                  Item: new UniqueCategoryKey({ title: categoryEntity.title }),
                 },
               },
               {
                 Delete: {
                   TableName: this.dynamoDBConfig.CATEGORY_TABLE,
-                  ConditionExpression: 'attribute_exists(categoryId)',
-                  Key: { categoryId: 'CATEGORY#' + oldCategoryEntity.title },
+                  Key: new UniqueCategoryKey({
+                    title: oldCategoryEntity.title,
+                  }),
+                  ConditionExpression:
+                    'attribute_exists(id) AND attribute_exists(categoryId)',
                 },
               },
             ],
           }),
         );
+        return;
       } catch (exception) {
-        if (exception instanceof CategoryNotFoundException) throw exception;
+        if (exception instanceof CategoryNotFoundException)
+          throw domainException;
         RETRIES++;
         if (RETRIES === MAX_RETRIES) {
           throw exception instanceof TransactionCanceledException
-            ? domainException
+            ? new CategoryTitleAlreadyExistsException()
             : exception;
         }
         await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
@@ -206,7 +214,7 @@ export default class CategoryDynamoDBRepository {
                   TableName: this.dynamoDBConfig.CATEGORY_TABLE,
                   Key: new CategoryKey({ categoryId }),
                   ConditionExpression:
-                    'attribute_exists(categoryId) AND #title = :value0',
+                    'attribute_exists(id) AND attribute_exists(categoryId) AND #title = :value0',
                   ExpressionAttributeNames: {
                     '#title': 'title',
                   },
@@ -218,21 +226,26 @@ export default class CategoryDynamoDBRepository {
               {
                 Delete: {
                   TableName: this.dynamoDBConfig.CATEGORY_TABLE,
-                  Key: { categoryId: 'CATEGORY#' + categoryEntity.title },
-                  ConditionExpression: 'attribute_exists(categoryId)',
+                  Key: new UniqueCategoryKey({ title: categoryEntity.title }),
+                  ConditionExpression:
+                    'attribute_exists(id) AND attribute_exists(categoryId)',
                 },
               },
             ],
           }),
         );
+        return;
       } catch (exception) {
-        if (exception instanceof CategoryNotFoundException) throw exception;
+        console.log(exception);
+        if (exception instanceof CategoryNotFoundException)
+          throw domainException;
         RETRIES++;
         if (RETRIES === MAX_RETRIES) {
           throw exception instanceof TransactionCanceledException
             ? domainException
             : exception;
         }
+        await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
       }
     }
   }
