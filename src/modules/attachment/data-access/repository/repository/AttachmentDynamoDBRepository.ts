@@ -67,7 +67,8 @@ export default class AttachmentDynamoDBRepository {
               Update: {
                 TableName: this.dynamoDBConfig.COURSE_TABLE,
                 Key: new CourseKey({ courseId }),
-                ConditionExpression: 'attribute_exists(courseId)',
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
                 UpdateExpression: 'ADD #numberOfAttachments :value0',
                 ExpressionAttributeNames: {
                   '#numberOfAttachments': 'numberOfAttachments',
@@ -219,7 +220,8 @@ export default class AttachmentDynamoDBRepository {
               Update: {
                 TableName: this.dynamoDBConfig.COURSE_TABLE,
                 Key: new CourseKey({ courseId }),
-                ConditionExpression: 'attribute_exists(courseId)',
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
                 UpdateExpression: 'ADD #numberOfAttachments :value0',
                 ExpressionAttributeNames: {
                   '#numberOfAttachments': 'numberOfAttachments',

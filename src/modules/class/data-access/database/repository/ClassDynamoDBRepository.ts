@@ -51,7 +51,8 @@ export default class ClassDynamoDBRepository {
               Update: {
                 TableName: this.dynamoDBConfig.COURSE_TABLE,
                 Key: new CourseKey({ courseId: classEntity.courseId }),
-                ConditionExpression: 'attribute_exists(courseId)',
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
                 UpdateExpression: 'ADD #numberOfClasses :value0',
                 ExpressionAttributeNames: {
                   '#numberOfClasses': 'numberOfClasses',
@@ -179,7 +180,8 @@ export default class ClassDynamoDBRepository {
               Update: {
                 TableName: this.dynamoDBConfig.COURSE_TABLE,
                 Key: new CourseKey({ courseId }),
-                ConditionExpression: 'attribute_exists(courseId)',
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
                 UpdateExpression: 'ADD #numberOfClasses :value0',
                 ExpressionAttributeNames: {
                   '#numberOfClasses': 'numberOfClasses',
