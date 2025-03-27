@@ -38,6 +38,7 @@ export default class AuthenticationController {
     @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<void> {
     const tokens: Tokens = await this.signInCommandHandler.execute(signInDto);
+    console.log(tokens);
     response.setCookie(this.cookieConfig.ACCESS_TOKEN_KEY, tokens.accessToken, {
       httpOnly: true,
       path: '/',
@@ -70,7 +71,7 @@ export default class AuthenticationController {
         this.cookieConfig.REFRESH_TOKEN_KEY
       ] as string,
     });
-    response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY);
-    response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY);
+    response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, { path: '/' });
+    response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, { path: '/' });
   }
 }
