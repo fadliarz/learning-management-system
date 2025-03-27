@@ -26,11 +26,11 @@ export default class DynamoDBBuilder {
     });
 
     return count == 0
-      ? {
+      ? undefined
+      : {
           UpdateExpression: `SET ${updateExpressions.join(', ')}`,
           ExpressionAttributeNames: expressionAttributeNames,
           ExpressionAttributeValues: expressionAttributeValues,
-        }
-      : undefined;
+        };
   }
 }
