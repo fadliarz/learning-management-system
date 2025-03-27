@@ -12,8 +12,7 @@ export default class CookieConfig {
       this._configService.getOrThrow<string>('COOKIE_SECRET_KEY');
     this._ACCESS_TOKEN_KEY =
       this._configService.getOrThrow<string>('ACCESS_TOKEN_KEY');
-    this._REFRESH_TOKEN_KEY =
-      this._configService.getOrThrow<string>('REFRESH_TOKEN_KEY');
+    this._REFRESH_TOKEN_KEY = 'refreshToken';
   }
 
   get COOKIE_SECRET_KEY() {
