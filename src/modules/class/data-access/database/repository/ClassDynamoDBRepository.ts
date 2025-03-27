@@ -11,6 +11,7 @@ import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
+  ResourceNotFoundException,
   TransactionCanceledException,
 } from '@aws-sdk/client-dynamodb';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -19,6 +20,7 @@ import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuil
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import ClassKey from '../entity/ClassKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 
 @Injectable()
 export default class ClassDynamoDBRepository {
@@ -63,6 +65,8 @@ export default class ClassDynamoDBRepository {
         }),
       );
     } catch (exception) {
+      if (exception instanceof ResourceNotFoundException)
+        throw new CourseNotFoundException();
       throw exception instanceof TransactionCanceledException
         ? domainException
         : exception;
@@ -147,7 +151,7 @@ export default class ClassDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
+      throw exception instanceof ConditionalCheckFailedException
         ? domainException
         : exception;
     }
