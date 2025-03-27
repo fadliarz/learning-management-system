@@ -49,7 +49,7 @@ export default class Application {
     /**
      * Cookie
      */
-    await this._app.register(fastifyCookie);
+    await this._app.register(fastifyCookie, {});
 
     /**
      * Swagger

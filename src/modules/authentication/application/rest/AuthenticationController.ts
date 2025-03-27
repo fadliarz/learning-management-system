@@ -40,7 +40,6 @@ export default class AuthenticationController {
     const tokens: Tokens = await this.signInCommandHandler.execute(signInDto);
     response.setCookie(this.cookieConfig.ACCESS_TOKEN_KEY, tokens.accessToken, {
       httpOnly: true,
-      secure: true,
       path: '/',
     });
     response.setCookie(
@@ -48,7 +47,6 @@ export default class AuthenticationController {
       tokens.refreshToken,
       {
         httpOnly: true,
-        secure: true,
         path: '/',
       },
     );
