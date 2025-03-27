@@ -14,6 +14,8 @@ import UserAssignmentModule from './modules/user-assignment/UserAssignmentModule
 import UserScheduleModule from './modules/user-schedule/UserScheduleModule';
 import FormSubmissionModule from './modules/form-submission/FormSubmissionModule';
 import AuthenticationModule from './modules/authentication/AuthenticationModule';
+import InstructorModule from './modules/instructor/InstructorModule';
+import PrivilegeModule from './modules/privilege/PrivilegeModule';
 
 @Module({
   imports: [
@@ -29,9 +31,9 @@ import AuthenticationModule from './modules/authentication/AuthenticationModule'
     CourseModule,
     EnrollmentModule,
     FormSubmissionModule,
-    // instructor
+    InstructorModule,
     LessonModule,
-    // privilege
+    PrivilegeModule,
     ScholarshipModule,
     UserModule,
     UserAssignmentModule,

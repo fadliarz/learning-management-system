@@ -12,6 +12,7 @@ import { Tokens } from '../../../../domain/domain-core/entity/Tokens';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import UserNotFoundException from '../../../../../user/domain/domain-core/exception/UserNotFoundException';
 import CookieConfig from '../../../../../../config/CookieConfig';
+import IncorrectPasswordException from '../../../../domain/domain-core/exception/IncorrectPasswordException';
 
 @Injectable()
 export default class AuthenticationServiceImpl
@@ -27,10 +28,10 @@ export default class AuthenticationServiceImpl
   public async signIn(email: string, password: string): Promise<Tokens> {
     const user: User = await this.userRepository.findByEmailOrThrow({
       email,
-      domainException: new AuthenticationException(),
+      domainException: new UserNotFoundException(),
     });
     if (!(await bcrypt.compare(password, user.password))) {
-      throw new AuthenticationException();
+      throw new IncorrectPasswordException();
     }
 
     const now: number = Date.now();
