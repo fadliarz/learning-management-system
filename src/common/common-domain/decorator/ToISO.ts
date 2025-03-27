@@ -3,11 +3,11 @@ import DomainException from '../exception/DomainException';
 
 export default function ToISO() {
   return Transform(({ value }) => {
-    if (value === undefined) return;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+    if (value === undefined || typeof value === 'string') return value;
 
-    if (typeof value !== 'object') {
+    if (typeof value !== 'object')
       throw new DomainException('The date must be an object');
-    }
 
     return (value as Date).toISOString();
   });
