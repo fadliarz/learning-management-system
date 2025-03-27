@@ -67,7 +67,14 @@ export default class Application {
   }
 
   public async listen(): Promise<void> {
-    await this._app.listen(process.env.PORT || 2212, '0.0.0.0');
+    if (
+      process.env.NODE_ENV &&
+      process.env.NODE_ENV.toLowerCase() === 'development'
+    ) {
+      await this._app.listen(process.env.PORT || 2212);
+    } else {
+      await this._app.listen(process.env.PORT || 2212, '0.0.0.0');
+    }
   }
 
   private startMemoryUsageLogging(): void {

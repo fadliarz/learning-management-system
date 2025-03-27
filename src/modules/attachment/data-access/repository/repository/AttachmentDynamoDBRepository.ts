@@ -5,6 +5,7 @@ import {
   GetCommand,
   QueryCommand,
   TransactWriteCommand,
+  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
@@ -84,9 +85,7 @@ export default class AttachmentDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof ResourceNotFoundException)
         throw new LessonNotFoundException();
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      throw exception;
     }
   }
 
@@ -161,24 +160,18 @@ export default class AttachmentDynamoDBRepository {
       const updateObj = DynamoDBBuilder.buildUpdate(restObj);
       if (!updateObj) return;
       await this.dynamoDBDocumentClient.send(
-        new TransactWriteCommand({
-          TransactItems: [
-            {
-              Update: {
-                TableName: this.dynamoDBConfig.ATTACHMENT_TABLE,
-                Key: new AttachmentKey({ lessonId, attachmentId }),
-                ConditionExpression:
-                  'attribute_exists(lessonId) AND attribute_exists(attachmentId)',
-                ...updateObj,
-              },
-            },
-          ],
+        new UpdateCommand({
+          TableName: this.dynamoDBConfig.ATTACHMENT_TABLE,
+          Key: new AttachmentKey({ lessonId, attachmentId }),
+          ConditionExpression:
+            'attribute_exists(lessonId) AND attribute_exists(attachmentId)',
+          ...updateObj,
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw domainException;
+      throw exception;
     }
   }
 
@@ -237,10 +230,9 @@ export default class AttachmentDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof ResourceNotFoundException)
         throw new LessonNotFoundException();
-
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException)
+        throw domainException;
+      throw exception;
     }
   }
 }
