@@ -113,11 +113,10 @@ export default class InstructorDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.INSTRUCTOR_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#userId = :value0 AND #classId < :value1'
+              ? '#userId = :value0 AND classId < :value1'
               : '#userId = :value0',
             ExpressionAttributeNames: {
               '#userId': 'userId',
-              '#classId': 'classId',
             },
             ExpressionAttributeValues: {
               ':value0': userId,
@@ -156,11 +155,10 @@ export default class InstructorDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.INSTRUCTOR_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#classId = :value0 AND #userId < :value1'
+              ? '#classId = :value0 AND userId < :value1'
               : '#classId = :value0',
             ExpressionAttributeNames: {
               '#classId': 'classId',
-              '#userId': 'userId',
             },
             ExpressionAttributeValues: {
               ':value0': classId,

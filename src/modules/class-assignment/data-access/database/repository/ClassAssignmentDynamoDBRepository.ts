@@ -104,11 +104,10 @@ export default class ClassAssignmentDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.CLASS_ASSIGNMENT_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#classId = :value0 AND #assignmentId < :value1'
+              ? '#classId = :value0 AND assignmentId < :value1'
               : '#classId = :value0',
             ExpressionAttributeNames: {
               '#classId': 'courseId',
-              '#assignmentId': 'classId',
             },
             ExpressionAttributeValues: {
               ':value0': classId,

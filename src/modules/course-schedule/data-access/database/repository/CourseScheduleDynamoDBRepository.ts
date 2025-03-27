@@ -63,11 +63,10 @@ export default class CourseScheduleDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.COURSE_SCHEDULE_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#courseId = :value0 AND #scheduleId < :value1'
+              ? '#courseId = :value0 AND scheduleId < :value1'
               : '#courseId = :value0',
             ExpressionAttributeNames: {
               '#courseId': 'courseId',
-              '#scheduleId': 'scheduleId',
             },
             ExpressionAttributeValues: {
               ':value0': courseId,

@@ -44,11 +44,10 @@ export default class FormSubmissionDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.FORM_SUBMISSION_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#formId = :value0 AND #submissionId < :value1'
+              ? '#formId = :value0 AND submissionId < :value1'
               : '#formId = :value0',
             ExpressionAttributeNames: {
               '#formId': 'formId',
-              '#submissionId': 'submissionId',
             },
             ExpressionAttributeValues: {
               ':value0': formId,

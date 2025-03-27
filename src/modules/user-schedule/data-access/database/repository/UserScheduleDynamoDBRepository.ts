@@ -34,11 +34,10 @@ export default class UserScheduleDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.USER_SCHEDULE_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#userId = :value0 AND #scheduleId < :value1'
+              ? '#userId = :value0 AND scheduleId < :value1'
               : '#userId = :value0',
             ExpressionAttributeNames: {
               '#userId': 'userId',
-              '#scheduleId': 'scheduleId',
             },
             ExpressionAttributeValues: {
               ':value0': userId,

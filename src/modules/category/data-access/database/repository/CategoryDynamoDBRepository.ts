@@ -75,11 +75,10 @@ export default class CategoryDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.CATEGORY_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#id = :value0 AND #categoryId < :value1'
+              ? '#id = :value0 AND categoryId < :value1'
               : '#id = :value0',
             ExpressionAttributeNames: {
               '#id': 'id',
-              '#categoryId': 'categoryId',
             },
             ExpressionAttributeValues: {
               ':value0': 'CATEGORY',

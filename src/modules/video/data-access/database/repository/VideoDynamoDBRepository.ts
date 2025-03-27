@@ -117,11 +117,10 @@ export default class VideoDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.LESSON_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#lessonId = :value0 AND #videoId < :value1'
+              ? '#lessonId = :value0 AND videoId < :value1'
               : '#lessonId = :value0',
             ExpressionAttributeNames: {
               '#lessonId': 'lessonId',
-              '#videoId': 'videoId',
             },
             ExpressionAttributeValues: {
               ':value0': lessonId,
