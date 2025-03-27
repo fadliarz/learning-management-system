@@ -56,6 +56,7 @@ export default class UserAssignmentDynamoDBRepository {
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;
     let limit: number | undefined = pagination.limit;
     do {
+      if (limit === 0) break;
       const { Items, LastEvaluatedKey } =
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
