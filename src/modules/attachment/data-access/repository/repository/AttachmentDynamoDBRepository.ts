@@ -99,11 +99,10 @@ export default class AttachmentDynamoDBRepository {
           new QueryCommand({
             TableName: this.dynamoDBConfig.ATTACHMENT_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#lessonId = :value0 AND #attachmentId < :value1'
+              ? '#lessonId = :value0 AND attachmentId < :value1'
               : '#lessonId = :value0',
             ExpressionAttributeNames: {
               '#lessonId': 'lessonId',
-              '#attachmentId': 'attachmentId',
             },
             ExpressionAttributeValues: {
               ':value0': lessonId,

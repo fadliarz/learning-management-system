@@ -5,6 +5,7 @@ import GetAttachmentsQuery from './dto/GetAttachmentsQuery';
 import AttachmentResponse from '../common/AttachmentResponse';
 import Attachment from '../../../domain-core/entity/Attachment';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
+import Pagination from '../../../../../../common/common-domain/repository/Pagination';
 
 @Injectable()
 export default class GetAttachmentsQueryHandler {
@@ -16,8 +17,10 @@ export default class GetAttachmentsQueryHandler {
   public async execute(
     getAttachmentsQuery: GetAttachmentsQuery,
   ): Promise<AttachmentResponse[]> {
-    const attachments: Attachment[] =
-      await this.attachmentRepository.findMany(getAttachmentsQuery);
+    const attachments: Attachment[] = await this.attachmentRepository.findMany({
+      ...getAttachmentsQuery,
+      pagination: strictPlainToClass(Pagination, getAttachmentsQuery),
+    });
     return attachments.map((attachments) =>
       strictPlainToClass(AttachmentResponse, attachments),
     );
