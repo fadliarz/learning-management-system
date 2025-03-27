@@ -11,6 +11,7 @@ import DomainException from '../../../../../common/common-domain/exception/Domai
 import AttachmentEntity from '../entity/AttachmentEntity';
 import {
   ConditionalCheckFailedException,
+  ResourceNotFoundException,
   TransactionCanceledException,
 } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
@@ -19,6 +20,7 @@ import AttachmentKey from '../entity/AttachmentKey';
 import LessonKey from '../../../../lesson/data-access/database/entity/LessonKey';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import LessonNotFoundException from '../../../../lesson/domain/domain-core/exception/LessonNotFoundException';
 
 @Injectable()
 export default class AttachmentDynamoDBRepository {
@@ -79,6 +81,8 @@ export default class AttachmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
+      if (exception instanceof ResourceNotFoundException)
+        throw new LessonNotFoundException();
       throw exception instanceof TransactionCanceledException
         ? domainException
         : exception;
@@ -228,6 +232,9 @@ export default class AttachmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
+      if (exception instanceof ResourceNotFoundException)
+        throw new LessonNotFoundException();
+
       throw exception instanceof ConditionalCheckFailedException
         ? domainException
         : exception;

@@ -5,12 +5,13 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import HttpException from '../../common-domain/exception/HttpException';
+import { FastifyReply } from 'fastify';
 
 @Catch()
 export default class GlobalExceptionHandler {
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const response = ctx.getResponse();
+    const response = ctx.getResponse<FastifyReply>();
     const request = ctx.getRequest();
 
     const status =
@@ -36,7 +37,6 @@ export default class GlobalExceptionHandler {
       errorObj: exception,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-call,@typescript-eslint/no-unsafe-member-access
     response.status(status).send({
       statusCode: status,
       message,

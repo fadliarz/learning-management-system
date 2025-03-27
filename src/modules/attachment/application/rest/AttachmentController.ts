@@ -105,6 +105,7 @@ export default class AttachmentController {
     );
   }
 
+  @UseGuards(AuthenticationGuard)
   @Patch('courses/:courseId/lessons/:lessonId/attachments/:attachmentId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update an attachment' })
@@ -129,6 +130,7 @@ export default class AttachmentController {
     );
   }
 
+  @UseGuards(AuthenticationGuard)
   @Delete('courses/:courseId/lessons/:lessonId/attachments/:attachmentId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete an attachment' })
