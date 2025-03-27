@@ -11,7 +11,7 @@ import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
-  TransactionCanceledException,
+  ResourceNotFoundException,
 } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -20,6 +20,7 @@ import ClassKey from '../../../../class/data-access/database/entity/ClassKey';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import ClassAssignmentKey from '../../../domain/domain-core/entity/ClassAssignmentKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import ClassNotFoundException from '../../../../class/domain/domain-core/exception/ClassNotFoundException';
 
 @Injectable()
 export default class ClassAssignmentDynamoDBRepository {
@@ -70,7 +71,8 @@ export default class ClassAssignmentDynamoDBRepository {
                 Key: new CourseKey({
                   courseId: classAssignmentEntity.courseId,
                 }),
-                ConditionExpression: 'attribute_exists(courseId)',
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
                 UpdateExpression: 'ADD #numberOfAssignments :value0',
                 ExpressionAttributeNames: {
                   '#numberOfAssignments': 'numberOfAssignments',
@@ -84,9 +86,11 @@ export default class ClassAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw domainException;
+      if (exception instanceof ResourceNotFoundException)
+        throw new ClassNotFoundException();
+      throw exception;
     }
   }
 
@@ -170,9 +174,9 @@ export default class ClassAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw domainException;
+      throw exception;
     }
   }
 
@@ -214,7 +218,8 @@ export default class ClassAssignmentDynamoDBRepository {
               Update: {
                 TableName: this.dynamoDBConfig.COURSE_TABLE,
                 Key: new CourseKey({ courseId }),
-                ConditionExpression: 'attribute_exists(courseId)',
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
                 UpdateExpression: 'ADD #numberOfAssignments :value0',
                 ExpressionAttributeNames: {
                   '#numberOfAssignments': 'numberOfAssignments',
@@ -228,9 +233,9 @@ export default class ClassAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof ResourceNotFoundException)
+        throw new ClassNotFoundException();
+      throw exception;
     }
   }
 }
