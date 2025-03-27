@@ -5,8 +5,8 @@ import Category from '../../../domain-core/entity/Category';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import CategoryResponse from '../common/CategoryResponse';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
+import CategoryTitleAlreadyExistsException from '../../../domain-core/exception/CategoryTitleAlreadyExistsException';
 
 @Injectable()
 export default class CreateCategoryCommandHandler {
@@ -29,7 +29,7 @@ export default class CreateCategoryCommandHandler {
     category.create();
     await this.categoryRepository.saveIfNotExistsOrThrow({
       category,
-      domainException: new DomainException(),
+      domainException: new CategoryTitleAlreadyExistsException(),
     });
     return strictPlainToClass(CategoryResponse, category);
   }
