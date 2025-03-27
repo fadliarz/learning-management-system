@@ -51,7 +51,6 @@ jobs:
           export ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}
           export REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
           export SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}
-          
           export PORT=${{ secrets.PORT }}
           pm2 stop lms
           pm2 restart ecosystem.config.js
