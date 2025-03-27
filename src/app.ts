@@ -9,9 +9,9 @@ import { ValidationPipe } from '@nestjs/common';
 import GlobalExceptionHandler from './common/common-application/handler/GlobalExceptionHandler';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import AppModule from './AppModule';
-import fastifyCookie from '@fastify/cookie';
 import { RuntimeException } from '@nestjs/core/errors/exceptions';
 import CookieConfig from './config/CookieConfig';
+import fastifyCookie from '@fastify/cookie';
 
 export default class Application {
   private _app: NestFastifyApplication;
@@ -49,9 +49,7 @@ export default class Application {
     /**
      * Cookie
      */
-    await this._app.register(fastifyCookie, {
-      secret: this.cookieConfig.COOKIE_SECRET_KEY,
-    });
+    await this._app.register(fastifyCookie);
 
     /**
      * Swagger
@@ -73,21 +71,24 @@ export default class Application {
   }
 
   private startMemoryUsageLogging(): void {
-    setInterval(() => {
-      const memoryUsage = process.memoryUsage();
-      console.log(`Memory Usage at ${new Date().toISOString()}:`);
-      console.log(
-        `  RSS (Resident Set Size): ${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
-      );
-      console.log(
-        `  Heap Total: ${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
-      );
-      console.log(
-        `  Heap Used: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
-      );
-      console.log(
-        `  External: ${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`,
-      );
-    }, 60 * 1000); // Log every 1 minute (60 seconds)
+    setInterval(
+      () => {
+        const memoryUsage = process.memoryUsage();
+        console.log(`Memory Usage at ${new Date().toISOString()}:`);
+        console.log(
+          `  RSS (Resident Set Size): ${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`,
+        );
+        console.log(
+          `  Heap Total: ${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`,
+        );
+        console.log(
+          `  Heap Used: ${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`,
+        );
+        console.log(
+          `  External: ${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`,
+        );
+      },
+      1000 * 60 * 15,
+    );
   }
 }

@@ -12,11 +12,13 @@ import UserDynamoDbRepository from './user/data-access/database/repository/UserD
 import PrivilegeRepositoryImpl from './privilege/data-access/database/adapter/PrivilegeRepositoryImpl';
 import PrivilegeDynamoDBRepository from './privilege/data-access/database/repository/PrivilegeDynamoDBRepository';
 import CookieConfig from '../config/CookieConfig';
+import GlobalConfig from '../config/GlobalConfig';
 
 @Global()
 @Module({
   imports: [],
   providers: [
+    GlobalConfig,
     DynamoDBConfig,
     CookieConfig,
     {
@@ -48,6 +50,7 @@ import CookieConfig from '../config/CookieConfig';
     PrivilegeDynamoDBRepository,
   ],
   exports: [
+    GlobalConfig,
     DynamoDBConfig,
     CookieConfig,
     {

@@ -131,14 +131,6 @@ export default class UserDynamoDBRepository {
                   'attribute_exists(id) AND attribute_exists(userId)',
               },
             },
-            {
-              Put: {
-                TableName: this.dynamoDBConfig.USER_TABLE,
-                Item: new UniqueEmailKey({ email: userEntity.email, userId }),
-                ConditionExpression:
-                  'attribute_exists(id) AND attribute_exists(userId)',
-              },
-            },
           ],
         }),
       );

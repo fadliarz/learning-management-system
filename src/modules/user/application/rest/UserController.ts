@@ -8,10 +8,11 @@ import {
   Patch,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { FastifyRequest } from 'fastify';
+import { FastifyReply, FastifyRequest } from 'fastify';
 import { AuthenticationGuard } from '../../../authentication/domain/application-service/AuthenticationGuard';
 import UpdateUserProfileDto from '../../domain/application-service/features/update-user-profile/dto/UpdateUserProfileDto';
 import UpdateUserProfileCommandHandler from '../../domain/application-service/features/update-user-profile/UpdateUserProfileCommandHandler';
@@ -21,12 +22,14 @@ import UpdateUserPasswordCommandHandler from '../../domain/application-service/f
 import UserWrapperResponse from './response/UserWrapperResponse';
 import CreateUserDto from '../../domain/application-service/features/create-user/dto/CreateUserDto';
 import UpdateUserPasswordDto from '../../domain/application-service/features/update-user-password/dto/UpdateUserPasswordDto';
+import CookieConfig from '../../../../config/CookieConfig';
 
 @Injectable()
 @Controller('api/v1/users')
 @ApiTags('User')
 export default class UserController {
   constructor(
+    private readonly cookieConfig: CookieConfig,
     private readonly createUserCommandHandler: CreateUserCommandHandler,
     private readonly getMeQueryHandler: GetMeQueryHandler,
     private readonly updateUserProfileCommandHandler: UpdateUserProfileCommandHandler,
@@ -43,12 +46,18 @@ export default class UserController {
   })
   public async createUser(
     @Body() createUserDto: CreateUserDto,
+    @Res({ passthrough: true }) response: FastifyReply,
   ): Promise<UserWrapperResponse> {
-    return new UserWrapperResponse(
+    const { userResponse, tokens } =
       await this.createUserCommandHandler.execute({
         ...createUserDto,
-      }),
+      });
+    response.setCookie(this.cookieConfig.ACCESS_TOKEN_KEY, tokens.accessToken);
+    response.setCookie(
+      this.cookieConfig.REFRESH_TOKEN_KEY,
+      tokens.refreshToken,
     );
+    return new UserWrapperResponse(userResponse);
   }
 
   @UseGuards(AuthenticationGuard)

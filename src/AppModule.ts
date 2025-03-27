@@ -13,6 +13,7 @@ import ScholarshipModule from './modules/scholarship/ScholarshipModule';
 import UserAssignmentModule from './modules/user-assignment/UserAssignmentModule';
 import UserScheduleModule from './modules/user-schedule/UserScheduleModule';
 import FormSubmissionModule from './modules/form-submission/FormSubmissionModule';
+import AuthenticationModule from './modules/authentication/AuthenticationModule';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import FormSubmissionModule from './modules/form-submission/FormSubmissionModule
       isGlobal: true,
     }),
     AttachmentModule,
+    AuthenticationModule,
     CategoryModule,
     ClassModule,
     ClassAssignmentModule,
