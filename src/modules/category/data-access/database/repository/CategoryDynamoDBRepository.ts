@@ -236,7 +236,6 @@ export default class CategoryDynamoDBRepository {
         );
         return;
       } catch (exception) {
-        console.log(exception);
         if (exception instanceof CategoryNotFoundException)
           throw domainException;
         RETRIES++;
