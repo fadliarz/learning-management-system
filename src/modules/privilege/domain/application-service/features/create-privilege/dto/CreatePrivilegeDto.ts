@@ -1,10 +1,10 @@
 import { Permission } from '../../../../domain-core/entity/Permission';
-import { IsEnum, IsString } from 'class-validator';
+import { IsEnum, IsInt } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export default class CreatePrivilegeDto {
   @ApiProperty()
-  @IsString({ message: 'executor must be a string' })
+  @IsInt({ message: 'userId must be a number' })
   public userId: number;
 
   @ApiProperty({ enum: Permission })
