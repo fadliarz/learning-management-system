@@ -12,7 +12,6 @@ import DomainException from '../../../../../common/common-domain/exception/Domai
 import AttachmentEntity from '../entity/AttachmentEntity';
 import {
   ConditionalCheckFailedException,
-  ResourceNotFoundException,
   TransactionCanceledException,
 } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
@@ -22,6 +21,8 @@ import LessonKey from '../../../../lesson/data-access/database/entity/LessonKey'
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import LessonNotFoundException from '../../../../lesson/domain/domain-core/exception/LessonNotFoundException';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 
 @Injectable()
 export default class AttachmentDynamoDBRepository {
@@ -83,8 +84,25 @@ export default class AttachmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ResourceNotFoundException)
-        throw new LessonNotFoundException();
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw domainException;
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new LessonNotFoundException();
+        if (
+          CancellationReasons[2].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CourseNotFoundException();
+      }
       throw exception;
     }
   }
@@ -228,10 +246,25 @@ export default class AttachmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ResourceNotFoundException)
-        throw new LessonNotFoundException();
-      if (exception instanceof TransactionCanceledException)
-        throw domainException;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw domainException;
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+        if (
+          CancellationReasons[2].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+      }
       throw exception;
     }
   }

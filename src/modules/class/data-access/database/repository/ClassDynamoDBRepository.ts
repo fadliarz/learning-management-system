@@ -11,7 +11,6 @@ import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
-  ResourceNotFoundException,
   TransactionCanceledException,
 } from '@aws-sdk/client-dynamodb';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -20,7 +19,9 @@ import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuil
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import ClassKey from '../entity/ClassKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
+import ClassNotFoundException from '../../../domain/domain-core/exception/ClassNotFoundException';
 
 @Injectable()
 export default class ClassDynamoDBRepository {
@@ -66,11 +67,21 @@ export default class ClassDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ResourceNotFoundException)
-        throw new CourseNotFoundException();
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw domainException;
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CourseNotFoundException();
+      }
+      throw exception;
     }
   }
 
@@ -152,9 +163,9 @@ export default class ClassDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw domainException;
+      throw exception;
     }
   }
 
@@ -195,9 +206,21 @@ export default class ClassDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new ClassNotFoundException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+      }
+      throw exception;
     }
   }
 }

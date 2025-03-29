@@ -14,6 +14,12 @@ import { ApiProperty } from '@nestjs/swagger';
 export default class UpdateUserProfileDto {
   @ApiProperty({ required: false })
   @IsOptional()
+  @IsString({ message: 'Avatar must be a string' })
+  @IsNotEmpty({ message: 'Avatar must not be empty' })
+  public avatar: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString({ message: 'Phone number must be a string' })
   @IsNotEmpty({ message: 'Phone number must not be empty' })
   @MinLength(8, { message: 'Phone number must be at least 8 characters long' })

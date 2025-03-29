@@ -7,6 +7,7 @@ import {
   GetCommand,
   QueryCommand,
   TransactWriteCommand,
+  UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import {
   ConditionalCheckFailedException,
@@ -17,6 +18,7 @@ import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuil
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import UniqueEmailKey from '../entity/UniqueEmailKey';
 import UserKey from '../entity/UserKey';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 
 @Injectable()
 export default class UserDynamoDBRepository {
@@ -59,7 +61,18 @@ export default class UserDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
-        throw domainException;
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new DomainException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw domainException;
       }
       throw exception;
     }
@@ -120,18 +133,12 @@ export default class UserDynamoDBRepository {
       const updateObj = DynamoDBBuilder.buildUpdate(restObj);
       if (!updateObj) return;
       await this.dynamoDBDocumentClient.send(
-        new TransactWriteCommand({
-          TransactItems: [
-            {
-              Update: {
-                TableName: this.dynamoDBConfig.USER_TABLE,
-                Key: new UserKey({ userId }),
-                ...updateObj,
-                ConditionExpression:
-                  'attribute_exists(id) AND attribute_exists(userId)',
-              },
-            },
-          ],
+        new UpdateCommand({
+          TableName: this.dynamoDBConfig.USER_TABLE,
+          Key: new UserKey({ userId }),
+          ...updateObj,
+          ConditionExpression:
+            'attribute_exists(id) AND attribute_exists(userId)',
         }),
       );
     } catch (exception) {

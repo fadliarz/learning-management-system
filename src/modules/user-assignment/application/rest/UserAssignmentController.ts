@@ -16,7 +16,6 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
-import { UUID } from 'node:crypto';
 import { AuthenticationGuard } from '../../../authentication/domain/application-service/AuthenticationGuard';
 import PaginationDto from '../../../../common/common-domain/PaginationDto';
 import CreateUserAssignmentCommandHandler from '../../domain/application-service/features/create-assignment/CreateUserAssignmentCommandHandler';
@@ -114,14 +113,14 @@ export default class UserAssignmentController {
     type: UserAssignmentWrapperResponse,
   })
   public async updateUserAssignment(
-    @Param('assignmentId', ParseIntPipe) assignmentId: UUID,
+    @Param('assignmentId', ParseIntPipe) assignmentId: number,
     @Req() request: FastifyRequest,
     @Body() updateUserAssignmentDto: UpdateUserAssignmentDto,
   ): Promise<UserAssignmentWrapperResponse> {
     return new UserAssignmentWrapperResponse(
       await this.updateUserAssignmentCommandHandler.execute({
         executor: request.executor,
-        id: assignmentId,
+        assignmentId,
         ...updateUserAssignmentDto,
       }),
     );

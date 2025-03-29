@@ -6,10 +6,14 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
-import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import EnrollmentEntity from '../entity/EnrollmentEntity';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import EnrollmentKey from '../entity/EnrollmentKey';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import EnrollmentAlreadyExistsException from '../../../domain/domain-core/exception/EnrollmentAlreadyExistsException';
+import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
+import EnrollmentNotFoundException from '../../../domain/domain-core/exception/EnrollmentNotFoundException';
 
 @Injectable()
 export default class EnrollmentDynamoDBRepository {
@@ -55,9 +59,21 @@ export default class EnrollmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw new DomainException();
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new EnrollmentAlreadyExistsException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CourseNotFoundException();
+      }
+      throw exception;
     }
   }
 
@@ -105,9 +121,21 @@ export default class EnrollmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw new DomainException();
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new EnrollmentNotFoundException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+      }
+      throw exception;
     }
   }
 }

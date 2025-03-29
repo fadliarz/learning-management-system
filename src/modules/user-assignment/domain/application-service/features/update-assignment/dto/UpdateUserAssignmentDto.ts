@@ -8,6 +8,7 @@ import {
 } from 'class-validator';
 import { AssignmentTaskType } from '../../../../../../../common/common-domain/AssignmentTaskType';
 import { ApiProperty } from '@nestjs/swagger';
+import { CompletionStatus } from '../../../../domain-core/entity/CompletionStatus';
 
 export default class UpdateUserAssignmentDto {
   @ApiProperty({ required: false })
@@ -54,4 +55,11 @@ export default class UpdateUserAssignmentDto {
     message: 'The task type must be a valid AssignmentTaskType',
   })
   public taskType: AssignmentTaskType;
+
+  @ApiProperty({ required: false, enum: CompletionStatus })
+  @IsOptional()
+  @IsEnum(CompletionStatus, {
+    message: 'The completion status must be a valid CompletionStatus',
+  })
+  public completionStatus: CompletionStatus;
 }

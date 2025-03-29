@@ -13,6 +13,11 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsValidMechEngEmail } from '../../../../../../../common/common-domain/decorator/IsValidMechEngEmail';
 
 export default class CreateUserDto {
+  @ApiProperty()
+  @IsString({ message: 'Avatar must be a string' })
+  @IsNotEmpty({ message: 'Avatar must not be empty' })
+  public avatar: string;
+
   @ApiProperty({
     description: 'User email (must be a valid email)',
     example: '13121140@mahasiswa.itb.ac.id',

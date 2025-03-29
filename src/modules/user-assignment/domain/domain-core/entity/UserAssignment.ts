@@ -4,6 +4,7 @@ import { Expose } from 'class-transformer';
 import ISO8601ToDate from '../../../../../common/common-domain/decorator/ISO8601ToDate';
 import TimeFactory from '../../../../../common/common-domain/helper/TimeFactory';
 import ImmutableFieldException from '../../../../../common/common-domain/exception/ImmutableFieldException';
+import { CompletionStatus } from './CompletionStatus';
 
 export default class UserAssignment {
   private _assignmentId: number;
@@ -15,12 +16,14 @@ export default class UserAssignment {
   private _description: string;
   private _taskType: AssignmentTaskType;
   private _assignmentType: AssignmentType;
+  private _completionStatus: CompletionStatus;
   private _createdAt: Date;
   private _classId: number;
   private _classAssignmentId: number;
 
   public create(): void {
     this._assignmentId = TimeFactory.dateToRandomMicroseconds(this._deadline);
+    this._completionStatus = CompletionStatus.NOT_STARTED;
     this._createdAt = TimeFactory.generate();
   }
 
@@ -80,6 +83,11 @@ export default class UserAssignment {
     }
 
     this._assignmentType = value;
+  }
+
+  @Expose()
+  set completionStatus(value: CompletionStatus) {
+    this._completionStatus = value;
   }
 
   @Expose()
@@ -144,6 +152,10 @@ export default class UserAssignment {
 
   get assignmentType(): AssignmentType {
     return this._assignmentType;
+  }
+
+  get completionStatus(): CompletionStatus {
+    return this._completionStatus;
   }
 
   get createdAt(): Date {

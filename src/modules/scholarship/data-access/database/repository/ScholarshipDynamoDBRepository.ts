@@ -9,14 +9,12 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
-import {
-  ConditionalCheckFailedException,
-  TransactionCanceledException,
-} from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import ScholarshipEntity from '../entity/ScholarshipEntity';
 import ScholarshipKey from '../entity/ScholarshipKey';
+import ScholarshipNotFoundException from '../../../domain/domain-core/exception/ScholarshipNotFoundException';
 
 @Injectable()
 export default class ScholarshipDynamoDBRepository {
@@ -41,9 +39,7 @@ export default class ScholarshipDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      throw exception;
     }
   }
 
@@ -61,7 +57,6 @@ export default class ScholarshipDynamoDBRepository {
     if (!response.Item) {
       throw domainException;
     }
-
     return strictPlainToClass(ScholarshipEntity, response.Item);
   }
 
@@ -84,9 +79,9 @@ export default class ScholarshipDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw new ScholarshipNotFoundException();
+      throw exception;
     }
   }
 
@@ -105,9 +100,9 @@ export default class ScholarshipDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw new ScholarshipNotFoundException();
+      throw exception;
     }
   }
 }

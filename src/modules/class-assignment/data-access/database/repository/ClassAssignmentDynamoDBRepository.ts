@@ -12,6 +12,7 @@ import DomainException from '../../../../../common/common-domain/exception/Domai
 import {
   ConditionalCheckFailedException,
   ResourceNotFoundException,
+  TransactionCanceledException,
 } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -86,10 +87,10 @@ export default class ClassAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
       if (exception instanceof ResourceNotFoundException)
         throw new ClassNotFoundException();
+      if (exception instanceof TransactionCanceledException)
+        throw domainException;
       throw exception;
     }
   }

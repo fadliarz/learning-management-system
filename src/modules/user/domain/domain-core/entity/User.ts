@@ -9,6 +9,7 @@ import ToArray from '../../../../../common/common-domain/decorator/ToArray';
 
 export default class User {
   private _userId: number;
+  private _avatar: string;
   private _email: string;
   private _password: string;
   private _phoneNumber: string;
@@ -39,6 +40,11 @@ export default class User {
     this._createdAt = now;
     this._role = UserRole.STUDENT;
     this._numberOfManagedClasses = 0;
+  }
+
+  @Expose()
+  set avatar(value: string) {
+    this._avatar = value;
   }
 
   @Expose()
@@ -163,6 +169,10 @@ export default class User {
 
   get userId(): number {
     return this._userId;
+  }
+
+  get avatar(): string {
+    return this._avatar;
   }
 
   get email(): string {

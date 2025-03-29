@@ -9,7 +9,7 @@ import UserRepository from '../../../../../user/domain/application-service/ports
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import User from '../../../../../user/domain/domain-core/entity/User';
 import UserNotFoundException from '../../../../../user/domain/domain-core/exception/UserNotFoundException';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
+import InstructorAlreadyExistsException from '../../../domain-core/exception/InstructorAlreadyExistsException';
 
 @Injectable()
 export default class CreateInstructorCommandHandler {
@@ -38,7 +38,7 @@ export default class CreateInstructorCommandHandler {
     instructor.create();
     await this.instructorRepository.saveIfNotExistsOrThrow({
       instructor,
-      domainException: new DomainException(),
+      domainException: new InstructorAlreadyExistsException(),
     });
     return strictPlainToClass(InstructorResponse, instructor);
   }

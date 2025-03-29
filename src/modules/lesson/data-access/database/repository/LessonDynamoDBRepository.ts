@@ -23,6 +23,8 @@ import CourseNotFoundException from '../../../../course/domain/domain-core/excep
 import CourseDynamoDBRepository from '../../../../course/data-access/database/repository/CourseDynamoDBRepository';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import LessonKey from '../entity/LessonKey';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import LessonNotFoundException from '../../../domain/domain-core/exception/LessonNotFoundException';
 
 @Injectable()
 export default class LessonDynamoDBRepository {
@@ -90,11 +92,19 @@ export default class LessonDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof CourseNotFoundException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw exception;
+          if (
+            CancellationReasons[0].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw exception;
+        }
         RETRIES++;
-        if (RETRIES == MAX_RETRIES)
-          throw exception instanceof TransactionCanceledException
-            ? domainException
-            : exception;
+        if (RETRIES === MAX_RETRIES) {
+          throw exception;
+        }
         await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
       }
     }
@@ -180,9 +190,9 @@ export default class LessonDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw new LessonNotFoundException();
+      throw exception;
     }
   }
 
@@ -297,9 +307,21 @@ export default class LessonDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new LessonNotFoundException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+      }
+      throw exception;
     }
   }
 }

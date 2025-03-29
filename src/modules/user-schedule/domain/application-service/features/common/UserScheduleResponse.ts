@@ -14,7 +14,7 @@ export default class UserScheduleResponse {
   @Expose()
   public title: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   @Expose()
   public description: string;
 

@@ -10,10 +10,7 @@ import {
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
-import {
-  ConditionalCheckFailedException,
-  TransactionCanceledException,
-} from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import CourseScheduleEntity from '../entity/CourseScheduleEntity';
@@ -43,9 +40,9 @@ export default class CourseScheduleDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw domainException;
+      throw exception;
     }
   }
 
@@ -131,9 +128,9 @@ export default class CourseScheduleDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw domainException;
+      throw exception;
     }
   }
 
@@ -153,9 +150,9 @@ export default class CourseScheduleDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof ConditionalCheckFailedException)
+        throw domainException;
+      throw exception;
     }
   }
 }

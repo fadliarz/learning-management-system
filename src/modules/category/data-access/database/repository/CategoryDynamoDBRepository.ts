@@ -17,6 +17,7 @@ import CategoryKey from '../entity/CategoryKey';
 import UniqueCategoryKey from '../entity/UniqueCategoryKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import CategoryTitleAlreadyExistsException from '../../../domain/domain-core/exception/CategoryTitleAlreadyExistsException';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 
 @Injectable()
 export default class CategoryDynamoDBRepository {
@@ -57,9 +58,21 @@ export default class CategoryDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new DomainException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CategoryTitleAlreadyExistsException();
+      }
+      throw domainException;
     }
   }
 
@@ -184,9 +197,16 @@ export default class CategoryDynamoDBRepository {
           throw domainException;
         RETRIES++;
         if (RETRIES === MAX_RETRIES) {
-          throw exception instanceof TransactionCanceledException
-            ? new CategoryTitleAlreadyExistsException()
-            : exception;
+          if (exception instanceof TransactionCanceledException) {
+            const { CancellationReasons } = exception;
+            if (!CancellationReasons) throw new DomainException();
+            if (
+              CancellationReasons[1].Code ===
+              DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+            )
+              throw new CategoryTitleAlreadyExistsException();
+          }
+          throw exception;
         }
         await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
       }
@@ -240,9 +260,9 @@ export default class CategoryDynamoDBRepository {
           throw domainException;
         RETRIES++;
         if (RETRIES === MAX_RETRIES) {
-          throw exception instanceof TransactionCanceledException
-            ? domainException
-            : exception;
+          if (exception instanceof TransactionCanceledException)
+            throw domainException;
+          throw exception;
         }
         await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
       }

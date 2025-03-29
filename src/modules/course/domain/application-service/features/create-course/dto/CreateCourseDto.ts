@@ -1,10 +1,4 @@
-import {
-  ArrayMaxSize,
-  IsNotEmpty,
-  IsOptional,
-  IsString,
-  MaxLength,
-} from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export default class CreateCourseDto {
@@ -31,14 +25,4 @@ export default class CreateCourseDto {
   @IsString({ message: 'Description must be a string' })
   @MaxLength(512, { message: 'Description must be at most 512 characters' })
   public description: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsString({ each: true })
-  @ArrayMaxSize(32, { message: 'Categories must be at most 32' })
-  @MaxLength(32, {
-    each: true,
-    message: 'Category must be at most 32 characters',
-  })
-  public categories: string[];
 }

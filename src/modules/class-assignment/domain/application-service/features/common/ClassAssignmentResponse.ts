@@ -1,4 +1,3 @@
-import { UUID } from 'node:crypto';
 import { AssignmentTaskType } from '../../../../../../common/common-domain/AssignmentTaskType';
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -10,11 +9,11 @@ export default class ClassAssignmentResponse {
 
   @ApiProperty()
   @Expose()
-  public courseId: UUID;
+  public courseId: number;
 
   @ApiProperty()
   @Expose()
-  public classId: UUID;
+  public classId: number;
 
   @ApiProperty()
   @Expose()

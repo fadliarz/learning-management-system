@@ -2,11 +2,12 @@ import { AssignmentTaskType } from '../../../../../../common/common-domain/Assig
 import { AssignmentType } from '../../../domain-core/entity/AssignmentType';
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import { CompletionStatus } from '../../../domain-core/entity/CompletionStatus';
 
 export default class UserAssignmentResponse {
   @ApiProperty()
   @Expose()
-  public assignmentID: number;
+  public assignmentId: number;
 
   @ApiProperty()
   @Expose()
@@ -39,6 +40,10 @@ export default class UserAssignmentResponse {
   @ApiProperty({ enum: AssignmentType })
   @Expose()
   public assignmentType: AssignmentType;
+
+  @ApiProperty({ enum: CompletionStatus })
+  @Expose()
+  public completionStatus: CompletionStatus;
 
   @ApiProperty()
   @Expose()

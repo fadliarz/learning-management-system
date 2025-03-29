@@ -10,6 +10,10 @@ export default class UserResponse {
 
   @ApiProperty()
   @Expose()
+  public avatar: string;
+
+  @ApiProperty()
+  @Expose()
   public email: string;
 
   @ApiProperty()

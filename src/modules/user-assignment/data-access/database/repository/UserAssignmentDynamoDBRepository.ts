@@ -41,9 +41,7 @@ export default class UserAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      throw exception;
     }
   }
 

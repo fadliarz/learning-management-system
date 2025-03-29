@@ -16,5 +16,13 @@ export default class InstructorResponse {
 
   @ApiProperty()
   @Expose()
+  name: string;
+
+  @ApiProperty()
+  @Expose()
+  NIM: string;
+
+  @ApiProperty()
+  @Expose()
   createdAt: Date;
 }

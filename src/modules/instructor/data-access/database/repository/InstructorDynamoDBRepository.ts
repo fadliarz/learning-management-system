@@ -6,7 +6,7 @@ import {
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import InstructorEntity from '../entity/InstructorEntity';
 import ClassKey from '../../../../class/data-access/database/entity/ClassKey';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
@@ -15,6 +15,12 @@ import InstructorKey from '../entity/InstructorKey';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import InstructorAlreadyExistsException from '../../../domain/domain-core/exception/InstructorAlreadyExistsException';
+import ClassNotFoundException from '../../../../class/domain/domain-core/exception/ClassNotFoundException';
+import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
+import UserNotFoundException from '../../../../user/domain/domain-core/exception/UserNotFoundException';
+import InstructorNotFoundException from '../../../domain/domain-core/exception/InstructorNotFoundException';
 
 @Injectable()
 export default class InstructorDynamoDBRepository {
@@ -93,9 +99,31 @@ export default class InstructorDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw new DomainException();
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new InstructorAlreadyExistsException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new ClassNotFoundException();
+        if (
+          CancellationReasons[2].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CourseNotFoundException();
+        if (
+          CancellationReasons[3].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new UserNotFoundException();
+      }
+      throw exception;
     }
   }
 
@@ -253,9 +281,31 @@ export default class InstructorDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof ConditionalCheckFailedException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw new DomainException();
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new InstructorNotFoundException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new ClassNotFoundException();
+        if (
+          CancellationReasons[2].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CourseNotFoundException();
+        if (
+          CancellationReasons[3].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new UserNotFoundException();
+      }
+      throw exception;
     }
   }
 }

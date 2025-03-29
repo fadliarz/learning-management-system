@@ -14,6 +14,8 @@ import strictPlainToClass from '../../../../../common/common-domain/mapper/stric
 import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import UserKey from '../../../../user/data-access/database/entity/UserKey';
 import PrivilegeKey from '../entity/PrivilegeKey';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import UserNotFoundException from '../../../../user/domain/domain-core/exception/UserNotFoundException';
 
 @Injectable()
 export default class PrivilegeDynamoDBRepository {
@@ -58,7 +60,21 @@ export default class PrivilegeDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (!(exception instanceof TransactionCanceledException)) throw exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new UserNotFoundException();
+      }
+      throw exception;
     }
   }
 
@@ -134,7 +150,21 @@ export default class PrivilegeDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (!(exception instanceof TransactionCanceledException)) throw exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new UserNotFoundException();
+      }
+      throw exception;
     }
   }
 }

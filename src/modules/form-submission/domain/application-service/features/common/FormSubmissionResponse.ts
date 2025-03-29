@@ -15,6 +15,14 @@ export default class FormSubmissionResponse {
   @Expose()
   public userId: number;
 
+  @ApiProperty()
+  @Expose()
+  public name: string;
+
+  @ApiProperty()
+  @Expose()
+  public NIM: string;
+
   @ApiProperty({
     type: [ResponseItem],
   })

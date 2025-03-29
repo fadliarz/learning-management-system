@@ -4,7 +4,6 @@ import {
   IsOptional,
   IsString,
   MaxLength,
-  ValidateIf,
 } from 'class-validator';
 
 export default class CreateCourseScheduleDto {
@@ -25,24 +24,12 @@ export default class CreateCourseScheduleDto {
   @MaxLength(64, { message: 'The location must be less than 64 characters' })
   public location: string;
 
-  @ValidateIf(
-    (o: CreateCourseScheduleDto): boolean => o.endDate === undefined,
-    {
-      message: 'The start date is required if the end date is not provided',
-    },
-  )
   @IsISO8601(
     { strict: true },
     { message: 'The deadline must be a valid ISO 8601 date' },
   )
   public startDate: Date;
 
-  @ValidateIf(
-    (o: CreateCourseScheduleDto): boolean => o.startDate === undefined,
-    {
-      message: 'The end date is required if the start date is not provided',
-    },
-  )
   @IsISO8601(
     { strict: true },
     { message: 'The deadline must be a valid ISO 8601 date' },

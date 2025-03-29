@@ -10,6 +10,9 @@ export default class UserEntity {
   public userId: number;
 
   @Expose()
+  public avatar: string;
+
+  @Expose()
   public email: string;
 
   @Expose()

@@ -9,10 +9,7 @@ import {
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import VideoEntity from '../entity/VideoEntity';
-import {
-  ConditionalCheckFailedException,
-  TransactionCanceledException,
-} from '@aws-sdk/client-dynamodb';
+import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import TimerService from '../../../../../common/common-domain/TimerService';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
@@ -25,6 +22,9 @@ import LessonKey from '../../../../lesson/data-access/database/entity/LessonKey'
 import VideoKey from '../entity/VideoKey';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import VideoRearrangedException from '../../../domain/domain-core/exception/VideoRearrangedException';
+import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 
 @Injectable()
 export default class VideoDynamoDBRepository {
@@ -94,11 +94,17 @@ export default class VideoDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof LessonNotFoundException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw exception;
+          if (
+            CancellationReasons[0].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw exception;
+        }
         RETRIES++;
-        if (RETRIES == MAX_RETRIES)
-          throw exception instanceof TransactionCanceledException
-            ? domainException
-            : exception;
+        if (RETRIES == MAX_RETRIES) throw exception;
         await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
       }
     }
@@ -259,9 +265,7 @@ export default class VideoDynamoDBRepository {
         if (exception instanceof VideoNotFoundException) throw exception;
         RETRIES++;
         if (RETRIES === MAX_RETRIES) {
-          throw exception instanceof ConditionalCheckFailedException
-            ? domainException
-            : exception;
+          throw exception;
         }
       }
     }
@@ -334,9 +338,16 @@ export default class VideoDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      throw exception instanceof TransactionCanceledException
-        ? domainException
-        : exception;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new VideoRearrangedException();
+      }
+      throw exception;
     }
   }
 
@@ -419,9 +430,21 @@ export default class VideoDynamoDBRepository {
         if (exception instanceof VideoNotFoundException) throw exception;
         RETRIES++;
         if (RETRIES == MAX_RETRIES) {
-          throw exception instanceof TransactionCanceledException
-            ? domainException
-            : exception;
+          if (exception instanceof TransactionCanceledException) {
+            const { CancellationReasons } = exception;
+            if (!CancellationReasons) throw exception;
+            if (
+              CancellationReasons[1].Code ===
+              DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+            )
+              throw new LessonNotFoundException();
+            if (
+              CancellationReasons[1].Code ===
+              DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+            )
+              throw new CourseNotFoundException();
+          }
+          throw exception;
         }
       }
     }

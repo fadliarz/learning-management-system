@@ -2,6 +2,7 @@ import User from '../../../../domain-core/entity/User';
 
 export default class UpdateUserProfileCommand {
   public executor: User;
+  public avatar: string;
   public phoneNumber: string;
   public about: string;
   public dateOfBirth: string;

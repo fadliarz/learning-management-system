@@ -33,5 +33,8 @@ export default class UserAssignmentEntity {
   public assignmentType: AssignmentType;
 
   @Expose()
+  public completionStatus: string;
+
+  @Expose()
   public createdAt: string;
 }
