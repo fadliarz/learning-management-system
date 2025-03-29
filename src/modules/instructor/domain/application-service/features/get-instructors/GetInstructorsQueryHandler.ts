@@ -7,12 +7,17 @@ import InstructorRepository from '../../ports/output/InstructorRepository';
 import InstructorResponse from '../common/InstructorResponse';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import Pagination from '../../../../../../common/common-domain/repository/Pagination';
+import UserRepository from '../../../../../user/domain/application-service/ports/output/repository/UserRepository';
+import UserNotFoundException from '../../../../../user/domain/domain-core/exception/UserNotFoundException';
+import User from '../../../../../user/domain/domain-core/entity/User';
 
 export default class GetInstructorsQueryHandler {
   constructor(
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.INSTRUCTOR_REPOSITORY)
     private readonly instructorRepository: InstructorRepository,
+    @Inject(DependencyInjection.USER_REPOSITORY)
+    private readonly userRepository: UserRepository,
   ) {}
 
   public async getInstructors(
@@ -26,8 +31,28 @@ export default class GetInstructorsQueryHandler {
         ...getInstructorsQuery,
         pagination: strictPlainToClass(Pagination, getInstructorsQuery),
       });
-    return instructors.map((instructor) =>
-      strictPlainToClass(InstructorResponse, instructor),
-    );
+
+    const instructorResponses: InstructorResponse[] = [];
+    for (const instructor of instructors) {
+      try {
+        const instructorResponse: InstructorResponse = strictPlainToClass(
+          InstructorResponse,
+          instructor,
+        );
+        const user: User = await this.userRepository.findByIdOrThrow({
+          userId: instructor.userId,
+          domainException: new UserNotFoundException(),
+        });
+        instructorResponse.name = user.name;
+        instructorResponse.NIM = user.email.split('@')[0];
+        instructorResponses.push(instructorResponse);
+      } catch (exception) {
+        if (exception instanceof UserNotFoundException) {
+          continue;
+        }
+        throw exception;
+      }
+    }
+    return instructorResponses;
   }
 }
