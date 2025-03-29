@@ -9,4 +9,20 @@ export default class TimerService {
       }, milliseconds);
     });
   }
+
+  public static async sleepWithExponentialBackoff(
+    baseDelay: number,
+    attempt: number,
+  ): Promise<void> {
+    return new Promise((resolve) => {
+      setTimeout(
+        () => {
+          resolve();
+        },
+        baseDelay +
+          Math.pow(2, attempt) +
+          Math.floor(Math.random() * baseDelay),
+      );
+    });
+  }
 }
