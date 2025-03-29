@@ -38,7 +38,10 @@ export default class PrivilegeDynamoDBRepository {
                 TableName: this.dynamoDBConfig.PRIVILEGE_TABLE,
                 Item: privilegeEntity,
                 ConditionExpression:
-                  'attribute_not_exists(userId) AND attribute_not_exists(permission)',
+                  'attribute_not_exists(userId) AND attribute_not_exists(#permission)',
+                ExpressionAttributeNames: {
+                  '#permission': 'permission',
+                },
               },
             },
             {
@@ -128,7 +131,10 @@ export default class PrivilegeDynamoDBRepository {
                 TableName: this.dynamoDBConfig.PRIVILEGE_TABLE,
                 Key: new PrivilegeKey({ userId, permission }),
                 ConditionExpression:
-                  'attribute_not_exists(userId) AND attribute_not_exists(permission)',
+                  'attribute_exists(userId) AND attribute_exists(#permission)',
+                ExpressionAttributeNames: {
+                  '#permission': 'permission',
+                },
               },
             },
             {
@@ -150,6 +156,7 @@ export default class PrivilegeDynamoDBRepository {
         }),
       );
     } catch (exception) {
+      console.log(exception);
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
         if (!CancellationReasons) throw exception;
