@@ -156,7 +156,6 @@ export default class PrivilegeDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      console.log(exception);
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
         if (!CancellationReasons) throw exception;
