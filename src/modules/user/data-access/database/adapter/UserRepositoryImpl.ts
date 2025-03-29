@@ -5,6 +5,7 @@ import User from '../../../domain/domain-core/entity/User';
 import UserDynamoDBRepository from '../repository/UserDynamoDBRepository';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import UserEntity from '../entity/UserEntity';
+import Pagination from '../../../../../common/common-domain/repository/Pagination';
 
 @Injectable()
 export default class UserRepositoryImpl implements UserRepository {
@@ -20,6 +21,14 @@ export default class UserRepositoryImpl implements UserRepository {
       ...param,
       userEntity: strictPlainToClass(UserEntity, param.user),
     });
+  }
+
+  public async findMany(param: { pagination: Pagination }): Promise<User[]> {
+    const userEntities: UserEntity[] =
+      await this.userDynamoDBRepository.findMany(param);
+    return userEntities.map((userEntity) =>
+      strictPlainToClass(User, userEntity),
+    );
   }
 
   public async findByIdOrThrow(param: {

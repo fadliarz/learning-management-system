@@ -7,6 +7,7 @@ import {
   Injectable,
   Patch,
   Post,
+  Query,
   Req,
   Res,
   UseGuards,
@@ -25,6 +26,9 @@ import UpdateUserPasswordDto from '../../domain/application-service/features/upd
 import CookieConfig from '../../../../config/CookieConfig';
 import PrivilegesWrapperResponse from '../../../privilege/application/rest/response/PrivilegesWrapperResponse';
 import GetUserPrivilegesQueryHandler from '../../domain/application-service/features/get-user-privileges/GetUserPrivilegesQueryHandler';
+import GetPublicUsersQueryHandler from '../../domain/application-service/features/get-public-users/GetPublicUsersQueryHandler';
+import PublicUsersWrapperResponse from './response/PublicUsersWrapperResponse';
+import PaginationDto from '../../../../common/common-domain/PaginationDto';
 
 @Injectable()
 @Controller('api/v1/users')
@@ -35,6 +39,7 @@ export default class UserController {
     private readonly createUserCommandHandler: CreateUserCommandHandler,
     private readonly getMeQueryHandler: GetMeQueryHandler,
     private readonly getUserPrivilegesQueryHandler: GetUserPrivilegesQueryHandler,
+    private readonly getPublicUsersQueryHandler: GetPublicUsersQueryHandler,
     private readonly updateUserProfileCommandHandler: UpdateUserProfileCommandHandler,
     private readonly updateUserPasswordCommandHandler: UpdateUserPasswordCommandHandler,
   ) {}
@@ -95,6 +100,26 @@ export default class UserController {
     return new PrivilegesWrapperResponse(
       await this.getUserPrivilegesQueryHandler.execute({
         executor: request.executor,
+      }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('public')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get public users' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Public users retrieved successfully',
+    type: PublicUsersWrapperResponse,
+  })
+  public async getPublicUsers(
+    @Req() request: FastifyRequest,
+    @Query() query: PaginationDto,
+  ): Promise<PublicUsersWrapperResponse> {
+    return new PublicUsersWrapperResponse(
+      await this.getPublicUsersQueryHandler.execute({
+        ...query,
       }),
     );
   }

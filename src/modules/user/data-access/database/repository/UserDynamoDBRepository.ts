@@ -19,6 +19,7 @@ import { DependencyInjection } from '../../../../../common/common-domain/Depende
 import UniqueEmailKey from '../entity/UniqueEmailKey';
 import UserKey from '../entity/UserKey';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import Pagination from '../../../../../common/common-domain/repository/Pagination';
 
 @Injectable()
 export default class UserDynamoDBRepository {
@@ -76,6 +77,53 @@ export default class UserDynamoDBRepository {
       }
       throw exception;
     }
+  }
+
+  public async findMany(param: {
+    pagination: Pagination;
+  }): Promise<UserEntity[]> {
+    const { pagination } = param;
+    const userEntities: UserEntity[] = [];
+    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
+    let limit: number | undefined = pagination.limit;
+    do {
+      if (limit === 0) break;
+      const { Items, LastEvaluatedKey } =
+        await this.dynamoDBDocumentClient.send(
+          new QueryCommand({
+            TableName: this.dynamoDBConfig.USER_TABLE,
+            KeyConditionExpression: pagination.lastEvaluatedId
+              ? '#id = :value0 AND userId < :value1'
+              : '#id = :value0',
+            ExpressionAttributeNames: {
+              '#id': 'id',
+              '#userId': 'userId',
+              '#avatar': 'avatar',
+              '#name': 'name',
+              '#email': 'email',
+            },
+            ExpressionAttributeValues: {
+              ':value0': 'USER',
+              ...(pagination.lastEvaluatedId
+                ? { ':value1': pagination.lastEvaluatedId }
+                : {}),
+            },
+            ProjectionExpression: '#userId, #avatar, #email, #name',
+            ExclusiveStartKey: lastEvaluatedKey,
+            Limit: limit,
+          }),
+        );
+      if (Items) {
+        userEntities.push(
+          ...Items.map((item) => strictPlainToClass(UserEntity, item)),
+        );
+      }
+      lastEvaluatedKey = LastEvaluatedKey as Record<string, any> | undefined;
+      if (limit) {
+        limit = pagination.limit - userEntities.length;
+      }
+    } while (lastEvaluatedKey);
+    return userEntities;
   }
 
   public async findByIdOrThrow(param: {
