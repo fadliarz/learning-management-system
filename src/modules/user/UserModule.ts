@@ -5,6 +5,7 @@ import GetMeQueryHandler from './domain/application-service/features/get-me/GetM
 import UpdateUserProfileCommandHandler from './domain/application-service/features/update-user-profile/UpdateUserProfileCommandHandler';
 import UpdateUserPasswordCommandHandler from './domain/application-service/features/update-user-password/UpdateUserPasswordCommandHandler';
 import ConfigModule from '../ConfigModule';
+import GetUserPrivilegesQueryHandler from './domain/application-service/features/get-user-privileges/GetUserPrivilegesQueryHandler';
 
 @Module({
   imports: [ConfigModule],
@@ -12,6 +13,7 @@ import ConfigModule from '../ConfigModule';
   providers: [
     CreateUserCommandHandler,
     GetMeQueryHandler,
+    GetUserPrivilegesQueryHandler,
     UpdateUserProfileCommandHandler,
     UpdateUserPasswordCommandHandler,
   ],

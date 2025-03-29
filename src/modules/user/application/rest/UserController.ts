@@ -23,6 +23,8 @@ import UserWrapperResponse from './response/UserWrapperResponse';
 import CreateUserDto from '../../domain/application-service/features/create-user/dto/CreateUserDto';
 import UpdateUserPasswordDto from '../../domain/application-service/features/update-user-password/dto/UpdateUserPasswordDto';
 import CookieConfig from '../../../../config/CookieConfig';
+import PrivilegesWrapperResponse from '../../../privilege/application/rest/response/PrivilegesWrapperResponse';
+import GetUserPrivilegesQueryHandler from '../../domain/application-service/features/get-user-privileges/GetUserPrivilegesQueryHandler';
 
 @Injectable()
 @Controller('api/v1/users')
@@ -32,6 +34,7 @@ export default class UserController {
     private readonly cookieConfig: CookieConfig,
     private readonly createUserCommandHandler: CreateUserCommandHandler,
     private readonly getMeQueryHandler: GetMeQueryHandler,
+    private readonly getUserPrivilegesQueryHandler: GetUserPrivilegesQueryHandler,
     private readonly updateUserProfileCommandHandler: UpdateUserProfileCommandHandler,
     private readonly updateUserPasswordCommandHandler: UpdateUserPasswordCommandHandler,
   ) {}
@@ -74,6 +77,25 @@ export default class UserController {
   ): Promise<UserWrapperResponse> {
     return new UserWrapperResponse(
       await this.getMeQueryHandler.execute({ executor: request.executor }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('privileges')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get current user privileges' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User privileges retrieved successfully',
+    type: PrivilegesWrapperResponse,
+  })
+  public async getUserPrivileges(
+    @Req() request: FastifyRequest,
+  ): Promise<PrivilegesWrapperResponse> {
+    return new PrivilegesWrapperResponse(
+      await this.getUserPrivilegesQueryHandler.execute({
+        executor: request.executor,
+      }),
     );
   }
 
