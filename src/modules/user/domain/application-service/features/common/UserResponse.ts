@@ -76,7 +76,7 @@ export default class UserResponse {
   @Expose()
   public numberOfManagedClasses: number;
 
-  @ApiProperty()
+  @ApiProperty({ enum: [Permission] })
   @Expose()
   public permissions: Permission[];
 }
