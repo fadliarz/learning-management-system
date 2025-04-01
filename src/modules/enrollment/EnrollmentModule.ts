@@ -5,13 +5,12 @@ import CreateEnrollmentCommandHandler from './domain/application-service/feature
 import DeleteEnrollmentCommandHandler from './domain/application-service/features/delete-enrollment/DeleteEnrollmentCommandHandler';
 import EnrollmentRepositoryImpl from './data-access/database/adapter/EnrollmentRepositoryImpl';
 import ConfigModule from '../ConfigModule';
-import UserModule from '../user/UserModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import ClassModule from '../class/ClassModule';
 import EnrollmentDynamoDBRepository from './data-access/database/repository/EnrollmentDynamoDBRepository';
 
 @Module({
-  imports: [ConfigModule, UserModule, PrivilegeModule, ClassModule],
+  imports: [ConfigModule, PrivilegeModule, ClassModule],
   controllers: [EnrollmentController],
   providers: [
     CreateEnrollmentCommandHandler,

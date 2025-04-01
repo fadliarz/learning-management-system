@@ -9,11 +9,10 @@ import DeleteCourseCommandHandler from './domain/application-service/features/de
 import CourseRepositoryImpl from './data-access/database/adapter/CourseRepositoryImpl';
 import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
-import UserModule from '../user/UserModule';
 import CourseDynamoDBRepository from './data-access/database/repository/CourseDynamoDBRepository';
 
 @Module({
-  imports: [ConfigModule, UserModule, PrivilegeModule],
+  imports: [ConfigModule, PrivilegeModule],
   controllers: [CourseController],
   providers: [
     CreateCourseCommandHandler,
