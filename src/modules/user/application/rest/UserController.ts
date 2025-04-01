@@ -29,6 +29,8 @@ import GetUserPrivilegesQueryHandler from '../../domain/application-service/feat
 import GetPublicUsersQueryHandler from '../../domain/application-service/features/get-public-users/GetPublicUsersQueryHandler';
 import PublicUsersWrapperResponse from './response/PublicUsersWrapperResponse';
 import PaginationDto from '../../../../common/common-domain/PaginationDto';
+import GetUserEnrolledCoursesQueryHandler from '../../domain/application-service/features/get-user-enrolled-courses/GetUserEnrolledCoursesQueryHandler';
+import CoursesWrapperResponse from '../../../course/application/rest/response/CoursesWrapperResponse';
 
 @Injectable()
 @Controller('api/v1/users')
@@ -40,6 +42,7 @@ export default class UserController {
     private readonly getMeQueryHandler: GetMeQueryHandler,
     private readonly getUserPrivilegesQueryHandler: GetUserPrivilegesQueryHandler,
     private readonly getPublicUsersQueryHandler: GetPublicUsersQueryHandler,
+    private readonly getUserEnrolledCoursesQueryHandler: GetUserEnrolledCoursesQueryHandler,
     private readonly updateUserProfileCommandHandler: UpdateUserProfileCommandHandler,
     private readonly updateUserPasswordCommandHandler: UpdateUserPasswordCommandHandler,
   ) {}
@@ -120,6 +123,27 @@ export default class UserController {
     return new PublicUsersWrapperResponse(
       await this.getPublicUsersQueryHandler.execute({
         ...query,
+      }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('enrolled-courses')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get user enrolled courses' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User enrolled courses retrieved successfully',
+    type: CoursesWrapperResponse,
+  })
+  public async getUserEnrolledCourses(
+    @Req() request: FastifyRequest,
+    @Query() query: PaginationDto,
+  ): Promise<CoursesWrapperResponse> {
+    return new CoursesWrapperResponse(
+      await this.getUserEnrolledCoursesQueryHandler.execute({
+        ...query,
+        executor: request.executor,
       }),
     );
   }
