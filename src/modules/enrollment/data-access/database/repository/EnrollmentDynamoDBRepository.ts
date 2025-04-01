@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import {
   DynamoDBDocumentClient,
+  QueryCommand,
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
@@ -14,6 +15,8 @@ import { DynamoDBExceptionCode } from '../../../../../common/common-domain/Dynam
 import EnrollmentAlreadyExistsException from '../../../domain/domain-core/exception/EnrollmentAlreadyExistsException';
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 import EnrollmentNotFoundException from '../../../domain/domain-core/exception/EnrollmentNotFoundException';
+import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 
 @Injectable()
 export default class EnrollmentDynamoDBRepository {
@@ -75,6 +78,49 @@ export default class EnrollmentDynamoDBRepository {
       }
       throw exception;
     }
+  }
+
+  public async findMany(param: {
+    userId: number;
+    pagination: Pagination;
+  }): Promise<EnrollmentEntity[]> {
+    const { userId, pagination } = param;
+    const enrollmentEntities: EnrollmentEntity[] = [];
+    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
+    let limit: number | undefined = pagination.limit;
+    do {
+      if (limit === 0) break;
+      const { Items, LastEvaluatedKey } =
+        await this.dynamoDBDocumentClient.send(
+          new QueryCommand({
+            TableName: this.dynamoDBConfig.CLASS_ASSIGNMENT_TABLE,
+            KeyConditionExpression: pagination.lastEvaluatedId
+              ? '#userId = :value0 AND classId < :value1'
+              : '#userId = :value0',
+            ExpressionAttributeNames: {
+              '#userId': 'courseId',
+            },
+            ExpressionAttributeValues: {
+              ':value0': userId,
+              ...(pagination.lastEvaluatedId
+                ? { ':value1': pagination.lastEvaluatedId }
+                : {}),
+            },
+            ExclusiveStartKey: lastEvaluatedKey,
+            Limit: limit,
+          }),
+        );
+      if (Items) {
+        enrollmentEntities.push(
+          ...Items.map((item) => strictPlainToClass(EnrollmentEntity, item)),
+        );
+      }
+      lastEvaluatedKey = LastEvaluatedKey as Record<string, any> | undefined;
+      if (limit) {
+        limit = pagination.limit - enrollmentEntities.length;
+      }
+    } while (lastEvaluatedKey);
+    return enrollmentEntities;
   }
 
   public async deleteIfExistsOrThrow(param: {

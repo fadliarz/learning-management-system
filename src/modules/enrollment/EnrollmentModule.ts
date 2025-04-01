@@ -22,6 +22,12 @@ import EnrollmentDynamoDBRepository from './data-access/database/repository/Enro
     },
     EnrollmentDynamoDBRepository,
   ],
-  exports: [],
+  exports: [
+    {
+      provide: DependencyInjection.ENROLLMENT_REPOSITORY,
+      useClass: EnrollmentRepositoryImpl,
+    },
+    EnrollmentDynamoDBRepository,
+  ],
 })
 export default class EnrollmentModule {}
