@@ -93,12 +93,12 @@ export default class EnrollmentDynamoDBRepository {
       const { Items, LastEvaluatedKey } =
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
-            TableName: this.dynamoDBConfig.CLASS_ASSIGNMENT_TABLE,
+            TableName: this.dynamoDBConfig.ENROLLMENT_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
               ? '#userId = :value0 AND classId < :value1'
               : '#userId = :value0',
             ExpressionAttributeNames: {
-              '#userId': 'courseId',
+              '#userId': 'userId',
             },
             ExpressionAttributeValues: {
               ':value0': userId,
