@@ -58,7 +58,7 @@ export default class UserAssignmentDynamoDBRepository {
       const { Items, LastEvaluatedKey } =
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
-            TableName: this.dynamoDBConfig.CLASS_TABLE,
+            TableName: this.dynamoDBConfig.USER_ASSIGNMENT_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
               ? '#userId = :value0 AND assignmentId < :value1'
               : '#userId = :value0',
