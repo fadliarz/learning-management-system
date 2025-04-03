@@ -24,9 +24,6 @@ export default class LessonEntity {
   public numberOfAttachments: number;
 
   @Expose()
-  public position: number;
-
-  @Expose()
   @ToISO()
   public createdAt: string;
 
@@ -35,8 +32,8 @@ export default class LessonEntity {
   public updatedAt: string;
 
   @Expose()
-  public videoPositionVersion: number;
+  public version: number;
 
   @Expose()
-  public videoLastPosition: number;
+  public videoArrangementVersion: number;
 }

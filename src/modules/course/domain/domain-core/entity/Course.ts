@@ -20,8 +20,8 @@ export default class Course {
   private _categories: string[];
   private _createdAt: Date;
   private _updatedAt: Date;
-  private _lessonPositionVersion: number;
-  private _lessonLastPosition: number;
+  private _version: number;
+  private _lessonArrangementVersion: number;
 
   public update(): void {
     this._updatedAt = TimeFactory.generate();
@@ -40,8 +40,8 @@ export default class Course {
     this._numberOfAttachments = 0;
     this._categories = [];
     this._createdAt = now;
-    this._lessonPositionVersion = 0;
-    this._lessonLastPosition = 0;
+    this._version = 1;
+    this._lessonArrangementVersion = 1;
   }
 
   @Expose()
@@ -171,21 +171,21 @@ export default class Course {
   }
 
   @Expose()
-  set lessonPositionVersion(value: number) {
-    if (this._lessonPositionVersion !== undefined) {
+  set version(value: number) {
+    if (this._version !== undefined) {
       throw new ImmutableFieldException();
     }
 
-    this._lessonPositionVersion = value;
+    this._version = value;
   }
 
   @Expose()
-  set lessonLastPosition(value: number) {
-    if (this._lessonLastPosition !== undefined) {
+  set lessonArrangementVersion(value: number) {
+    if (this._lessonArrangementVersion !== undefined) {
       throw new ImmutableFieldException();
     }
 
-    this._lessonLastPosition = value;
+    this._lessonArrangementVersion = value;
   }
 
   get courseId(): number {
@@ -252,11 +252,11 @@ export default class Course {
     return this._updatedAt;
   }
 
-  get lessonPositionVersion(): number {
-    return this._lessonPositionVersion;
+  get version(): number {
+    return this._version;
   }
 
-  get lessonLastPosition(): number {
-    return this._lessonLastPosition;
+  get lessonArrangementVersion(): number {
+    return this._lessonArrangementVersion;
   }
 }

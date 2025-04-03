@@ -9,12 +9,19 @@ import VideoRepositoryImpl from './data-access/database/adapter/VideoRepositoryI
 import VideoController from './application/rest/VideoController';
 import ConfigModule from '../ConfigModule';
 import UserModule from '../user/UserModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
 import VideoDynamoDBRepository from './data-access/database/repository/VideoDynamoDBRepository';
 import LessonModule from '../lesson/LessonModule';
+import CourseModule from '../course/CourseModule';
+import PrivilegeModule from '../privilege/PrivilegeModule';
 
 @Module({
-  imports: [ConfigModule, UserModule, PrivilegeModule, LessonModule],
+  imports: [
+    ConfigModule,
+    UserModule,
+    PrivilegeModule,
+    LessonModule,
+    CourseModule,
+  ],
   controllers: [VideoController],
   providers: [
     CreateVideoCommandHandler,
@@ -30,5 +37,4 @@ import LessonModule from '../lesson/LessonModule';
   ],
   exports: [],
 })
-export default class VideoModule {
-}
+export default class VideoModule {}

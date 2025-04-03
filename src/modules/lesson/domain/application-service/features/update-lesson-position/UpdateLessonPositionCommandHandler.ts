@@ -55,7 +55,6 @@ export default class UpdateLessonPositionCommandHandler {
     const lesson: Lesson = new Lesson();
     lesson.lessonId = updateLessonPositionCommand.upperLessonId;
     lesson.courseId = updateLessonPositionCommand.courseId;
-    lesson.position = updateLessonPositionCommand.upperLessonPosition;
     return lesson;
   }
 
@@ -71,7 +70,6 @@ export default class UpdateLessonPositionCommandHandler {
     const lesson: Lesson = new Lesson();
     lesson.lessonId = updateLessonPositionCommand.lowerLessonId;
     lesson.courseId = updateLessonPositionCommand.courseId;
-    lesson.position = updateLessonPositionCommand.lowerLessonPosition;
     return lesson;
   }
 }

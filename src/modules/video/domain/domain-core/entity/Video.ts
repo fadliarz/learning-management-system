@@ -12,7 +12,6 @@ export default class Video {
   private _description: string;
   private _durationInSec: number;
   private _youtubeLink: string;
-  private _position: number;
   private _createdAt: Date;
   private _updatedAt: Date;
 
@@ -74,11 +73,6 @@ export default class Video {
   }
 
   @Expose()
-  set position(value: number) {
-    this._position = value;
-  }
-
-  @Expose()
   @ISO8601ToDate()
   set createdAt(value: Date) {
     if (this._createdAt !== undefined) {
@@ -120,10 +114,6 @@ export default class Video {
 
   get youtubeLink(): string {
     return this._youtubeLink;
-  }
-
-  get position(): number {
-    return this._position;
   }
 
   get createdAt(): Date {

@@ -53,8 +53,8 @@ export default class CourseEntity {
   public updatedAt: Date;
 
   @Expose()
-  public lessonPositionVersion: number;
+  public version: number;
 
   @Expose()
-  public lessonLastPosition: number;
+  public lessonArrangementVersion: number;
 }

@@ -58,7 +58,6 @@ export default class UpdateVideoPositionCommandHandler {
     video.videoId = updateVideoPositionCommand.upperVideoId;
     video.courseId = updateVideoPositionCommand.courseId;
     video.lessonId = updateVideoPositionCommand.lessonId;
-    video.position = updateVideoPositionCommand.upperVideoPosition;
     return video;
   }
 
@@ -74,7 +73,6 @@ export default class UpdateVideoPositionCommandHandler {
     video.videoId = updateVideoPositionCommand.lowerVideoId;
     video.courseId = updateVideoPositionCommand.courseId;
     video.lessonId = updateVideoPositionCommand.lessonId;
-    video.position = updateVideoPositionCommand.lowerVideoPosition;
     return video;
   }
 }

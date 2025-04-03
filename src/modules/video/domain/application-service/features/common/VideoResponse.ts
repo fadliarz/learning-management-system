@@ -32,10 +32,6 @@ export default class VideoResponse {
 
   @ApiProperty()
   @Expose()
-  public position: number;
-
-  @ApiProperty()
-  @Expose()
   public createdAt: Date;
 
   @ApiProperty({ required: false })

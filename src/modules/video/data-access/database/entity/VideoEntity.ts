@@ -24,9 +24,6 @@ export default class VideoEntity {
   public youtubeLink: string;
 
   @Expose()
-  public position: number;
-
-  @Expose()
   @ToISO()
   public createdAt: string;
 

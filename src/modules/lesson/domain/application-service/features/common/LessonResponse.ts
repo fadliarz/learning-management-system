@@ -32,10 +32,6 @@ export default class LessonResponse {
 
   @ApiProperty()
   @Expose()
-  public position: number;
-
-  @ApiProperty()
-  @Expose()
   public createdAt: Date;
 
   @ApiProperty({ required: false })
@@ -44,5 +40,9 @@ export default class LessonResponse {
 
   @ApiProperty()
   @Expose()
-  public videoPositionVersion: number;
+  public version: number;
+
+  @ApiProperty()
+  @Expose()
+  public videoArrangementVersion: number;
 }

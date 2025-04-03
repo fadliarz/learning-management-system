@@ -70,7 +70,7 @@ export default class LessonRepositoryImpl implements LessonRepository {
       lowerLesson: param.lowerLesson
         ? strictPlainToClass(LessonEntity, param.lowerLesson)
         : null,
-      version: param.version,
+      lessonArrangementVersion: param.version,
       domainException: param.domainException,
     });
   }

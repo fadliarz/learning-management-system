@@ -9,7 +9,10 @@ import {
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import VideoEntity from '../entity/VideoEntity';
-import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  TransactionCanceledException,
+} from '@aws-sdk/client-dynamodb';
 import TimerService from '../../../../../common/common-domain/TimerService';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
@@ -25,27 +28,27 @@ import Pagination from '../../../../../common/common-domain/repository/Paginatio
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import VideoRearrangedException from '../../../domain/domain-core/exception/VideoRearrangedException';
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
+import CourseDynamoDBRepository from '../../../../course/data-access/database/repository/CourseDynamoDBRepository';
+import CourseEntity from '../../../../course/data-access/database/entity/CourseEntity';
 
 @Injectable()
 export default class VideoDynamoDBRepository {
-  private readonly POSITION_INCREMENT: number = 10000;
-  private readonly BACKOFF_IN_MS: number = 300;
-
   constructor(
     @Inject(DependencyInjection.DYNAMODB_DOCUMENT_CLIENT)
     private readonly dynamoDBDocumentClient: DynamoDBDocumentClient,
     private readonly dynamoDBConfig: DynamoDBConfig,
     private readonly lessonDynamoDBRepository: LessonDynamoDBRepository,
+    private readonly courseDynamoDBRepository: CourseDynamoDBRepository,
   ) {}
 
   public async saveIfNotExistsOrThrow(param: {
     videoEntity: VideoEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { videoEntity, domainException } = param;
+    const { videoEntity } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 5;
-    while (RETRIES < MAX_RETRIES) {
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
       try {
         const lessonEntity: LessonEntity =
           await this.lessonDynamoDBRepository.findByIdOrThrow({
@@ -53,8 +56,11 @@ export default class VideoDynamoDBRepository {
             courseId: videoEntity.courseId,
             domainException: new LessonNotFoundException(),
           });
-        videoEntity.position =
-          lessonEntity.videoLastPosition + this.POSITION_INCREMENT;
+        const courseEntity: CourseEntity =
+          await this.courseDynamoDBRepository.findByIdOrThrow({
+            courseId: videoEntity.courseId,
+            domainException: new CourseNotFoundException(),
+          });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({
             TransactItems: [
@@ -74,17 +80,49 @@ export default class VideoDynamoDBRepository {
                     lessonId: videoEntity.lessonId,
                   }),
                   ConditionExpression:
-                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #videoPositionVersion = :value2',
+                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #videoArrangementVersion = :value0 AND #version = :value1',
                   UpdateExpression:
-                    'ADD #videoPositionVersion :value0, ADD #videoLastPosition :value1',
+                    'SET #numberOfVideos = :value2, #numberOfDurations = :value3, #videoArrangementVersion = :value4, #version = :value5',
                   ExpressionAttributeNames: {
-                    '#videoPositionVersion': 'videoPositionVersion',
-                    '#videoLastPosition': 'videoLastPosition',
+                    '#videoArrangementVersion': 'videoArrangementVersion',
+                    '#version': 'version',
+                    '#numberOfVideos': 'numberOfVideos',
+                    '#numberOfDurations': 'numberOfDurations',
                   },
                   ExpressionAttributeValues: {
-                    ':value0': 1,
-                    ':value1': this.POSITION_INCREMENT,
-                    ':value2': lessonEntity.videoPositionVersion,
+                    ':value0': lessonEntity.videoArrangementVersion,
+                    ':value1': lessonEntity.version,
+                    ':value2': lessonEntity.numberOfVideos + 1,
+                    ':value3':
+                      lessonEntity.numberOfDurations +
+                      videoEntity.durationInSec,
+                    ':value4': lessonEntity.videoArrangementVersion + 1,
+                    ':value5': lessonEntity.version + 1,
+                  },
+                },
+              },
+              {
+                Update: {
+                  TableName: this.dynamoDBConfig.COURSE_TABLE,
+                  Key: new CourseKey({
+                    courseId: videoEntity.courseId,
+                  }),
+                  ConditionExpression:
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #version = :value0',
+                  UpdateExpression:
+                    'SET #numberOfVideos = :value1, #numberOfDurations = :value2, #version = :value3',
+                  ExpressionAttributeNames: {
+                    '#version': 'version',
+                    '#numberOfVideos': 'numberOfVideos',
+                    '#numberOfDurations': 'numberOfDurations',
+                  },
+                  ExpressionAttributeValues: {
+                    ':value0': courseEntity.version,
+                    ':value1': courseEntity.numberOfVideos + 1,
+                    ':value2':
+                      courseEntity.numberOfDurations +
+                      videoEntity.durationInSec,
+                    ':value3': courseEntity.version + 1,
                   },
                 },
               },
@@ -104,8 +142,8 @@ export default class VideoDynamoDBRepository {
             throw exception;
         }
         RETRIES++;
-        if (RETRIES == MAX_RETRIES) throw exception;
-        await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
+        if (RETRIES === MAX_RETRIES) throw exception;
+        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
@@ -176,8 +214,8 @@ export default class VideoDynamoDBRepository {
     domainException: DomainException;
   }): Promise<void> {
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 5;
-    while (RETRIES < MAX_RETRIES) {
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
       const { videoEntity, domainException } = param;
       try {
         const { lessonId, videoId, ...restObj } = videoEntity;
@@ -189,6 +227,19 @@ export default class VideoDynamoDBRepository {
             videoId,
             domainException: new VideoNotFoundException(),
           });
+          const lessonEntity: LessonEntity =
+            await this.lessonDynamoDBRepository.findByIdOrThrow({
+              courseId: videoEntity.courseId,
+              lessonId,
+              domainException: new LessonNotFoundException(),
+            });
+          const courseEntity: CourseEntity =
+            await this.courseDynamoDBRepository.findByIdOrThrow({
+              courseId: videoEntity.courseId,
+              domainException: new CourseNotFoundException(),
+            });
+          const durationIncrement: number =
+            videoEntity.durationInSec + oldVideoEntity.durationInSec;
           await this.dynamoDBDocumentClient.send(
             new TransactWriteCommand({
               TransactItems: [
@@ -215,15 +266,18 @@ export default class VideoDynamoDBRepository {
                       lessonId,
                     }),
                     ConditionExpression:
-                      'attribute_exists(courseId) AND attribute_exists(id)',
-                    UpdateExpression: 'ADD #numberOfDurations :value0',
+                      'attribute_exists(courseId) AND attribute_exists(lessonId) AND #version = :value0',
+                    UpdateExpression:
+                      'SET #numberOfDurations = :value1, #version = :value2',
                     ExpressionAttributeNames: {
+                      '#version': 'version',
                       '#numberOfDurations': 'numberOfDurations',
                     },
                     ExpressionAttributeValues: {
-                      ':value0':
-                        videoEntity.durationInSec -
-                        oldVideoEntity.durationInSec,
+                      ':value0': lessonEntity.version,
+                      ':value1':
+                        lessonEntity.numberOfDurations + durationIncrement,
+                      ':value2': lessonEntity.version + 1,
                     },
                   },
                 },
@@ -234,15 +288,18 @@ export default class VideoDynamoDBRepository {
                       courseId: videoEntity.courseId,
                     }),
                     ConditionExpression:
-                      'attribute_exists(id) AND attribute_exists(courseId)',
-                    UpdateExpression: 'ADD #numberOfDurations :value0',
+                      'attribute_exists(id) AND attribute_exists(courseId) AND #version = :value0',
+                    UpdateExpression:
+                      'SET #numberOfDurations = :value1, #version = :value2',
                     ExpressionAttributeNames: {
+                      '#version': 'version',
                       '#numberOfDurations': 'numberOfDurations',
                     },
                     ExpressionAttributeValues: {
-                      ':value0':
-                        videoEntity.durationInSec -
-                        oldVideoEntity.durationInSec,
+                      ':value0': courseEntity.version,
+                      ':value1':
+                        courseEntity.numberOfDurations + durationIncrement,
+                      ':value2': courseEntity.version + 1,
                     },
                   },
                 },
@@ -263,10 +320,13 @@ export default class VideoDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof VideoNotFoundException) throw exception;
+        if (exception instanceof LessonNotFoundException) throw exception;
+        if (exception instanceof CourseNotFoundException) throw exception;
+        if (exception instanceof ConditionalCheckFailedException)
+          throw new VideoNotFoundException();
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) {
-          throw exception;
-        }
+        if (RETRIES === MAX_RETRIES) throw exception;
+        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
@@ -278,77 +338,130 @@ export default class VideoDynamoDBRepository {
     version: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { video, upperVideo, lowerVideo, version, domainException } = param;
+    const { video, upperVideo, lowerVideo, version } = param;
     const lessonId: number = video.lessonId;
-    try {
-      let newPosition: number | undefined = undefined;
-      if (lowerVideo && upperVideo) {
-        newPosition = Math.round(
-          (lowerVideo.position + upperVideo.position) / 2,
-        );
-      }
-      if (!lowerVideo && upperVideo) {
-        newPosition = upperVideo.position + this.POSITION_INCREMENT;
-      }
-      if (!upperVideo && lowerVideo) {
-        newPosition = lowerVideo.position - this.POSITION_INCREMENT;
-      }
-      if (!newPosition) {
-        throw new DomainException('New position is not defined');
-      }
-      await this.dynamoDBDocumentClient.send(
-        new TransactWriteCommand({
-          TransactItems: [
-            {
-              Update: {
-                TableName: this.dynamoDBConfig.VIDEO_TABLE,
-                Key: new VideoKey({ lessonId, videoId: video.videoId }),
-                ConditionExpression:
-                  'attribute_exists(lessonId) AND attribute_exists(videoId)',
-                UpdateExpression: 'SET #position = :value0',
-                ExpressionAttributeNames: {
-                  '#position': 'position',
-                },
-                ExpressionAttributeValues: {
-                  ':value0': newPosition,
-                },
-              },
-            },
-            {
-              Update: {
-                TableName: this.dynamoDBConfig.LESSON_TABLE,
-                Key: new LessonKey({ courseId: video.courseId, lessonId }),
-                ConditionExpression:
-                  'attribute_exists(courseId) AND attribute_exists(lessonId) AND #lessonPositionVersion = :value2',
-                UpdateExpression:
-                  'ADD #videoPositionVersion :value0, ADD #videoLastPosition :value1',
-                ExpressionAttributeNames: {
-                  '#videoPositionVersion': 'videoPositionVersion',
-                  '#videoLastPosition': 'videoLastPosition',
-                },
-                ExpressionAttributeValues: {
-                  ':value0': 1,
-                  ':value1':
-                    !lowerVideo && upperVideo ? this.POSITION_INCREMENT : 0,
-                  ':value2': version,
-                },
-              },
-            },
-          ],
-        }),
-      );
-    } catch (exception) {
-      if (exception instanceof TransactionCanceledException) {
-        const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
-        if (
-          CancellationReasons[0].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
+    let RETRIES: number = 0;
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
+      try {
+        const lessonEntity: LessonEntity =
+          await this.lessonDynamoDBRepository.findByIdOrThrow({
+            courseId: video.courseId,
+            lessonId,
+            domainException: new LessonNotFoundException(),
+          });
+        if (lessonEntity.videoArrangementVersion !== version)
           throw new VideoRearrangedException();
+        const videoToBeDeleted: VideoEntity = await this.findByIdOrThrow({
+          videoId: video.videoId,
+          lessonId,
+          domainException: new VideoNotFoundException(),
+        });
+        if (upperVideo) {
+          await this.findByIdOrThrow({
+            lessonId,
+            videoId: upperVideo.videoId,
+            domainException: new VideoNotFoundException(),
+          });
+        }
+        if (lowerVideo) {
+          await this.findByIdOrThrow({
+            lessonId,
+            videoId: lowerVideo.videoId,
+            domainException: new VideoNotFoundException(),
+          });
+        }
+        const newPosition: number = this.calculateNewVideoPosition({
+          upperVideo,
+          lowerVideo,
+        });
+        await this.dynamoDBDocumentClient.send(
+          new TransactWriteCommand({
+            TransactItems: [
+              {
+                Delete: {
+                  TableName: this.dynamoDBConfig.VIDEO_TABLE,
+                  Key: new VideoKey({ lessonId, videoId: video.videoId }),
+                  ConditionExpression:
+                    'attribute_exists(lessonId) AND attribute_exists(videoId) AND #durationInSec = :value0',
+                  ExpressionAttributeNames: {
+                    '#durationInSec': 'durationInSec',
+                  },
+                  ExpressionAttributeValues: {
+                    ':value0': videoToBeDeleted.durationInSec,
+                  },
+                },
+              },
+              {
+                Put: {
+                  TableName: this.dynamoDBConfig.VIDEO_TABLE,
+                  Item: { ...videoToBeDeleted, videoId: newPosition },
+                  ConditionExpression:
+                    'attribute_not_exists(lessonId) AND attribute_not_exists(videoId) AND #durationInSec = :value0',
+                  ExpressionAttributeNames: {
+                    '#durationInSec': 'durationInSec',
+                  },
+                  ExpressionAttributeValues: {
+                    ':value0': videoToBeDeleted.durationInSec,
+                  },
+                },
+              },
+              {
+                Update: {
+                  TableName: this.dynamoDBConfig.LESSON_TABLE,
+                  Key: new LessonKey({ courseId: video.courseId, lessonId }),
+                  ConditionExpression:
+                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #videoArrangementVersion = :value0',
+                  UpdateExpression: 'SET #videoArrangementVersion = :value1',
+                  ExpressionAttributeNames: {
+                    '#videoArrangementVersion': 'videoArrangementVersion',
+                  },
+                  ExpressionAttributeValues: {
+                    ':value0': lessonEntity.videoArrangementVersion,
+                    ':value1': lessonEntity.videoArrangementVersion + 1,
+                  },
+                },
+              },
+            ],
+          }),
+        );
+      } catch (exception) {
+        if (exception instanceof DomainException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw exception;
+          if (
+            CancellationReasons[0].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new VideoRearrangedException();
+        }
+        RETRIES++;
+        if (RETRIES === MAX_RETRIES) throw exception;
+        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
       }
-      throw exception;
     }
+  }
+
+  private calculateNewVideoPosition(param: {
+    upperVideo: VideoEntity | null;
+    lowerVideo: VideoEntity | null;
+  }): number {
+    const { upperVideo, lowerVideo } = param;
+    let newPosition: number | undefined = undefined;
+    if (lowerVideo && upperVideo) {
+      newPosition = Math.round((lowerVideo.videoId + upperVideo.videoId) / 2);
+    }
+    if (!lowerVideo && upperVideo) {
+      newPosition = Math.round(upperVideo.videoId * 1.5);
+    }
+    if (!upperVideo && lowerVideo) {
+      newPosition = Math.round(lowerVideo.videoId * 0.5);
+    }
+    if (!newPosition) {
+      throw new DomainException('New position is not defined');
+    }
+    return newPosition;
   }
 
   public async deleteIfExistsOrThrow(param: {
@@ -358,8 +471,8 @@ export default class VideoDynamoDBRepository {
   }): Promise<void> {
     const { lessonId, videoId, domainException } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 5;
-    while (RETRIES < MAX_RETRIES) {
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
       try {
         const videoEntity: VideoEntity = await this.findByIdOrThrow({
           lessonId,

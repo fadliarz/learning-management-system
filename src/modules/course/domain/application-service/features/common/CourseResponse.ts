@@ -65,8 +65,4 @@ export default class CourseResponse {
   @ApiProperty({ required: false })
   @Expose()
   public updatedAt: Date;
-
-  @ApiProperty()
-  @Expose()
-  public lessonPositionVersion: number;
 }

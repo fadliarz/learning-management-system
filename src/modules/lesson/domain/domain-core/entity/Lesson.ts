@@ -11,11 +11,10 @@ export default class Lesson {
   private _numberOfVideos: number;
   private _numberOfDurations: number;
   private _numberOfAttachments: number;
-  private _position: number;
   private _createdAt: Date;
   private _updatedAt: Date;
-  private _videoPositionVersion: number;
-  private _videoLastPosition: number;
+  private _version: number;
+  private _videoArrangementVersion: number;
 
   public update(): void {
     this._updatedAt = TimeFactory.generate();
@@ -28,8 +27,8 @@ export default class Lesson {
     this._numberOfDurations = 0;
     this._numberOfAttachments = 0;
     this._createdAt = now;
-    this._videoPositionVersion = 0;
-    this._videoLastPosition = 0;
+    this._version = 1;
+    this._videoArrangementVersion = 1;
   }
 
   @Expose()
@@ -88,15 +87,6 @@ export default class Lesson {
   }
 
   @Expose()
-  set position(value: number) {
-    if (this._position !== undefined) {
-      throw new ImmutableFieldException();
-    }
-
-    this._position = value;
-  }
-
-  @Expose()
   @ISO8601ToDate()
   set createdAt(value: Date) {
     if (this._createdAt !== undefined) {
@@ -113,21 +103,21 @@ export default class Lesson {
   }
 
   @Expose()
-  set videoPositionVersion(value: number) {
-    if (this._videoPositionVersion !== undefined) {
+  set version(value: number) {
+    if (this._version !== undefined) {
       throw new ImmutableFieldException();
     }
 
-    this._videoPositionVersion = value;
+    this._version = value;
   }
 
   @Expose()
-  set videoLastPosition(value: number) {
-    if (this._videoLastPosition !== undefined) {
+  set videoArrangementVersion(value: number) {
+    if (this._videoArrangementVersion !== undefined) {
       throw new ImmutableFieldException();
     }
 
-    this._videoLastPosition = value;
+    this._videoArrangementVersion = value;
   }
 
   get lessonId(): number {
@@ -158,10 +148,6 @@ export default class Lesson {
     return this._numberOfAttachments;
   }
 
-  get position(): number {
-    return this._position;
-  }
-
   get createdAt(): Date {
     return this._createdAt;
   }
@@ -170,11 +156,11 @@ export default class Lesson {
     return this._updatedAt;
   }
 
-  get videoPositionVersion(): number {
-    return this._videoPositionVersion;
+  get version(): number {
+    return this._version;
   }
 
-  get videoLastPosition(): number {
-    return this._videoLastPosition;
+  get videoArrangementVersion(): number {
+    return this._videoArrangementVersion;
   }
 }

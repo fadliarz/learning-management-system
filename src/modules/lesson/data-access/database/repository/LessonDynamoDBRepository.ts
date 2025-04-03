@@ -29,9 +29,6 @@ import LessonRearrangedException from '../../../domain/domain-core/exception/Les
 
 @Injectable()
 export default class LessonDynamoDBRepository {
-  private readonly POSITION_INCREMENT: number = 10000;
-  private readonly BACKOFF_IN_MS: number = 300;
-
   constructor(
     private readonly courseDynamoDBRepository: CourseDynamoDBRepository,
     @Inject(DependencyInjection.DYNAMODB_DOCUMENT_CLIENT)
@@ -45,16 +42,14 @@ export default class LessonDynamoDBRepository {
   }): Promise<void> {
     const { lessonEntity } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 10;
-    while (RETRIES < MAX_RETRIES) {
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
       try {
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({
             courseId: lessonEntity.courseId,
             domainException: new CourseNotFoundException(),
           });
-        lessonEntity.position =
-          courseEntity.lessonLastPosition + this.POSITION_INCREMENT;
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({
             TransactItems: [
@@ -71,20 +66,17 @@ export default class LessonDynamoDBRepository {
                   TableName: this.dynamoDBConfig.COURSE_TABLE,
                   Key: new CourseKey({ courseId: lessonEntity.courseId }),
                   ConditionExpression:
-                    'attribute_exists(id) AND attribute_exists(courseId) AND #lessonPositionVersion = :value0',
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #lessonArrangementVersion = :value0',
                   UpdateExpression:
-                    'SET #lessonPositionVersion = :value1, #lessonLastPosition = :value2, #numberOfLessons = :value3',
+                    'SET #lessonArrangementVersion = :value1, #numberOfLessons = :value2',
                   ExpressionAttributeNames: {
-                    '#lessonPositionVersion': 'lessonPositionVersion',
-                    '#lessonLastPosition': 'lessonLastPosition',
+                    '#lessonArrangementVersion': 'lessonArrangementVersion',
                     '#numberOfLessons': 'numberOfLessons',
                   },
                   ExpressionAttributeValues: {
-                    ':value0': courseEntity.lessonPositionVersion,
-                    ':value1': courseEntity.lessonPositionVersion + 1,
-                    ':value2':
-                      courseEntity.lessonLastPosition + this.POSITION_INCREMENT,
-                    ':value3': courseEntity.numberOfLessons + 1,
+                    ':value0': courseEntity.lessonArrangementVersion,
+                    ':value1': courseEntity.lessonArrangementVersion + 1,
+                    ':value2': courseEntity.numberOfLessons + 1,
                   },
                 },
               },
@@ -94,11 +86,9 @@ export default class LessonDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof CourseNotFoundException) throw exception;
-        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) {
-          throw exception;
-        }
+        if (RETRIES === MAX_RETRIES) throw exception;
+        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
@@ -168,7 +158,7 @@ export default class LessonDynamoDBRepository {
     lessonEntity: LessonEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { lessonEntity, domainException } = param;
+    const { lessonEntity } = param;
     try {
       const { courseId, lessonId, ...restObj } = lessonEntity;
       const updateObj = DynamoDBBuilder.buildUpdate(restObj);
@@ -193,107 +183,144 @@ export default class LessonDynamoDBRepository {
     lesson: LessonEntity;
     upperLesson: LessonEntity | null;
     lowerLesson: LessonEntity | null;
-    version: number;
+    lessonArrangementVersion: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { lesson, upperLesson, lowerLesson, version } = param;
+    const { lesson, upperLesson, lowerLesson, lessonArrangementVersion } =
+      param;
     const courseId: number = lesson.courseId;
-    try {
-      const courseEntity: CourseEntity =
-        await this.courseDynamoDBRepository.findByIdOrThrow({
-          courseId,
-          domainException: new CourseNotFoundException(),
-        });
-      if (courseEntity.lessonPositionVersion !== version)
-        throw new LessonRearrangedException();
-      let newPosition: number | undefined = undefined;
-      if (lowerLesson && upperLesson) {
-        newPosition = Math.round(
-          (lowerLesson.position + upperLesson.position) / 2,
-        );
-      }
-      if (!lowerLesson && upperLesson) {
-        newPosition = upperLesson.position + this.POSITION_INCREMENT;
-      }
-      if (!upperLesson && lowerLesson) {
-        newPosition = lowerLesson.position - this.POSITION_INCREMENT;
-      }
-      if (!newPosition) {
-        throw new DomainException('New position is not defined');
-      }
-      await this.dynamoDBDocumentClient.send(
-        new TransactWriteCommand({
-          TransactItems: [
-            {
-              Update: {
-                TableName: this.dynamoDBConfig.LESSON_TABLE,
-                Key: new LessonKey({ courseId, lessonId: lesson.lessonId }),
-                ConditionExpression:
-                  'attribute_exists(courseId) AND attribute_exists(lessonId)',
-                UpdateExpression: 'SET #position = :value0',
-                ExpressionAttributeNames: {
-                  '#position': 'position',
-                },
-                ExpressionAttributeValues: {
-                  ':value0': newPosition,
-                },
-              },
-            },
-            {
-              Update: {
-                TableName: this.dynamoDBConfig.COURSE_TABLE,
-                Key: new CourseKey({ courseId }),
-                ConditionExpression:
-                  'attribute_exists(id) AND attribute_exists(courseId) AND #lessonPositionVersion = :value0',
-                UpdateExpression:
-                  'SET #lessonPositionVersion = :value1' +
-                  (!lowerLesson && upperLesson
-                    ? ', #lessonLastPosition = #lessonLastPosition = :value2'
-                    : ''),
-                ExpressionAttributeNames: {
-                  '#lessonPositionVersion': 'lessonPositionVersion',
-                  ...(!lowerLesson && upperLesson
-                    ? { '#lessonLastPosition': 'lessonLastPosition' }
-                    : {}),
-                },
-                ExpressionAttributeValues: {
-                  ':value0': version,
-                  ':value1': version + 1,
-                  ...(!lowerLesson && upperLesson
-                    ? {
-                        ':value2':
-                          courseEntity.lessonLastPosition +
-                          this.POSITION_INCREMENT,
-                      }
-                    : {}),
-                },
-              },
-            },
-          ],
-        }),
-      );
-    } catch (exception) {
-      if (
-        exception instanceof CourseNotFoundException ||
-        exception instanceof LessonRearrangedException
-      )
-        throw exception;
-      if (exception instanceof TransactionCanceledException) {
-        const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw new DomainException();
-        if (
-          CancellationReasons[0].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          throw new LessonNotFoundException();
-        if (
-          CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
+    let RETRIES: number = 0;
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
+      try {
+        const courseEntity: CourseEntity =
+          await this.courseDynamoDBRepository.findByIdOrThrow({
+            courseId,
+            domainException: new CourseNotFoundException(),
+          });
+        if (courseEntity.lessonArrangementVersion !== lessonArrangementVersion)
           throw new LessonRearrangedException();
+        const lessonToBeDeleted: LessonEntity = await this.findByIdOrThrow({
+          courseId,
+          lessonId: lesson.lessonId,
+          domainException: new LessonNotFoundException(),
+        });
+        if (upperLesson) {
+          await this.findByIdOrThrow({
+            courseId,
+            lessonId: upperLesson.lessonId,
+            domainException: new LessonNotFoundException(
+              'Upper lesson not found',
+            ),
+          });
+        }
+        if (lowerLesson) {
+          await this.findByIdOrThrow({
+            courseId,
+            lessonId: lowerLesson.lessonId,
+            domainException: new LessonNotFoundException(
+              'Lower lesson not found',
+            ),
+          });
+        }
+        const newPosition: number = this.calculateNewLessonPosition({
+          upperLesson,
+          lowerLesson,
+        });
+        await this.dynamoDBDocumentClient.send(
+          new TransactWriteCommand({
+            TransactItems: [
+              {
+                Delete: {
+                  TableName: this.dynamoDBConfig.LESSON_TABLE,
+                  Key: new LessonKey({ courseId, lessonId: lesson.lessonId }),
+                  ConditionExpression:
+                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #version = :value0 AND #videoArrangementVersion = :value1',
+                  ExpressionAttributeNames: {
+                    '#version': 'version',
+                    '#videoArrangementVersion': 'videoArrangementVersion',
+                  },
+                  ExpressionAttributeValues: {
+                    ':value0': lessonToBeDeleted.version,
+                    ':value1': lessonToBeDeleted.videoArrangementVersion,
+                  },
+                },
+              },
+              {
+                Put: {
+                  TableName: this.dynamoDBConfig.LESSON_TABLE,
+                  Item: { ...lessonToBeDeleted, lessonId: newPosition },
+                  ConditionExpression:
+                    'attribute_not_exists(courseId) AND attribute_not_exists(lessonId)',
+                },
+              },
+
+              {
+                Update: {
+                  TableName: this.dynamoDBConfig.COURSE_TABLE,
+                  Key: new CourseKey({ courseId }),
+                  ConditionExpression:
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #lessonArrangementVersion = :value0',
+                  UpdateExpression: 'SET #lessonArrangementVersion = :value1',
+                  ExpressionAttributeNames: {
+                    '#lessonArrangementVersion': 'lessonArrangementVersion',
+                  },
+                  ExpressionAttributeValues: {
+                    ':value0': courseEntity.lessonArrangementVersion,
+                    ':value1': courseEntity.lessonArrangementVersion + 1,
+                  },
+                },
+              },
+            ],
+          }),
+        );
+        return;
+      } catch (exception) {
+        if (exception instanceof CourseNotFoundException) throw exception;
+        if (exception instanceof LessonRearrangedException) throw exception;
+        if (exception instanceof LessonNotFoundException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw new DomainException();
+          if (
+            CancellationReasons[1].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new DomainException();
+          if (
+            CancellationReasons[2].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new LessonRearrangedException();
+        }
+        RETRIES++;
+        if (RETRIES > MAX_RETRIES) throw exception;
+        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
       }
-      throw exception;
     }
+  }
+
+  private calculateNewLessonPosition(param: {
+    upperLesson: LessonEntity | null;
+    lowerLesson: LessonEntity | null;
+  }): number {
+    const { upperLesson, lowerLesson } = param;
+    let newPosition: number | undefined = undefined;
+    if (lowerLesson && upperLesson) {
+      newPosition = Math.round(
+        (lowerLesson.lessonId + upperLesson.lessonId) / 2,
+      );
+    }
+    if (!lowerLesson && upperLesson) {
+      newPosition = Math.round(upperLesson.lessonId * 1.5);
+    }
+    if (!upperLesson && lowerLesson) {
+      newPosition = Math.round(lowerLesson.lessonId * 0.5);
+    }
+    if (!newPosition) {
+      throw new DomainException('New position is not defined');
+    }
+    return newPosition;
   }
 
   public async deleteIfExistsOrThrow(param: {
@@ -301,53 +328,67 @@ export default class LessonDynamoDBRepository {
     lessonId: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { courseId, lessonId, domainException } = param;
-    try {
-      await this.dynamoDBDocumentClient.send(
-        new TransactWriteCommand({
-          TransactItems: [
-            {
-              Delete: {
-                TableName: this.dynamoDBConfig.LESSON_TABLE,
-                Key: new LessonKey({ courseId, lessonId }),
-                ConditionExpression:
-                  'attribute_exists(courseId) AND attribute_exists(lessonId)',
-              },
-            },
-            {
-              Update: {
-                TableName: this.dynamoDBConfig.COURSE_TABLE,
-                Key: new CourseKey({ courseId }),
-                ConditionExpression:
-                  'attribute_exists(id) AND attribute_exists(courseId)',
-                UpdateExpression: 'ADD #numberOfLessons :value0',
-                ExpressionAttributeNames: {
-                  '#numberOfLessons': 'numberOfLessons',
-                },
-                ExpressionAttributeValues: {
-                  ':value0': -1,
+    const { courseId, lessonId } = param;
+    let RETRIES: number = 0;
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
+      try {
+        const courseEntity: CourseEntity =
+          await this.courseDynamoDBRepository.findByIdOrThrow({
+            courseId,
+            domainException: new CourseNotFoundException(),
+          });
+        await this.dynamoDBDocumentClient.send(
+          new TransactWriteCommand({
+            TransactItems: [
+              {
+                Delete: {
+                  TableName: this.dynamoDBConfig.LESSON_TABLE,
+                  Key: new LessonKey({ courseId, lessonId }),
+                  ConditionExpression:
+                    'attribute_exists(courseId) AND attribute_exists(lessonId)',
                 },
               },
-            },
-          ],
-        }),
-      );
-    } catch (exception) {
-      if (exception instanceof TransactionCanceledException) {
-        const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
-        if (
-          CancellationReasons[0].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          throw new LessonNotFoundException();
-        if (
-          CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          return;
+              {
+                Update: {
+                  TableName: this.dynamoDBConfig.COURSE_TABLE,
+                  Key: new CourseKey({ courseId }),
+                  ConditionExpression:
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #lessonArrangementVersion = :value0',
+                  UpdateExpression:
+                    'SET #lessonArrangementVersion = :value1, #numberOfLessons = :value2',
+                  ExpressionAttributeNames: {
+                    '#lessonArrangementVersion': 'lessonArrangementVersion',
+                    '#numberOfLessons': 'numberOfLessons',
+                  },
+                  ExpressionAttributeValues: {
+                    ':value0': courseEntity.lessonArrangementVersion,
+                    ':value1': courseEntity.lessonArrangementVersion + 1,
+                    ':value2': courseEntity.numberOfLessons - 1,
+                  },
+                },
+              },
+            ],
+          }),
+        );
+
+        return;
+      } catch (exception) {
+        if (exception instanceof CourseNotFoundException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw exception;
+          if (
+            CancellationReasons[0].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new LessonNotFoundException();
+        }
+        RETRIES++;
+        if (RETRIES > MAX_RETRIES) {
+          throw exception;
+        }
       }
-      throw exception;
     }
   }
 }

@@ -141,8 +141,8 @@ export default class CategoryDynamoDBRepository {
   }): Promise<void> {
     const { categoryEntity, domainException } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES = 5;
-    while (RETRIES < MAX_RETRIES) {
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
       try {
         const oldCategoryEntity: CategoryEntity = await this.findByIdOrThrow({
           categoryId: categoryEntity.categoryId,
@@ -219,8 +219,8 @@ export default class CategoryDynamoDBRepository {
   }): Promise<void> {
     const { categoryId, domainException } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 5;
-    while (RETRIES < MAX_RETRIES) {
+    const MAX_RETRIES: number = 25;
+    while (RETRIES <= MAX_RETRIES) {
       try {
         const categoryEntity: CategoryEntity = await this.findByIdOrThrow({
           categoryId,
