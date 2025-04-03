@@ -30,7 +30,7 @@ export default class UserAssignmentDynamoDBRepository {
     userAssignmentEntity: UserAssignmentEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { userAssignmentEntity, domainException } = param;
+    const { userAssignmentEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new PutCommand({
@@ -41,6 +41,8 @@ export default class UserAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
+      if (exception instanceof ConditionalCheckFailedException)
+        throw new DomainException();
       throw exception;
     }
   }

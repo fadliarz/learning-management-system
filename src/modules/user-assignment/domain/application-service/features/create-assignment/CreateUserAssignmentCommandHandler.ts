@@ -21,7 +21,7 @@ export default class CreateUserAssignmentCommandHandler {
       UserAssignment,
       userAssignmentCommand,
     );
-    userAssignment.create();
+    userAssignment.create(userAssignmentCommand.executor.userId);
     await this.userAssignmentRepository.saveIfNotExistsOrThrow({
       userAssignment,
       domainException: new DomainException(),

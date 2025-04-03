@@ -21,7 +21,8 @@ export default class UserAssignment {
   private _classId: number;
   private _classAssignmentId: number;
 
-  public create(): void {
+  public create(userId: number): void {
+    this._userId = userId;
     this._assignmentId = TimeFactory.dateToRandomMicroseconds(this._deadline);
     this._completionStatus = CompletionStatus.NOT_STARTED;
     this._createdAt = TimeFactory.generate();

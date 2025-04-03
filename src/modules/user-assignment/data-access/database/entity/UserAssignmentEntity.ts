@@ -36,5 +36,6 @@ export default class UserAssignmentEntity {
   public completionStatus: string;
 
   @Expose()
+  @ToISO()
   public createdAt: string;
 }
