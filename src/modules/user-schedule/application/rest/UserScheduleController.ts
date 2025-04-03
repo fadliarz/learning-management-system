@@ -8,6 +8,7 @@ import {
   ParseIntPipe,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import WrapperResponse from '../../../../common/common-domain/WrapperResponse';
@@ -16,6 +17,7 @@ import PaginationDto from '../../../../common/common-domain/PaginationDto';
 import GetUserSchedulesQueryHandler from '../../domain/application-service/features/get-schedules/GetUserSchedulesQueryHandler';
 import GetUserScheduleQueryHandler from '../../domain/application-service/features/get-schedule/GetUserScheduleQueryHandler';
 import { FastifyRequest } from 'fastify';
+import { AuthenticationGuard } from '../../../authentication/domain/application-service/AuthenticationGuard';
 
 @Injectable()
 @Controller('api/v1/user-schedules')
@@ -26,6 +28,7 @@ export default class UserScheduleController {
     private readonly getUserScheduleQueryHandler: GetUserScheduleQueryHandler,
   ) {}
 
+  @UseGuards(AuthenticationGuard)
   @Get()
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get all user schedules' })
@@ -46,6 +49,7 @@ export default class UserScheduleController {
     );
   }
 
+  @UseGuards(AuthenticationGuard)
   @Get('user-schedules/:scheduleId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a specific user schedule' })
