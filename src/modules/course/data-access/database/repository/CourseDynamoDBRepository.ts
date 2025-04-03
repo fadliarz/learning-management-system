@@ -5,6 +5,7 @@ import {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
+  QueryCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
@@ -14,6 +15,7 @@ import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuil
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import CourseEntity from '../entity/CourseEntity';
 import CourseKey from '../entity/CourseKey';
+import Pagination from '../../../../../common/common-domain/repository/Pagination';
 
 @Injectable()
 export default class CourseDynamoDBRepository {
@@ -42,6 +44,48 @@ export default class CourseDynamoDBRepository {
         throw domainException;
       throw exception;
     }
+  }
+
+  public async findMany(param: {
+    pagination: Pagination;
+  }): Promise<CourseEntity[]> {
+    const { pagination } = param;
+    const courseEntities: CourseEntity[] = [];
+    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
+    let limit: number | undefined = pagination.limit;
+    do {
+      if (limit === 0) break;
+      const { Items, LastEvaluatedKey } =
+        await this.dynamoDBDocumentClient.send(
+          new QueryCommand({
+            TableName: this.dynamoDBConfig.COURSE_TABLE,
+            KeyConditionExpression: pagination.lastEvaluatedId
+              ? '#id = :value0 AND courseId < :value1'
+              : '#id = :value0',
+            ExpressionAttributeNames: {
+              '#id': 'id',
+            },
+            ExpressionAttributeValues: {
+              ':value0': 'COURSE',
+              ...(pagination.lastEvaluatedId
+                ? { ':value1': pagination.lastEvaluatedId }
+                : {}),
+            },
+            ExclusiveStartKey: lastEvaluatedKey,
+            Limit: limit,
+          }),
+        );
+      if (Items) {
+        courseEntities.push(
+          ...Items.map((item) => strictPlainToClass(CourseEntity, item)),
+        );
+      }
+      lastEvaluatedKey = LastEvaluatedKey as Record<string, any> | undefined;
+      if (limit) {
+        limit = pagination.limit - courseEntities.length;
+      }
+    } while (lastEvaluatedKey);
+    return courseEntities;
   }
 
   public async findByIdOrThrow(param: {

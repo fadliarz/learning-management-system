@@ -27,7 +27,11 @@ export default class CourseRepositoryImpl implements CourseRepository {
     categories: string[];
     pagination: Pagination;
   }): Promise<Course[]> {
-    return Promise.resolve([]);
+    const courseEntities: CourseEntity[] =
+      await this.courseDynamoDBRepository.findMany(param);
+    return courseEntities.map((courseEntity) =>
+      strictPlainToClass(Course, courseEntity),
+    );
   }
 
   public async findByIdOrThrow(param: {
