@@ -38,8 +38,10 @@ export default class GlobalExceptionHandler {
     });
 
     response.status(status).send({
-      statusCode: status,
-      message,
+      error: {
+        statusCode: status,
+        message,
+      },
     });
   }
 }
