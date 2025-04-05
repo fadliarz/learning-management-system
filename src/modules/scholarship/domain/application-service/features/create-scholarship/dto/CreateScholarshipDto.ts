@@ -13,7 +13,7 @@ export default class CreateScholarshipDto {
   @ApiProperty()
   @IsString({ message: 'The image must be a string' })
   @IsNotEmpty({ message: 'The image is required' })
-  @MaxLength(256, { message: 'The image must be less than 256 characters' })
+  @MaxLength(1024, { message: 'The image must be less than 1024 characters' })
   public image: string;
 
   @ApiProperty()

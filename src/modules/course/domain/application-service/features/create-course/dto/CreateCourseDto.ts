@@ -5,7 +5,7 @@ export default class CreateCourseDto {
   @ApiProperty()
   @IsString({ message: 'Image must be a string' })
   @IsNotEmpty({ message: 'Image is required' })
-  @MaxLength(128, { message: 'Image must be at most 128 characters' })
+  @MaxLength(1024, { message: 'Image must be at most 1024 characters' })
   public image: string;
 
   @ApiProperty()

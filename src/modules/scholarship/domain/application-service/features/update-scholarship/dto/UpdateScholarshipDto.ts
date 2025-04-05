@@ -12,7 +12,7 @@ export default class UpdateScholarshipDto {
   @IsOptional()
   @IsString({ message: 'image must be a string' })
   @IsNotEmpty({ message: 'image is required' })
-  @MaxLength(256, { message: 'image must be less than 256 characters' })
+  @MaxLength(1024, { message: 'image must be less than 1024 characters' })
   public image: string;
 
   @ApiProperty({ required: false })
