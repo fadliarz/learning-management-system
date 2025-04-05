@@ -106,7 +106,7 @@ export default class LessonDynamoDBRepository {
       const { Items, LastEvaluatedKey } =
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
-            TableName: this.dynamoDBConfig.CLASS_TABLE,
+            TableName: this.dynamoDBConfig.LESSON_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
               ? '#courseId = :value0 AND lessonId < :value1'
               : '#courseId = :value0',
