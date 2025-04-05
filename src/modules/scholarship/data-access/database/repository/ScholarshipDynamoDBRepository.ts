@@ -5,6 +5,7 @@ import {
   DynamoDBDocumentClient,
   GetCommand,
   PutCommand,
+  QueryCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
@@ -15,6 +16,7 @@ import strictPlainToClass from '../../../../../common/common-domain/mapper/stric
 import ScholarshipEntity from '../entity/ScholarshipEntity';
 import ScholarshipKey from '../entity/ScholarshipKey';
 import ScholarshipNotFoundException from '../../../domain/domain-core/exception/ScholarshipNotFoundException';
+import Pagination from '../../../../../common/common-domain/repository/Pagination';
 
 @Injectable()
 export default class ScholarshipDynamoDBRepository {
@@ -29,18 +31,56 @@ export default class ScholarshipDynamoDBRepository {
     domainException: DomainException;
   }): Promise<void> {
     const { scholarshipEntity, domainException } = param;
-    try {
-      await this.dynamoDBDocumentClient.send(
-        new PutCommand({
-          TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,
-          Item: { ...scholarshipEntity, id: 'SCHOLARSHIP' },
-          ConditionExpression:
-            'attribute_not_exists(id) AND attribute_not_exists(scholarshipId)',
-        }),
-      );
-    } catch (exception) {
-      throw exception;
-    }
+    await this.dynamoDBDocumentClient.send(
+      new PutCommand({
+        TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,
+        Item: { ...scholarshipEntity, id: 'SCHOLARSHIP' },
+        ConditionExpression:
+          'attribute_not_exists(id) AND attribute_not_exists(scholarshipId)',
+      }),
+    );
+  }
+
+  public async findMany(param: {
+    pagination: Pagination;
+  }): Promise<ScholarshipEntity[]> {
+    const { pagination } = param;
+    const scholarshipEntities: ScholarshipEntity[] = [];
+    let lastEvaluatedKey: Record<string, any> | undefined = undefined;
+    let limit: number | undefined = pagination.limit;
+    do {
+      if (limit === 0) break;
+      const { Items, LastEvaluatedKey } =
+        await this.dynamoDBDocumentClient.send(
+          new QueryCommand({
+            TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,
+            KeyConditionExpression: pagination.lastEvaluatedId
+              ? '#id = :value0 AND scholarshipId < :value1'
+              : '#id = :value0',
+            ExpressionAttributeNames: {
+              '#id': 'id',
+            },
+            ExpressionAttributeValues: {
+              ':value0': 'SCHOLARSHIP',
+              ...(pagination.lastEvaluatedId
+                ? { ':value1': pagination.lastEvaluatedId }
+                : {}),
+            },
+            ExclusiveStartKey: lastEvaluatedKey,
+            Limit: limit,
+          }),
+        );
+      if (Items) {
+        scholarshipEntities.push(
+          ...Items.map((item) => strictPlainToClass(ScholarshipEntity, item)),
+        );
+      }
+      lastEvaluatedKey = LastEvaluatedKey as Record<string, any> | undefined;
+      if (limit) {
+        limit = pagination.limit - scholarshipEntities.length;
+      }
+    } while (lastEvaluatedKey);
+    return scholarshipEntities;
   }
 
   public async findByIdOrThrow(param: {

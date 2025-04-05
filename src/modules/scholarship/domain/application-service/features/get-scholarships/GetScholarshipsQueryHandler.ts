@@ -17,11 +17,11 @@ export default class GetScholarshipsQueryHandler {
   public async execute(
     getScholarshipsQuery: GetScholarshipsQuery,
   ): Promise<ScholarshipResponse[]> {
-    const scolarships: Scholarship[] =
+    const scholarships: Scholarship[] =
       await this.scholarshipRepository.findMany({
         pagination: strictPlainToClass(Pagination, getScholarshipsQuery),
       });
-    return scolarships.map((scholarship) =>
+    return scholarships.map((scholarship) =>
       strictPlainToClass(ScholarshipResponse, scholarship),
     );
   }

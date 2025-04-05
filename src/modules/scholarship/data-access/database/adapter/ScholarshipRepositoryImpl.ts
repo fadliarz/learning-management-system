@@ -31,7 +31,11 @@ export default class ScholarshipRepositoryImpl
   public async findMany(param: {
     pagination: Pagination;
   }): Promise<Scholarship[]> {
-    return Promise.resolve([]);
+    const scholarshipEntities: ScholarshipEntity[] =
+      await this.scholarshipDynamoDBRepository.findMany(param);
+    return scholarshipEntities.map((scholarshipEntity) =>
+      strictPlainToClass(Scholarship, scholarshipEntity),
+    );
   }
 
   public async findByIdOrThrow(param: {
