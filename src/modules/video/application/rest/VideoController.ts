@@ -11,6 +11,7 @@ import {
   Post,
   Query,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
@@ -24,6 +25,7 @@ import VideoWrapperResponse from './response/VideoWrapperResponse';
 import VideosWrapperResponse from './response/VideosWrapperResponse';
 import PaginationDto from '../../../../common/common-domain/PaginationDto';
 import UpdateVideoDto from '../../domain/application-service/features/update-video/dto/UpdateVideoDto';
+import { AuthenticationGuard } from '../../../authentication/domain/application-service/AuthenticationGuard';
 
 @Controller('api/v1/courses')
 @ApiTags('Video')
@@ -36,6 +38,7 @@ export default class VideoController {
     private readonly deleteVideoCommandHandler: DeleteVideoCommandHandler,
   ) {}
 
+  @UseGuards(AuthenticationGuard)
   @Post(':courseId/lessons/:lessonId/videos')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({ summary: 'Create a video' })
@@ -104,6 +107,7 @@ export default class VideoController {
     );
   }
 
+  @UseGuards(AuthenticationGuard)
   @Patch(':courseId/lessons/:lessonId/videos/:videoId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a video' })
@@ -130,6 +134,7 @@ export default class VideoController {
     );
   }
 
+  @UseGuards(AuthenticationGuard)
   @Delete(':courseId/lessons/:lessonId/videos/:videoId')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Delete a video' })
