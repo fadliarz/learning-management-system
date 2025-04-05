@@ -161,7 +161,7 @@ export default class VideoDynamoDBRepository {
       const { Items, LastEvaluatedKey } =
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
-            TableName: this.dynamoDBConfig.LESSON_TABLE,
+            TableName: this.dynamoDBConfig.VIDEO_TABLE,
             KeyConditionExpression: pagination.lastEvaluatedId
               ? '#lessonId = :value0 AND videoId < :value1'
               : '#lessonId = :value0',
