@@ -8,5 +8,4 @@ export default class CreateScholarshipCommand {
   public provider: string;
   public deadline: string;
   public reference: string;
-  public categories: string[];
 }

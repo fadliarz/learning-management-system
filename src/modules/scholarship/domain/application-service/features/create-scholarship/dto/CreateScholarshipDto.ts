@@ -1,6 +1,4 @@
 import {
-  ArrayMaxSize,
-  IsArray,
   IsISO8601,
   IsNotEmpty,
   IsOptional,
@@ -50,18 +48,4 @@ export default class CreateScholarshipDto {
   @IsNotEmpty({ message: 'The reference is required' })
   @MaxLength(256, { message: 'The reference must be less than 64 characters' })
   public reference: string;
-
-  @ApiProperty({ required: false })
-  @IsOptional()
-  @IsArray({ message: 'The categories must be an array' })
-  @ArrayMaxSize(32, { message: 'The categories must have at most 32 items' })
-  @IsString({
-    each: true,
-    message: 'The categories must be an array of strings',
-  })
-  @MaxLength(32, {
-    each: true,
-    message: 'The categories must have at most 32 characters',
-  })
-  public categories: string[];
 }
