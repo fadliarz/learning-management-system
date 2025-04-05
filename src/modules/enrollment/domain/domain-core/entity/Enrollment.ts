@@ -9,7 +9,8 @@ export default class Enrollment {
   private _classId: number;
   private _createdAt: Date;
 
-  public create(): void {
+  public create(userId: number): void {
+    this._userId = userId;
     this._createdAt = TimeFactory.generate();
   }
 

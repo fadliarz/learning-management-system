@@ -30,7 +30,7 @@ export default class CreateEnrollmentCommandHandler {
       Enrollment,
       createEnrollmentCommand,
     );
-    enrollment.create();
+    enrollment.create(createEnrollmentCommand.executor.userId);
     await this.enrollmentRepository.saveIfNotExistsOrThrow({
       enrollment,
       domainException: new EnrollmentAlreadyExistsException(),

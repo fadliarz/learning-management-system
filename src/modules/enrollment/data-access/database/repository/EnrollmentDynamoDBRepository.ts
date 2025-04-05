@@ -30,7 +30,7 @@ export default class EnrollmentDynamoDBRepository {
     enrollmentEntity: EnrollmentEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { enrollmentEntity, domainException } = param;
+    const { enrollmentEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
