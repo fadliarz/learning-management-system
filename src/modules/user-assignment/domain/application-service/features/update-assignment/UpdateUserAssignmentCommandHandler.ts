@@ -22,6 +22,7 @@ export default class UpdateUserAssignmentCommandHandler {
       UserAssignment,
       updateUserAssignmentCommand,
     );
+    userAssignment.userId = updateUserAssignmentCommand.executor.userId;
     await this.userAssignmentRepository.saveIfExistsAndAssignmentIsPersonalOrThrow(
       {
         userAssignment,

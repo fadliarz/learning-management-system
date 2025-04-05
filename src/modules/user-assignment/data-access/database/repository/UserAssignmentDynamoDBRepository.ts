@@ -116,20 +116,24 @@ export default class UserAssignmentDynamoDBRepository {
     domainException: DomainException;
   }): Promise<void> {
     const { userAssignmentEntity, notFoundException, domainException } = param;
+    const { userId, assignmentId, ...restObj } = userAssignmentEntity;
+    const updateObj = DynamoDBBuilder.buildUpdate(restObj);
+    if (!updateObj) return;
     try {
-      const { userId, assignmentId, ...restObj } = userAssignmentEntity;
       await this.dynamoDBDocumentClient.send(
         new UpdateCommand({
           TableName: this.dynamoDBConfig.USER_ASSIGNMENT_TABLE,
           Key: new UserAssignmentKey({ userId, assignmentId }),
-          ...DynamoDBBuilder.buildUpdate(restObj),
           ConditionExpression:
             'attribute_exists(userId) AND attribute_exists(assignmentId) AND #assignmentType = :value0',
+          UpdateExpression: updateObj.UpdateExpression,
           ExpressionAttributeNames: {
             '#assignmentType': 'assignmentType',
+            ...updateObj.ExpressionAttributeNames,
           },
           ExpressionAttributeValues: {
             ':value0': AssignmentType.PERSONAL_ASSIGNMENT,
+            ...updateObj.ExpressionAttributeValues,
           },
         }),
       );
