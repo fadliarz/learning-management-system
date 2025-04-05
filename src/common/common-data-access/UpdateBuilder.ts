@@ -18,8 +18,8 @@ export default class DynamoDBBuilder {
         return;
       }
       count++;
-      const placeholder = `#field${index}`;
-      const valuePlaceholder = `:value${index}`;
+      const placeholder = `#fieldPlaceHolder${index}`;
+      const valuePlaceholder = `:valuePlaceHolder${index}`;
       updateExpressions.push(`${placeholder} = ${valuePlaceholder}`);
       expressionAttributeNames[placeholder] = key;
       expressionAttributeValues[valuePlaceholder] = value;

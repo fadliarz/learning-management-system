@@ -247,14 +247,16 @@ export default class VideoDynamoDBRepository {
                   Update: {
                     TableName: this.dynamoDBConfig.VIDEO_TABLE,
                     Key: new VideoKey({ lessonId, videoId }),
-                    ...updateObj,
                     ConditionExpression:
                       'attribute_exists(lessonId) AND attribute_exists(videoId) AND #durationInSec = :value0',
+                    UpdateExpression: updateObj.UpdateExpression,
                     ExpressionAttributeNames: {
                       '#durationInSec': 'durationInSec',
+                      ...updateObj.ExpressionAttributeNames,
                     },
                     ExpressionAttributeValues: {
                       ':value0': oldVideoEntity.durationInSec,
+                      ...updateObj.ExpressionAttributeValues,
                     },
                   },
                 },
