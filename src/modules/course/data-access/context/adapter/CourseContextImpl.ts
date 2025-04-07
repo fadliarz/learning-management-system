@@ -23,6 +23,13 @@ export default class CourseContextImpl implements CourseContext {
     return this.courses;
   }
 
+  public async forceLoad(): Promise<Course[]> {
+    this.courses = await this.courseRepository.findMany({
+      pagination: new Pagination(),
+    });
+    return this.courses;
+  }
+
   public async findMany(param: {
     pagination?: Pagination;
     categories?: number[];
