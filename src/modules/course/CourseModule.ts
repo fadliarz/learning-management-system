@@ -12,6 +12,7 @@ import PrivilegeModule from '../privilege/PrivilegeModule';
 import CourseDynamoDBRepository from './data-access/database/repository/CourseDynamoDBRepository';
 import CategoryModule from '../category/CategoryModule';
 import AddCourseCategoryCommandHandler from './domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
+import CourseContextImpl from './data-access/context/adapter/CourseContextImpl';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule, CategoryModule],
@@ -28,6 +29,10 @@ import AddCourseCategoryCommandHandler from './domain/application-service/featur
       useClass: CourseRepositoryImpl,
     },
     CourseDynamoDBRepository,
+    {
+      provide: DependencyInjection.COURSE_CONTEXT,
+      useClass: CourseContextImpl,
+    },
   ],
   exports: [
     {
