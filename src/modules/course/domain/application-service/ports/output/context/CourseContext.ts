@@ -8,4 +8,5 @@ export default interface CourseContext {
     pagination?: Pagination;
     categories?: number[];
   }) => Promise<Course[]>;
+  refresh: (param: { courseId: number }) => Promise<void>;
 }

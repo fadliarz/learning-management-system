@@ -32,6 +32,8 @@ export default class AddCourseCategoryCommandHandler {
     await this.courseRepository.addCategoryIfNotExistsOrIgnore(
       addCourseCategoryCommand,
     );
-    await this.courseContext.forceLoad();
+    await this.courseContext.refresh({
+      courseId: addCourseCategoryCommand.courseId,
+    });
   }
 }

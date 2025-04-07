@@ -24,6 +24,8 @@ export default class RemoveCourseCategoryCommandHandler {
     await this.courseRepository.removeCategoryIfExistsOrIgnore(
       removeCourseCategoryCommand,
     );
-    await this.courseContext.forceLoad();
+    await this.courseContext.refresh({
+      courseId: removeCourseCategoryCommand.courseId,
+    });
   }
 }

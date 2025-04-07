@@ -4,6 +4,7 @@ import Pagination from '../../../../../common/common-domain/repository/Paginatio
 import Course from '../../../domain/domain-core/entity/Course';
 import { CourseRepository } from '../../../domain/application-service/ports/output/repository/CourseRepository';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
+import CourseNotFoundException from '../../../domain/domain-core/exception/CourseNotFoundException';
 
 @Injectable()
 export default class CourseContextImpl implements CourseContext {
@@ -52,6 +53,21 @@ export default class CourseContextImpl implements CourseContext {
       filteredCourses = filteredCourses.slice(0, pagination.limit);
     }
     return filteredCourses;
+  }
+
+  public async refresh(param: { courseId: number }): Promise<void> {
+    const { courseId } = param;
+    try {
+      const refreshedCourse = await this.courseRepository.findByIdOrThrow({
+        courseId,
+        domainException: new CourseNotFoundException(),
+      });
+      this.courses = this.courses.map((course) =>
+        course.courseId === courseId ? refreshedCourse : course,
+      );
+    } catch (exception) {
+      return;
+    }
   }
 
   private filterCourseByCategories(
