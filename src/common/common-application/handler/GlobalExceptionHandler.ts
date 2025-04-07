@@ -45,6 +45,12 @@ export default class GlobalExceptionHandler {
     if (status === 401) {
       response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, { path: '/' });
       response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, { path: '/' });
+      response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, {
+        path: '/api-docs',
+      });
+      response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, {
+        path: '/api-docs',
+      });
     }
 
     response.status(status).send({
