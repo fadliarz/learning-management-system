@@ -30,6 +30,13 @@ export default class CourseRepositoryImpl implements CourseRepository {
     await this.courseDynamoDBRepository.addCategoryIfNotExistsOrIgnore(param);
   }
 
+  public async removeCategoryIfExistsOrIgnore(param: {
+    courseId: number;
+    categoryId: number;
+  }): Promise<void> {
+    await this.courseDynamoDBRepository.removeCategoryIfExistsOrIgnore(param);
+  }
+
   public async findMany(param: { pagination: Pagination }): Promise<Course[]> {
     const courseEntities: CourseEntity[] =
       await this.courseDynamoDBRepository.findMany(param);

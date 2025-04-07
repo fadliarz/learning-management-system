@@ -13,6 +13,7 @@ import CourseDynamoDBRepository from './data-access/database/repository/CourseDy
 import CategoryModule from '../category/CategoryModule';
 import AddCourseCategoryCommandHandler from './domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
 import CourseContextImpl from './data-access/context/adapter/CourseContextImpl';
+import RemoveCourseCategoryCommandHandler from './domain/application-service/features/remove-category/RemoveCourseCategoryCommandHandler';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule, CategoryModule],
@@ -20,6 +21,7 @@ import CourseContextImpl from './data-access/context/adapter/CourseContextImpl';
   providers: [
     CreateCourseCommandHandler,
     AddCourseCategoryCommandHandler,
+    RemoveCourseCategoryCommandHandler,
     GetCoursesQueryHandler,
     GetCourseQueryHandler,
     UpdateCourseCommandHandler,

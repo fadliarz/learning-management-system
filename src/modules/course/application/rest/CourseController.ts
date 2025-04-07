@@ -32,6 +32,7 @@ import AddCourseCategoryDto from '../../domain/application-service/features/add-
 import GetCoursesDto from '../../domain/application-service/features/get-courses/dto/GetCoursesDto';
 import { plainToClass } from 'class-transformer';
 import { validate } from 'class-validator';
+import RemoveCourseCategoryCommandHandler from '../../domain/application-service/features/remove-category/RemoveCourseCategoryCommandHandler';
 
 @Injectable()
 @Controller('api/v1/courses')
@@ -40,6 +41,7 @@ export default class CourseController {
   constructor(
     private readonly createCourseCommandHandler: CreateCourseCommandHandler,
     private readonly addCourseCategoryCommandHandler: AddCourseCategoryCommandHandler,
+    private readonly removeCourseCategoryCommandHandler: RemoveCourseCategoryCommandHandler,
     private readonly getCoursesQueryHandler: GetCoursesQueryHandler,
     private readonly getCourseQueryHandler: GetCourseQueryHandler,
     private readonly updateCourseCommandHandler: UpdateCourseCommandHandler,
@@ -84,6 +86,26 @@ export default class CourseController {
       executor: request.executor,
       courseId,
       ...addCourseCategoryDto,
+    });
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Post(':courseId/remove-category/:categoryId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Remove course category' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Category removed successfully.',
+  })
+  public async removeCategory(
+    @Req() request: FastifyRequest,
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Param('categoryId', ParseIntPipe) categoryId: number,
+  ): Promise<void> {
+    await this.removeCourseCategoryCommandHandler.execute({
+      executor: request.executor,
+      courseId,
+      categoryId,
     });
   }
 

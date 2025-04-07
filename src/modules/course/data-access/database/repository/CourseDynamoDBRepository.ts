@@ -100,6 +100,58 @@ export default class CourseDynamoDBRepository {
     }
   }
 
+  public async removeCategoryIfExistsOrIgnore(param: {
+    courseId: number;
+    categoryId: number;
+  }): Promise<void> {
+    const { courseId, categoryId } = param;
+    try {
+      await this.dynamoDBDocumentClient.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: this.dynamoDBConfig.COURSE_TABLE,
+                Key: new CourseKey({ courseId }),
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
+                UpdateExpression: 'DELETE #categories :categoryId',
+                ExpressionAttributeNames: {
+                  '#categories': 'categories',
+                },
+                ExpressionAttributeValues: {
+                  ':categoryId': new Set([categoryId]),
+                },
+              },
+            },
+            {
+              Delete: {
+                TableName: this.dynamoDBConfig.CATEGORY_TABLE,
+                Key: new CategoryLinkKey({ categoryId, courseId }),
+              },
+            },
+          ],
+        }),
+      );
+    } catch (exception) {
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CourseNotFoundException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+      }
+      throw exception;
+    }
+  }
+
   public async findMany(param: {
     pagination: Pagination;
   }): Promise<CourseEntity[]> {

@@ -3,6 +3,7 @@ import Pagination from '../../../../../../../common/common-domain/repository/Pag
 
 export default interface CourseContext {
   load: () => Promise<Course[]>;
+  forceLoad: () => Promise<Course[]>;
   findMany: (param: {
     pagination?: Pagination;
     categories?: number[];

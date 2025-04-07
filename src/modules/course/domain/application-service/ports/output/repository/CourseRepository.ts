@@ -13,6 +13,11 @@ export interface CourseRepository {
     categoryId: number;
   }): Promise<void>;
 
+  removeCategoryIfExistsOrIgnore(param: {
+    courseId: number;
+    categoryId: number;
+  }): Promise<void>;
+
   findMany(param: { pagination: Pagination }): Promise<Course[]>;
 
   findByIdOrThrow(param: {
