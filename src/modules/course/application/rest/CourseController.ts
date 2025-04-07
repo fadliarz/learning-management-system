@@ -15,7 +15,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
 import { AuthenticationGuard } from '../../../authentication/domain/application-service/AuthenticationGuard';
 import CreateCourseCommandHandler from '../../domain/application-service/features/create-course/CreateCourseCommandHandler';
@@ -94,6 +94,9 @@ export default class CourseController {
     status: HttpStatus.OK,
     description: 'Courses retrieved successfully',
     type: CoursesWrapperResponse,
+  })
+  @ApiQuery({
+    type: GetCoursesDto,
   })
   public async getCourses(
     @Query() query: any,
