@@ -11,12 +11,14 @@ import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import CourseDynamoDBRepository from './data-access/database/repository/CourseDynamoDBRepository';
 import CategoryModule from '../category/CategoryModule';
+import AddCourseCategoryCommandHandler from './domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule, CategoryModule],
   controllers: [CourseController],
   providers: [
     CreateCourseCommandHandler,
+    AddCourseCategoryCommandHandler,
     GetCoursesQueryHandler,
     GetCourseQueryHandler,
     UpdateCourseCommandHandler,

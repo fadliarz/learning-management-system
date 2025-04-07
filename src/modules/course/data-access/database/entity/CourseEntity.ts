@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
 import ToISO from '../../../../../common/common-domain/decorator/ToISO';
+import ToSet from '../../../../../common/common-domain/decorator/ToSet';
 
 export default class CourseEntity {
   @Expose()
@@ -42,7 +43,8 @@ export default class CourseEntity {
   public numberOfAttachments: number;
 
   @Expose()
-  public categories: number[];
+  @ToSet()
+  public categories: Set<number>;
 
   @Expose()
   @ToISO()

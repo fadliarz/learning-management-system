@@ -8,6 +8,11 @@ export interface CourseRepository {
     domainException: DomainException;
   }): Promise<void>;
 
+  addCategoryIfNotExistsOrIgnore(param: {
+    courseId: number;
+    categoryId: number;
+  }): Promise<void>;
+
   findMany(param: {
     categories: string[];
     pagination: Pagination;

@@ -2,6 +2,7 @@ import { Expose } from 'class-transformer';
 import ISO8601ToDate from '../../../../../common/common-domain/decorator/ISO8601ToDate';
 import TimeFactory from '../../../../../common/common-domain/helper/TimeFactory';
 import ImmutableFieldException from '../../../../../common/common-domain/exception/ImmutableFieldException';
+import ToArray from '../../../../../common/common-domain/decorator/ToArray';
 
 export default class Course {
   private _courseId: number;
@@ -38,7 +39,6 @@ export default class Course {
     this._numberOfVideos = 0;
     this._numberOfDurations = 0;
     this._numberOfAttachments = 0;
-    this._categories = [];
     this._createdAt = now;
     this._version = 1;
     this._lessonArrangementVersion = 1;
@@ -146,6 +146,7 @@ export default class Course {
   }
 
   @Expose()
+  @ToArray()
   set categories(value: number[]) {
     if (this._categories !== undefined) {
       throw new ImmutableFieldException();

@@ -23,6 +23,13 @@ export default class CourseRepositoryImpl implements CourseRepository {
     });
   }
 
+  public async addCategoryIfNotExistsOrIgnore(param: {
+    courseId: number;
+    categoryId: number;
+  }): Promise<void> {
+    await this.courseDynamoDBRepository.addCategoryIfNotExistsOrIgnore(param);
+  }
+
   public async findMany(param: {
     categories: string[];
     pagination: Pagination;

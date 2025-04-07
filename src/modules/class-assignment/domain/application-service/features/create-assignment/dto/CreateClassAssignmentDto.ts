@@ -32,8 +32,8 @@ export default class CreateClassAssignmentDto {
 
   @ApiProperty()
   @IsString({ message: 'The description must be a string' })
-  @MaxLength(512, {
-    message: 'The description must be less than 512 characters',
+  @MaxLength(2048, {
+    message: 'The description must be less than 2048 characters',
   })
   public description: string;
 

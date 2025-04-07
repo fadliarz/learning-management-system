@@ -56,7 +56,7 @@ export default class CourseResponse {
 
   @ApiProperty()
   @Expose()
-  public categories: string[];
+  public categories: number[];
 
   @ApiProperty()
   @Expose()

@@ -13,7 +13,7 @@ export default class UpdateCourseDto {
   @IsOptional()
   @IsString({ message: 'Image must be a string' })
   @IsNotEmpty({ message: 'Image must not be empty' })
-  @MaxLength(1024, { message: 'Image must not be longer than 1024 characters' })
+  @MaxLength(2048, { message: 'Image must not be longer than 2048 characters' })
   public image: string;
 
   @ApiProperty({ required: false })

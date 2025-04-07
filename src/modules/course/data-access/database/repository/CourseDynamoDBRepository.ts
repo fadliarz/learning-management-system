@@ -6,16 +6,23 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
+  TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
-import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  TransactionCanceledException,
+} from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import CourseEntity from '../entity/CourseEntity';
 import CourseKey from '../entity/CourseKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import CategoryLinkKey from '../../../../category/data-access/database/entity/CategoryLinkKey';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import CourseNotFoundException from '../../../domain/domain-core/exception/CourseNotFoundException';
 
 @Injectable()
 export default class CourseDynamoDBRepository {
@@ -42,6 +49,53 @@ export default class CourseDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
         throw domainException;
+      throw exception;
+    }
+  }
+
+  public async addCategoryIfNotExistsOrIgnore(param: {
+    courseId: number;
+    categoryId: number;
+  }): Promise<void> {
+    const { courseId, categoryId } = param;
+    try {
+      await this.dynamoDBDocumentClient.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: this.dynamoDBConfig.COURSE_TABLE,
+                Key: new CourseKey({ courseId }),
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(courseId)',
+                UpdateExpression: 'ADD #categories :categoryId',
+                ExpressionAttributeNames: {
+                  '#categories': 'categories',
+                },
+                ExpressionAttributeValues: {
+                  ':categoryId': new Set([categoryId]),
+                },
+              },
+            },
+            {
+              Put: {
+                TableName: this.dynamoDBConfig.CATEGORY_TABLE,
+                Item: new CategoryLinkKey({ categoryId, courseId }),
+              },
+            },
+          ],
+        }),
+      );
+    } catch (exception) {
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new CourseNotFoundException();
+      }
       throw exception;
     }
   }

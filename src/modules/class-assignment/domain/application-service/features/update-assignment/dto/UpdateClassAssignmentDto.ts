@@ -14,7 +14,7 @@ export default class UpdateClassAssignmentDto {
   @IsOptional()
   @IsString({ message: 'The title must be a string' })
   @IsNotEmpty({ message: 'The title is required' })
-  @MaxLength(128, { message: 'The title must be less than 128 characters' })
+  @MaxLength(2048, { message: 'The title must be less than 2048 characters' })
   public title: string;
 
   @ApiProperty({ required: false })
@@ -37,8 +37,8 @@ export default class UpdateClassAssignmentDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString({ message: 'The description must be a string' })
-  @MaxLength(512, {
-    message: 'The description must be less than 512 characters',
+  @MaxLength(2048, {
+    message: 'The description must be less than 2048 characters',
   })
   public description: string;
 

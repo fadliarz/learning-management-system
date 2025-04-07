@@ -27,6 +27,8 @@ import DeleteCourseCommandHandler from '../../domain/application-service/feature
 import GetCoursesDto from '../../domain/application-service/features/get-courses/dto/GetCoursesDto';
 import CoursesWrapperResponse from './response/CoursesWrapperResponse';
 import CourseWrapperResponse from './response/CourseWrapperResponse';
+import AddCourseCategoryCommandHandler from '../../domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
+import AddCourseCategoryDto from '../../domain/application-service/features/add-category/dto/AddCourseCategoryDto';
 
 @Injectable()
 @Controller('api/v1/courses')
@@ -34,6 +36,7 @@ import CourseWrapperResponse from './response/CourseWrapperResponse';
 export default class CourseController {
   constructor(
     private readonly createCourseCommandHandler: CreateCourseCommandHandler,
+    private readonly addCourseCategoryCommandHandler: AddCourseCategoryCommandHandler,
     private readonly getCoursesQueryHandler: GetCoursesQueryHandler,
     private readonly getCourseQueryHandler: GetCourseQueryHandler,
     private readonly updateCourseCommandHandler: UpdateCourseCommandHandler,
@@ -59,6 +62,26 @@ export default class CourseController {
         ...createCourseDto,
       }),
     );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Post(':courseId/add-category')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Add category to a course' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Category added successfully.',
+  })
+  public async addCategory(
+    @Req() request: FastifyRequest,
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Body() addCourseCategoryDto: AddCourseCategoryDto,
+  ): Promise<void> {
+    await this.addCourseCategoryCommandHandler.execute({
+      executor: request.executor,
+      courseId,
+      ...addCourseCategoryDto,
+    });
   }
 
   @Get()

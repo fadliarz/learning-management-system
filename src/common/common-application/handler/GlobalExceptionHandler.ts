@@ -33,7 +33,7 @@ export default class GlobalExceptionHandler {
           ? exception.getResponse()
           : 'Internal Server Error';
 
-    console.log('@Error: ', {
+    console.log('@GlobalExceptionHandler: ', {
       statusCode: status,
       date: new Date().toISOString(),
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -42,9 +42,20 @@ export default class GlobalExceptionHandler {
       errorObj: exception,
     });
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (exception && (exception as any).CancellationReasons) {
+      console.log(
+        '@GlobalExceptionHandler: CancellationReasons: ',
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+        (exception as any).CancellationReasons,
+      );
+    }
+
     if (status === 401) {
       response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, { path: '/' });
-      response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, { path: '/' });
+      response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, {
+        path: '/',
+      });
       response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, {
         path: '/api-docs',
       });

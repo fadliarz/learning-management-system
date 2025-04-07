@@ -10,20 +10,20 @@ export default class UpdateCourseScheduleDto {
   @IsOptional()
   @IsString({ message: 'The title must be a string' })
   @IsNotEmpty({ message: 'The title is required' })
-  @MaxLength(32, { message: 'The title must be less than 32 characters' })
+  @MaxLength(128, { message: 'The title must be less than 128 characters' })
   public title: string;
 
   @IsOptional()
   @IsString({ message: 'The description must be a string' })
-  @MaxLength(512, {
-    message: 'The description must be less than 512 characters',
+  @MaxLength(2048, {
+    message: 'The description must be less than 2048 characters',
   })
   public description: string;
 
   @IsOptional()
   @IsString({ message: 'The location must be a string' })
   @IsNotEmpty({ message: 'The location is required' })
-  @MaxLength(64, { message: 'The location must be less than 64 characters' })
+  @MaxLength(256, { message: 'The location must be less than 256 characters' })
   public location: string;
 
   @IsOptional()
