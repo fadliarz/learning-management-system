@@ -51,6 +51,12 @@ export default class GlobalExceptionHandler {
       response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, {
         path: '/api-docs',
       });
+      response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, {
+        path: '/api/v1',
+      });
+      response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, {
+        path: '/api/v1',
+      });
     }
 
     response.status(status).send({
