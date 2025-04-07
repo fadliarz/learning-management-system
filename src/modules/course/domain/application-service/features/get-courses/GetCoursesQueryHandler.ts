@@ -18,6 +18,7 @@ export default class GetCoursesQueryHandler {
     getCoursesQuery: GetCoursesQuery,
   ): Promise<CourseResponse[]> {
     const courses: Course[] = await this.courseContext.findMany({
+      ...getCoursesQuery,
       pagination: strictPlainToClass(Pagination, getCoursesQuery),
     });
     return courses.map((course) => strictPlainToClass(CourseResponse, course));

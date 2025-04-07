@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -24,11 +25,13 @@ import GetCourseQueryHandler from '../../domain/application-service/features/get
 import UpdateCourseCommandHandler from '../../domain/application-service/features/update-course/UpdateCourseCommandHandler';
 import UpdateCourseDto from '../../domain/application-service/features/update-course/dto/UpdateCourseDto';
 import DeleteCourseCommandHandler from '../../domain/application-service/features/delete-course/DeleteCourseCommandHandler';
-import GetCoursesDto from '../../domain/application-service/features/get-courses/dto/GetCoursesDto';
 import CoursesWrapperResponse from './response/CoursesWrapperResponse';
 import CourseWrapperResponse from './response/CourseWrapperResponse';
 import AddCourseCategoryCommandHandler from '../../domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
 import AddCourseCategoryDto from '../../domain/application-service/features/add-category/dto/AddCourseCategoryDto';
+import GetCoursesDto from '../../domain/application-service/features/get-courses/dto/GetCoursesDto';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Injectable()
 @Controller('api/v1/courses')
@@ -93,11 +96,24 @@ export default class CourseController {
     type: CoursesWrapperResponse,
   })
   public async getCourses(
-    @Query() query: GetCoursesDto,
+    @Query() query: any,
   ): Promise<CoursesWrapperResponse> {
+    const getCoursesDto: GetCoursesDto = plainToClass(GetCoursesDto, query);
+    if (getCoursesDto.categories) {
+      if (!Array.isArray(getCoursesDto.categories)) {
+        getCoursesDto.categories = [getCoursesDto.categories];
+      }
+      getCoursesDto.categories = getCoursesDto.categories.map((category) =>
+        Number(category),
+      );
+    }
+    const errors = await validate(getCoursesDto);
+    if (errors.length > 0) {
+      throw new BadRequestException(errors[0].constraints);
+    }
     return new CoursesWrapperResponse(
       await this.getCoursesQueryHandler.execute({
-        ...query,
+        ...getCoursesDto,
       }),
     );
   }
