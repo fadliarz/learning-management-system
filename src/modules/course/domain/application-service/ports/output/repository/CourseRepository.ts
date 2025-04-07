@@ -13,10 +13,7 @@ export interface CourseRepository {
     categoryId: number;
   }): Promise<void>;
 
-  findMany(param: {
-    categories: string[];
-    pagination: Pagination;
-  }): Promise<Course[]>;
+  findMany(param: { pagination: Pagination }): Promise<Course[]>;
 
   findByIdOrThrow(param: {
     courseId: number;
