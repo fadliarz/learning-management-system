@@ -44,7 +44,7 @@ export default class Application {
     /**
      * Global Exception Handler
      */
-    this._app.useGlobalFilters(new GlobalExceptionHandler());
+    this._app.useGlobalFilters(this._app.get(GlobalExceptionHandler));
 
     /**
      * Cookie

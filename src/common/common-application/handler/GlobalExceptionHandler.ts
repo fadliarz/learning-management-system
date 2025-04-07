@@ -3,12 +3,17 @@ import {
   Catch,
   HttpException as NestHttpException,
   HttpStatus,
+  Injectable,
 } from '@nestjs/common';
 import HttpException from '../../common-domain/exception/HttpException';
 import { FastifyReply } from 'fastify';
+import CookieConfig from '../../../config/CookieConfig';
 
+@Injectable()
 @Catch()
 export default class GlobalExceptionHandler {
+  constructor(private readonly cookieConfig: CookieConfig) {}
+
   catch(exception: unknown, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<FastifyReply>();
@@ -36,6 +41,11 @@ export default class GlobalExceptionHandler {
       message,
       errorObj: exception,
     });
+
+    if (status === 401) {
+      response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, { path: '/' });
+      response.clearCookie(this.cookieConfig.REFRESH_TOKEN_KEY, { path: '/' });
+    }
 
     response.status(status).send({
       error: {

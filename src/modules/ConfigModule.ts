@@ -13,6 +13,7 @@ import PrivilegeRepositoryImpl from './privilege/data-access/database/adapter/Pr
 import PrivilegeDynamoDBRepository from './privilege/data-access/database/repository/PrivilegeDynamoDBRepository';
 import CookieConfig from '../config/CookieConfig';
 import GlobalConfig from '../config/GlobalConfig';
+import GlobalExceptionHandler from '../common/common-application/handler/GlobalExceptionHandler';
 
 @Global()
 @Module({
@@ -48,6 +49,7 @@ import GlobalConfig from '../config/GlobalConfig';
       useClass: PrivilegeRepositoryImpl,
     },
     PrivilegeDynamoDBRepository,
+    GlobalExceptionHandler,
   ],
   exports: [
     GlobalConfig,
