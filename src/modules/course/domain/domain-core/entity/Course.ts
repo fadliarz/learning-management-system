@@ -17,7 +17,7 @@ export default class Course {
   private _numberOfVideos: number;
   private _numberOfDurations: number;
   private _numberOfAttachments: number;
-  private _categories: string[];
+  private _categories: number[];
   private _createdAt: Date;
   private _updatedAt: Date;
   private _version: number;
@@ -146,7 +146,7 @@ export default class Course {
   }
 
   @Expose()
-  set categories(value: string[]) {
+  set categories(value: number[]) {
     if (this._categories !== undefined) {
       throw new ImmutableFieldException();
     }
@@ -240,7 +240,7 @@ export default class Course {
     return this._numberOfAttachments;
   }
 
-  get categories(): string[] {
+  get categories(): number[] {
     return this._categories;
   }
 

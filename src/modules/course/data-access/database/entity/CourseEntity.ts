@@ -42,7 +42,7 @@ export default class CourseEntity {
   public numberOfAttachments: number;
 
   @Expose()
-  public categories: string[];
+  public categories: number[];
 
   @Expose()
   @ToISO()
