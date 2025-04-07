@@ -8,12 +8,11 @@ import GetCategoryQueryHandler from './domain/application-service/features/get-c
 import UpdateCategoryCommandHandler from './domain/application-service/features/update-category/UpdateCategoryCommandHandler';
 import DeleteCategoryCommandHandler from './domain/application-service/features/delete-category/DeleteCategoryCommandHandler';
 import ConfigModule from '../ConfigModule';
-import UserModule from '../user/UserModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import CategoryDynamoDBRepository from './data-access/database/repository/CategoryDynamoDBRepository';
 
 @Module({
-  imports: [ConfigModule, UserModule, PrivilegeModule],
+  imports: [ConfigModule, PrivilegeModule],
   controllers: [CategoryController],
   providers: [
     CreateCategoryCommandHandler,
@@ -27,6 +26,12 @@ import CategoryDynamoDBRepository from './data-access/database/repository/Catego
     },
     CategoryDynamoDBRepository,
   ],
-  exports: [],
+  exports: [
+    {
+      provide: DependencyInjection.CATEGORY_REPOSITORY,
+      useClass: CategoryRepositoryImpl,
+    },
+    CategoryDynamoDBRepository,
+  ],
 })
 export default class CategoryModule {}

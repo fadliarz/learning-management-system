@@ -10,9 +10,10 @@ import CourseRepositoryImpl from './data-access/database/adapter/CourseRepositor
 import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import CourseDynamoDBRepository from './data-access/database/repository/CourseDynamoDBRepository';
+import CategoryModule from '../category/CategoryModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule],
+  imports: [ConfigModule, PrivilegeModule, CategoryModule],
   controllers: [CourseController],
   providers: [
     CreateCourseCommandHandler,
