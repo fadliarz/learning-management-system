@@ -26,7 +26,7 @@ export default class ScholarshipResponse {
   @Expose()
   public reference: string;
 
-  @ApiProperty()
+  @ApiProperty({ type: [Number] })
   @Expose()
   public tags: number[];
 }

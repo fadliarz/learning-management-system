@@ -54,7 +54,9 @@ export default class CourseResponse {
   @Expose()
   public numberOfAttachments: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    type: [Number],
+  })
   @Expose()
   public categories: number[];
 
