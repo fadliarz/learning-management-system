@@ -28,5 +28,5 @@ export default class ScholarshipResponse {
 
   @ApiProperty()
   @Expose()
-  public categories: string[];
+  public tags: number[];
 }

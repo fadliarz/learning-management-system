@@ -27,7 +27,7 @@ export default class ScholarshipEntity {
 
   @Expose()
   @ToSet()
-  public categories: Set<string>;
+  public tags: Set<number>;
 
   @Expose()
   @ToISO()

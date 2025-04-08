@@ -12,7 +12,7 @@ export default class Scholarship {
   private _provider: string;
   private _deadline: Date;
   private _reference: string;
-  private _categories: string[];
+  private _tags: number[];
   private _createdAt: Date;
   private _updatedAt: Date;
 
@@ -67,8 +67,8 @@ export default class Scholarship {
 
   @Expose()
   @ToArray()
-  set categories(value: string[]) {
-    this._categories = value;
+  set tags(value: number[]) {
+    this._tags = value;
   }
 
   @Expose()
@@ -115,8 +115,8 @@ export default class Scholarship {
     return this._reference;
   }
 
-  get categories(): string[] {
-    return this._categories;
+  get tags(): number[] {
+    return this._tags;
   }
 
   get createdAt(): Date {
