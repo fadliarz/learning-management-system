@@ -54,5 +54,6 @@ jobs:
           export SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}
           export PORT=${{ secrets.PORT }}
           pm2 stop lms
+          pm2 delete lms
           pm2 restart ecosystem.config.js
           EOF
