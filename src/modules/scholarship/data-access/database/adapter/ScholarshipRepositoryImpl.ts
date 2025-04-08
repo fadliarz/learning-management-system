@@ -28,6 +28,13 @@ export default class ScholarshipRepositoryImpl
     });
   }
 
+  public async addTagIfNotExistsOrIgnore(param: {
+    scholarshipId: number;
+    tagId: number;
+  }): Promise<void> {
+    await this.scholarshipDynamoDBRepository.addTagIfNotExistsOrIgnore(param);
+  }
+
   public async findMany(param: {
     pagination: Pagination;
   }): Promise<Scholarship[]> {

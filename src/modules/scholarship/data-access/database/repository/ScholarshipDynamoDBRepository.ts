@@ -6,17 +6,23 @@ import {
   GetCommand,
   PutCommand,
   QueryCommand,
+  TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
-import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  TransactionCanceledException,
+} from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import ScholarshipEntity from '../entity/ScholarshipEntity';
 import ScholarshipKey from '../entity/ScholarshipKey';
 import ScholarshipNotFoundException from '../../../domain/domain-core/exception/ScholarshipNotFoundException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import TagLinkKey from '../../../../tag/data-access/database/entity/TagLinkKey';
 
 @Injectable()
 export default class ScholarshipDynamoDBRepository {
@@ -39,6 +45,53 @@ export default class ScholarshipDynamoDBRepository {
           'attribute_not_exists(id) AND attribute_not_exists(scholarshipId)',
       }),
     );
+  }
+
+  public async addTagIfNotExistsOrIgnore(param: {
+    scholarshipId: number;
+    tagId: number;
+  }): Promise<void> {
+    const { scholarshipId, tagId } = param;
+    try {
+      await this.dynamoDBDocumentClient.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,
+                Key: new ScholarshipKey({ scholarshipId }),
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(scholarshipId)',
+                UpdateExpression: 'ADD #tags :tagId',
+                ExpressionAttributeNames: {
+                  '#tags': 'tags',
+                },
+                ExpressionAttributeValues: {
+                  ':tagId': new Set([tagId]),
+                },
+              },
+            },
+            {
+              Put: {
+                TableName: this.dynamoDBConfig.TAG_TABLE,
+                Item: new TagLinkKey({ tagId, scholarshipId }),
+              },
+            },
+          ],
+        }),
+      );
+    } catch (exception) {
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new ScholarshipNotFoundException();
+      }
+      throw exception;
+    }
   }
 
   public async findMany(param: {

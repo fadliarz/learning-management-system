@@ -20,4 +20,5 @@ export enum DependencyInjection {
   DYNAMODB_DOCUMENT_CLIENT = 'DynamoDBDocumentClient',
 
   COURSE_CONTEXT = 'CourseContext',
+  SCHOLARSHIP_CONTEXT = 'ScholarshipContext',
 }

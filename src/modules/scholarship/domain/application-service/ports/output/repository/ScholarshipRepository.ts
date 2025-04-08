@@ -8,6 +8,11 @@ export interface ScholarshipRepository {
     domainException: DomainException;
   }): Promise<void>;
 
+  addTagIfNotExistsOrIgnore(param: {
+    scholarshipId: number;
+    tagId: number;
+  }): Promise<void>;
+
   findMany(param: { pagination: Pagination }): Promise<Scholarship[]>;
 
   findByIdOrThrow(param: {
