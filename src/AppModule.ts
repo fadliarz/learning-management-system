@@ -16,6 +16,7 @@ import FormSubmissionModule from './modules/form-submission/FormSubmissionModule
 import AuthenticationModule from './modules/authentication/AuthenticationModule';
 import InstructorModule from './modules/instructor/InstructorModule';
 import PrivilegeModule from './modules/privilege/PrivilegeModule';
+import TagModule from './modules/tag/TagModule';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import PrivilegeModule from './modules/privilege/PrivilegeModule';
     LessonModule,
     PrivilegeModule,
     ScholarshipModule,
+    TagModule,
     UserModule,
     UserAssignmentModule,
     UserScheduleModule,

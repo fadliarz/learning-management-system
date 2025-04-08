@@ -17,6 +17,7 @@ export default class DynamoDBConfig {
   private readonly _PRIVILEGE_TABLE: string;
   private readonly _USER_ASSIGNMENT_TABLE: string;
   private readonly _SCHOLARSHIP_TABLE: string;
+  private readonly _TAG_TABLE: string;
   private readonly _USER_SCHEDULE_TABLE: string;
   private readonly _VIDEO_TABLE: string;
 
@@ -50,6 +51,7 @@ export default class DynamoDBConfig {
     );
     this._SCHOLARSHIP_TABLE =
       this._configService.getOrThrow<string>('SCHOLARSHIP_TABLE');
+    this._TAG_TABLE = this._configService.getOrThrow<string>('TAG_TABLE');
     this._USER_SCHEDULE_TABLE = this._configService.getOrThrow<string>(
       'USER_SCHEDULE_TABLE',
     );
@@ -110,6 +112,10 @@ export default class DynamoDBConfig {
 
   get SCHOLARSHIP_TABLE(): string {
     return this._SCHOLARSHIP_TABLE;
+  }
+
+  get TAG_TABLE(): string {
+    return this._TAG_TABLE;
   }
 
   get USER_SCHEDULE_TABLE(): string {

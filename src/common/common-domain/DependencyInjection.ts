@@ -10,6 +10,7 @@ export enum DependencyInjection {
   INSTRUCTOR_REPOSITORY = 'InstructorRepository',
   PRIVILEGE_REPOSITORY = 'PrivilegeRepository',
   SCHOLARSHIP_REPOSITORY = 'ScholarshipRepository',
+  TAG_REPOSITORY = 'TagRepository',
   USER_REPOSITORY = 'UserRepository',
   USER_ASSIGNMENT_REPOSITORY = 'UserAssignmentRepository',
   USER_SCHEDULE_REPOSITORY = 'UserScheduleRepository',
