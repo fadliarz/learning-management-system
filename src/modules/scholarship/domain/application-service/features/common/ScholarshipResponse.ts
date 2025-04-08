@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import TagResponse from '../../../../../tag/domain/application-service/features/common/TagResponse';
 
 export default class ScholarshipResponse {
   @ApiProperty()
@@ -26,7 +27,7 @@ export default class ScholarshipResponse {
   @Expose()
   public reference: string;
 
-  @ApiProperty({ type: [Number] })
+  @ApiProperty({ type: [TagResponse] })
   @Expose()
-  public tags: number[];
+  public tags: TagResponse[];
 }

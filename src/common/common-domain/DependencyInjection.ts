@@ -21,4 +21,5 @@ export enum DependencyInjection {
 
   COURSE_CONTEXT = 'CourseContext',
   SCHOLARSHIP_CONTEXT = 'ScholarshipContext',
+  TAG_CONTEXT = 'TagContext',
 }
