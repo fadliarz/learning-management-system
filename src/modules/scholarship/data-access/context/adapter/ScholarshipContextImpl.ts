@@ -33,15 +33,15 @@ export default class ScholarshipContextImpl implements ScholarshipContext {
 
   public async findMany(param: {
     pagination?: Pagination;
-    categories?: number[];
+    tags?: number[];
   }): Promise<Scholarship[]> {
     await this.load();
     let filteredScholarships: Scholarship[] = this.scholarships;
-    const { pagination, categories } = param;
-    if (categories) {
+    const { pagination, tags } = param;
+    if (tags) {
       filteredScholarships = this.filterScholarshipByTags(
         filteredScholarships,
-        categories,
+        tags,
       );
     }
     if (pagination && pagination.lastEvaluatedId) {

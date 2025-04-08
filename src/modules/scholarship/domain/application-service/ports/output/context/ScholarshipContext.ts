@@ -6,7 +6,7 @@ export default interface ScholarshipContext {
   forceLoad: () => Promise<Scholarship[]>;
   findMany: (param: {
     pagination?: Pagination;
-    categories?: number[];
+    tags?: number[];
   }) => Promise<Scholarship[]>;
   refresh: (param: { scholarshipId: number }) => Promise<void>;
 }

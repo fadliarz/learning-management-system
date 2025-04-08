@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -14,7 +15,7 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { FastifyRequest } from 'fastify';
 import { AuthenticationGuard } from '../../../authentication/domain/application-service/AuthenticationGuard';
 import CreateScholarshipCommandHandler from '../../domain/application-service/features/create-scholarship/CreateScholarshipCommandHandler';
@@ -24,12 +25,14 @@ import GetScholarshipQueryHandler from '../../domain/application-service/feature
 import UpdateScholarshipCommandHandler from '../../domain/application-service/features/update-scholarship/UpdateScholarshipCommandHandler';
 import UpdateScholarshipDto from '../../domain/application-service/features/update-scholarship/dto/UpdateScholarshipDto';
 import DeleteScholarshipCommandHandler from '../../domain/application-service/features/delete-scholarship/DeleteScholarshipCommandHandler';
-import PaginationDto from '../../../../common/common-domain/PaginationDto';
 import ScholarshipWrapperResponse from './response/ScholarshipWrapperResponse';
 import ScholarshipsWrapperResponse from './response/ScholarshipsWrapperResponse';
 import AddScholarshipTagCommandHandler from '../../domain/application-service/features/add-tag/AddScholarshipTagCommandHandler';
 import AddScholarshipTagDto from '../../domain/application-service/features/add-tag/dto/AddScholarshipTagDto';
 import RemoveScholarshipTagCommandHandler from '../../domain/application-service/features/remove-tag/RemoveScholarshipTagCommandHandler';
+import GetScholarshipsDto from '../../domain/application-service/features/get-scholarships/dto/GetScholarshipsDto';
+import { plainToClass } from 'class-transformer';
+import { validate } from 'class-validator';
 
 @Injectable()
 @Controller('api/v1')
@@ -114,12 +117,31 @@ export default class ScholarshipController {
     description: 'Scholarships retrieved successfully',
     type: ScholarshipsWrapperResponse,
   })
+  @ApiQuery({
+    type: GetScholarshipsDto,
+  })
   public async getScholarships(
-    @Query() query: PaginationDto,
+    @Query() query: any,
   ): Promise<ScholarshipsWrapperResponse> {
+    const getScholarshipsDto: GetScholarshipsDto = plainToClass(
+      GetScholarshipsDto,
+      query,
+    );
+    if (getScholarshipsDto.tags) {
+      if (!Array.isArray(getScholarshipsDto.tags)) {
+        getScholarshipsDto.tags = [getScholarshipsDto.tags];
+      }
+      getScholarshipsDto.tags = getScholarshipsDto.tags.map((tag) =>
+        Number(tag),
+      );
+    }
+    const errors = await validate(getScholarshipsDto);
+    if (errors.length > 0) {
+      throw new BadRequestException(errors[0].constraints);
+    }
     return new ScholarshipsWrapperResponse(
       await this.getScholarshipsQueryHandler.execute({
-        ...query,
+        ...getScholarshipsDto,
       }),
     );
   }
