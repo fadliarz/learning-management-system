@@ -96,7 +96,7 @@ export default class TagController {
   }
 
   @UseGuards(AuthenticationGuard)
-  @Patch(':tagIId')
+  @Patch(':tagId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Update a tag' })
   @ApiResponse({
