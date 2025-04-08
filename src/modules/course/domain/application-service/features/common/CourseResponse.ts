@@ -1,5 +1,6 @@
 import { Expose } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
+import CategoryResponse from '../../../../../category/domain/application-service/features/common/CategoryResponse';
 
 export default class CourseResponse {
   @ApiProperty()
@@ -55,10 +56,10 @@ export default class CourseResponse {
   public numberOfAttachments: number;
 
   @ApiProperty({
-    type: [Number],
+    type: [CategoryResponse],
   })
   @Expose()
-  public categories: number[];
+  public categories: CategoryResponse[];
 
   @ApiProperty()
   @Expose()
