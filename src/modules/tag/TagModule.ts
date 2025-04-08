@@ -10,6 +10,7 @@ import GetTagsQueryHandler from './domain/application-service/features/get-tags/
 import GetTagQueryHandler from './domain/application-service/features/get-tag/GetTagQueryHandler';
 import UpdateTagCommandHandler from './domain/application-service/features/update-tag/UpdateTagCommandHandler';
 import DeleteTagCommandHandler from './domain/application-service/features/delete-tag/DeleteTagCommandHandler';
+import TagContextImpl from './data-access/context/adapter/TagContextImpl';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule],
@@ -25,6 +26,10 @@ import DeleteTagCommandHandler from './domain/application-service/features/delet
       useClass: TagRepositoryImpl,
     },
     TagDynamoDBRepository,
+    {
+      provide: DependencyInjection.TAG_CONTEXT,
+      useClass: TagContextImpl,
+    },
   ],
   exports: [
     {
@@ -32,6 +37,10 @@ import DeleteTagCommandHandler from './domain/application-service/features/delet
       useClass: TagRepositoryImpl,
     },
     TagDynamoDBRepository,
+    {
+      provide: DependencyInjection.TAG_CONTEXT,
+      useClass: TagContextImpl,
+    },
   ],
 })
 export default class TagModule {}
