@@ -270,6 +270,26 @@ resource "aws_dynamodb_table" "scholarship-table" {
 }
 
 
+resource "aws_dynamodb_table" "tag-table" {
+  name         = var.dynamodb_tag_table_name
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
+  range_key    = "tagId"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+  attribute {
+    name = "tagId"
+    type = "N"
+  }
+
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
+}
+
+
 resource "aws_dynamodb_table" "user-table" {
   name         = var.dynamodb_user_table_name
   billing_mode = "PAY_PER_REQUEST"
@@ -408,6 +428,11 @@ variable "dynamodb_privilege_table_name" {
 variable "dynamodb_scholarship_table_name" {
   type    = string
   default = "SCHOLARSHIP_TABLE"
+}
+
+variable "dynamodb_tag_table_name" {
+  type    = string
+  default = "TAG_TABLE"
 }
 
 variable "dynamodb_user_table_name" {
