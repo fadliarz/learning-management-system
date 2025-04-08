@@ -10,6 +10,7 @@ import DeleteCategoryCommandHandler from './domain/application-service/features/
 import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import CategoryDynamoDBRepository from './data-access/database/repository/CategoryDynamoDBRepository';
+import CategoryContextImpl from './data-access/context/adapter/CategoryContextImpl';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule],
@@ -25,6 +26,10 @@ import CategoryDynamoDBRepository from './data-access/database/repository/Catego
       useClass: CategoryRepositoryImpl,
     },
     CategoryDynamoDBRepository,
+    {
+      provide: DependencyInjection.CATEGORY_CONTEXT,
+      useClass: CategoryContextImpl,
+    },
   ],
   exports: [
     {
@@ -32,6 +37,10 @@ import CategoryDynamoDBRepository from './data-access/database/repository/Catego
       useClass: CategoryRepositoryImpl,
     },
     CategoryDynamoDBRepository,
+    {
+      provide: DependencyInjection.CATEGORY_CONTEXT,
+      useClass: CategoryContextImpl,
+    },
   ],
 })
 export default class CategoryModule {}

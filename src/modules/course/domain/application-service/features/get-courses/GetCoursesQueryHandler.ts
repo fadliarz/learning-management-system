@@ -6,12 +6,17 @@ import CourseResponse from '../common/CourseResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import CourseContext from '../../ports/output/context/CourseContext';
 import Pagination from '../../../../../../common/common-domain/repository/Pagination';
+import CategoryContext from '../../../../../category/domain/application-service/ports/output/context/CategoryContext';
+import Category from '../../../../../category/domain/domain-core/entity/Category';
+import CategoryResponse from '../../../../../category/domain/application-service/features/common/CategoryResponse';
 
 @Injectable()
 export default class GetCoursesQueryHandler {
   constructor(
     @Inject(DependencyInjection.COURSE_CONTEXT)
     private readonly courseContext: CourseContext,
+    @Inject(DependencyInjection.CATEGORY_CONTEXT)
+    private readonly categoryContext: CategoryContext,
   ) {}
 
   public async execute(
@@ -21,6 +26,30 @@ export default class GetCoursesQueryHandler {
       ...getCoursesQuery,
       pagination: strictPlainToClass(Pagination, getCoursesQuery),
     });
-    return courses.map((course) => strictPlainToClass(CourseResponse, course));
+    return await this.transform(courses);
+  }
+
+  private async transform(courses: Course[]): Promise<CourseResponse[]> {
+    const courseResponses: CourseResponse[] = [];
+    for (const course of courses) {
+      const courseResponse: CourseResponse = strictPlainToClass(
+        CourseResponse,
+        course,
+      );
+      courseResponse.categories = [];
+      for (const categoryId of course.categories) {
+        const category: Category | undefined =
+          await this.categoryContext.findById({
+            categoryId,
+          });
+        if (category) {
+          courseResponse.categories.push(
+            strictPlainToClass(CategoryResponse, category),
+          );
+        }
+      }
+      courseResponses.push(courseResponse);
+    }
+    return courseResponses;
   }
 }
