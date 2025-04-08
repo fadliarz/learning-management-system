@@ -13,6 +13,11 @@ export interface ScholarshipRepository {
     tagId: number;
   }): Promise<void>;
 
+  removeTagIfExistsOrIgnore(param: {
+    scholarshipId: number;
+    tagId: number;
+  }): Promise<void>;
+
   findMany(param: { pagination: Pagination }): Promise<Scholarship[]>;
 
   findByIdOrThrow(param: {

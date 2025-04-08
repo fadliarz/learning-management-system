@@ -13,6 +13,7 @@ import ScholarshipDynamoDBRepository from './data-access/database/repository/Sch
 import AddScholarshipTagCommandHandler from './domain/application-service/features/add-tag/AddScholarshipTagCommandHandler';
 import TagModule from '../tag/TagModule';
 import ScholarshipContextImpl from './data-access/context/adapter/ScholarshipContextImpl';
+import RemoveScholarshipTagCommandHandler from './domain/application-service/features/remove-tag/RemoveScholarshipTagCommandHandler';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule, TagModule],
@@ -20,6 +21,7 @@ import ScholarshipContextImpl from './data-access/context/adapter/ScholarshipCon
   providers: [
     CreateScholarshipCommandHandler,
     AddScholarshipTagCommandHandler,
+    RemoveScholarshipTagCommandHandler,
     GetScholarshipsQueryHandler,
     GetScholarshipQueryHandler,
     UpdateScholarshipCommandHandler,

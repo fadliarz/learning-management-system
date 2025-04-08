@@ -94,6 +94,58 @@ export default class ScholarshipDynamoDBRepository {
     }
   }
 
+  public async removeTagIfExistsOrIgnore(param: {
+    scholarshipId: number;
+    tagId: number;
+  }): Promise<void> {
+    const { scholarshipId, tagId } = param;
+    try {
+      await this.dynamoDBDocumentClient.send(
+        new TransactWriteCommand({
+          TransactItems: [
+            {
+              Update: {
+                TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,
+                Key: new ScholarshipKey({ scholarshipId }),
+                ConditionExpression:
+                  'attribute_exists(id) AND attribute_exists(scholarshipId)',
+                UpdateExpression: 'DELETE #tags :tagId',
+                ExpressionAttributeNames: {
+                  '#tags': 'tags',
+                },
+                ExpressionAttributeValues: {
+                  ':tagId': new Set([tagId]),
+                },
+              },
+            },
+            {
+              Delete: {
+                TableName: this.dynamoDBConfig.TAG_TABLE,
+                Key: new TagLinkKey({ tagId, scholarshipId }),
+              },
+            },
+          ],
+        }),
+      );
+    } catch (exception) {
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new ScholarshipNotFoundException();
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
+      }
+      throw exception;
+    }
+  }
+
   public async findMany(param: {
     pagination: Pagination;
   }): Promise<ScholarshipEntity[]> {

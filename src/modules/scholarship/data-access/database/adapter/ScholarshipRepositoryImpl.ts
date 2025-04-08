@@ -35,6 +35,13 @@ export default class ScholarshipRepositoryImpl
     await this.scholarshipDynamoDBRepository.addTagIfNotExistsOrIgnore(param);
   }
 
+  public async removeTagIfExistsOrIgnore(param: {
+    scholarshipId: number;
+    tagId: number;
+  }): Promise<void> {
+    await this.scholarshipDynamoDBRepository.removeTagIfExistsOrIgnore(param);
+  }
+
   public async findMany(param: {
     pagination: Pagination;
   }): Promise<Scholarship[]> {

@@ -29,6 +29,7 @@ import ScholarshipWrapperResponse from './response/ScholarshipWrapperResponse';
 import ScholarshipsWrapperResponse from './response/ScholarshipsWrapperResponse';
 import AddScholarshipTagCommandHandler from '../../domain/application-service/features/add-tag/AddScholarshipTagCommandHandler';
 import AddScholarshipTagDto from '../../domain/application-service/features/add-tag/dto/AddScholarshipTagDto';
+import RemoveScholarshipTagCommandHandler from '../../domain/application-service/features/remove-tag/RemoveScholarshipTagCommandHandler';
 
 @Injectable()
 @Controller('api/v1')
@@ -37,6 +38,7 @@ export default class ScholarshipController {
   constructor(
     private readonly createScholarshipCommandHandler: CreateScholarshipCommandHandler,
     private readonly addScholarshipTagCommandHandler: AddScholarshipTagCommandHandler,
+    private readonly removeScholarshipTagCommandHandler: RemoveScholarshipTagCommandHandler,
     private readonly getScholarshipsQueryHandler: GetScholarshipsQueryHandler,
     private readonly getScholarshipQueryHandler: GetScholarshipQueryHandler,
     private readonly updateScholarshipCommandHandler: UpdateScholarshipCommandHandler,
@@ -81,6 +83,26 @@ export default class ScholarshipController {
       executor: request.executor,
       scholarshipId,
       ...addScholarshipTagDto,
+    });
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Post('scholarships/:scholarshipId/remove-tag/:tagId')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Remove course category' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Category removed successfully.',
+  })
+  public async removeTag(
+    @Req() request: FastifyRequest,
+    @Param('scholarshipId', ParseIntPipe) scholarshipId: number,
+    @Param('tagId', ParseIntPipe) tagId: number,
+  ): Promise<void> {
+    await this.removeScholarshipTagCommandHandler.execute({
+      executor: request.executor,
+      scholarshipId,
+      tagId,
     });
   }
 
