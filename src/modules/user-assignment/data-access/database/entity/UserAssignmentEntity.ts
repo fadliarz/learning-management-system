@@ -2,6 +2,7 @@ import { AssignmentTaskType } from '../../../../../common/common-domain/Assignme
 import { AssignmentType } from '../../../domain/domain-core/entity/AssignmentType';
 import { Expose } from 'class-transformer';
 import ToISO from '../../../../../common/common-domain/decorator/ToISO';
+import { CompletionStatus } from '../../../domain/domain-core/entity/CompletionStatus';
 
 export default class UserAssignmentEntity {
   @Expose()
@@ -33,9 +34,13 @@ export default class UserAssignmentEntity {
   public assignmentType: AssignmentType;
 
   @Expose()
-  public completionStatus: string;
+  public completionStatus: CompletionStatus;
 
   @Expose()
   @ToISO()
   public createdAt: string;
+
+  @Expose()
+  @ToISO()
+  public classId: number;
 }

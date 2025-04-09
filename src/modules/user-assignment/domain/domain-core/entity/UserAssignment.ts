@@ -19,7 +19,6 @@ export default class UserAssignment {
   private _completionStatus: CompletionStatus;
   private _createdAt: Date;
   private _classId: number;
-  private _classAssignmentId: number;
 
   public create(userId: number): void {
     this._assignmentId = TimeFactory.dateToRandomMicroseconds(this._deadline);
@@ -111,15 +110,6 @@ export default class UserAssignment {
     this._classId = value;
   }
 
-  @Expose()
-  set classAssignmentId(value: number) {
-    if (this._classAssignmentId !== undefined) {
-      throw new ImmutableFieldException();
-    }
-
-    this._classAssignmentId = value;
-  }
-
   get assignmentId(): number {
     return this._assignmentId;
   }
@@ -166,9 +156,5 @@ export default class UserAssignment {
 
   get classId(): number {
     return this._classId;
-  }
-
-  get classAssignmentId(): number {
-    return this._classAssignmentId;
   }
 }
