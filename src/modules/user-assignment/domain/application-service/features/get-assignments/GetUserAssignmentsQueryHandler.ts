@@ -41,7 +41,7 @@ export default class GetUserAssignmentsQueryHandler {
           const classAssignment: ClassAssignment =
             await this.classAssignmentRepository.findByIdOrThrow({
               classId: userAssignment.classId,
-              assignmentId: userAssignment.classAssignmentId,
+              assignmentId: userAssignment.assignmentId,
               domainException: new UserAssignmentNotFoundException(),
             });
           const course: Course = await this.courseRepository.findByIdOrThrow({
