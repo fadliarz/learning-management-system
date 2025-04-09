@@ -41,6 +41,5 @@ export default class UserAssignmentEntity {
   public createdAt: string;
 
   @Expose()
-  @ToISO()
   public classId: number;
 }
