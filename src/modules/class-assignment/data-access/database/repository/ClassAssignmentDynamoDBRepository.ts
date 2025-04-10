@@ -21,7 +21,6 @@ import CourseKey from '../../../../course/data-access/database/entity/CourseKey'
 import ClassAssignmentKey from '../../../domain/domain-core/entity/ClassAssignmentKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
-import UserAssignmentNotFoundException from '../../../../user-assignment/domain/domain-core/exception/UserAssignmentNotFoundException';
 import ClassNotFoundException from '../../../../class/domain/domain-core/exception/ClassNotFoundException';
 
 @Injectable()
@@ -248,14 +247,12 @@ export default class ClassAssignmentDynamoDBRepository {
         if (!CancellationReasons[0].Code) return;
         if (
           CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          throw new UserAssignmentNotFoundException();
-        if (
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[2].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new UserAssignmentNotFoundException();
+          throw new ClassNotFoundException();
+        return;
       }
       throw exception;
     }
