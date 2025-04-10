@@ -113,7 +113,7 @@ export default class ClassAssignmentDynamoDBRepository {
               ? '#classId = :value0 AND assignmentId < :value1'
               : '#classId = :value0',
             ExpressionAttributeNames: {
-              '#classId': 'courseId',
+              '#classId': 'classId',
             },
             ExpressionAttributeValues: {
               ':value0': classId,
