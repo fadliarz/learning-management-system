@@ -11,7 +11,6 @@ import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
-  ResourceNotFoundException,
   TransactionCanceledException,
 } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
@@ -21,6 +20,8 @@ import ClassKey from '../../../../class/data-access/database/entity/ClassKey';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import ClassAssignmentKey from '../../../domain/domain-core/entity/ClassAssignmentKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import UserAssignmentNotFoundException from '../../../../user-assignment/domain/domain-core/exception/UserAssignmentNotFoundException';
 import ClassNotFoundException from '../../../../class/domain/domain-core/exception/ClassNotFoundException';
 
 @Injectable()
@@ -87,10 +88,17 @@ export default class ClassAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ResourceNotFoundException)
-        throw new ClassNotFoundException();
-      if (exception instanceof TransactionCanceledException)
-        throw domainException;
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (
+          CancellationReasons[1].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
+          CancellationReasons[2].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new ClassNotFoundException();
+      }
       throw exception;
     }
   }
@@ -187,7 +195,7 @@ export default class ClassAssignmentDynamoDBRepository {
     assignmentId: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { courseId, classId, assignmentId, domainException } = param;
+    const { courseId, classId, assignmentId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -234,8 +242,21 @@ export default class ClassAssignmentDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ResourceNotFoundException)
-        throw new ClassNotFoundException();
+      if (exception instanceof TransactionCanceledException) {
+        const { CancellationReasons } = exception;
+        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons[0].Code) return;
+        if (
+          CancellationReasons[1].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new UserAssignmentNotFoundException();
+        if (
+          CancellationReasons[2].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new UserAssignmentNotFoundException();
+      }
       throw exception;
     }
   }
