@@ -32,7 +32,10 @@ export default class UpdateUserAssignmentDto {
   @MaxLength(32, { message: 'The submission must be less than 32 characters' })
   public submission: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    required: false,
+    example: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString(),
+  })
   @IsOptional()
   @IsString({ message: 'The deadline must be a string' })
   @IsISO8601(

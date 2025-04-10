@@ -34,7 +34,9 @@ export default class CreateScholarshipDto {
   @MaxLength(64, { message: 'The provider must be less than 64 characters' })
   public provider: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString(),
+  })
   @IsString({ message: 'The deadline must be a string' })
   @IsNotEmpty({ message: 'The deadline is required' })
   @IsISO8601(

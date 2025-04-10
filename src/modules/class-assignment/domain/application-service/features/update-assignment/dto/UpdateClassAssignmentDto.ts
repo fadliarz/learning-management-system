@@ -26,7 +26,10 @@ export default class UpdateClassAssignmentDto {
   })
   public submission: string;
 
-  @ApiProperty({ required: false })
+  @ApiProperty({
+    required: false,
+    example: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString(),
+  })
   @IsOptional()
   @IsISO8601(
     { strict: true },

@@ -29,7 +29,9 @@ export default class CreateUserAssignmentDto {
   @MaxLength(64, { message: 'The submission must be less than 64 characters' })
   public submission: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString(),
+  })
   @IsString({ message: 'The deadline must be a string' })
   @IsISO8601(
     { strict: true },

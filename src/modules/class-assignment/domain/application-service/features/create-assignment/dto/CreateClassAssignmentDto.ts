@@ -23,7 +23,9 @@ export default class CreateClassAssignmentDto {
   })
   public submission: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3).toISOString(),
+  })
   @IsISO8601(
     { strict: true },
     { message: 'The deadline must be a valid ISO8601 date string' },
