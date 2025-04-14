@@ -20,6 +20,7 @@ export default class CreateFormSubmissionCommandHandler {
       FormSubmission,
       createFormSubmissionCommand,
     );
+    formSubmission.userId = createFormSubmissionCommand.executor.userId;
     formSubmission.create();
     await this.formSubmissionRepository.save({ formSubmission });
     return strictPlainToClass(FormSubmissionResponse, formSubmission);

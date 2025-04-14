@@ -4,6 +4,7 @@ import ImmutableFieldException from '../../../../../common/common-domain/excepti
 import Deserialize from '../../../../../common/common-domain/decorator/Deserialize';
 import ISO8601ToDate from '../../../../../common/common-domain/decorator/ISO8601ToDate';
 import TimeFactory from '../../../../../common/common-domain/helper/TimeFactory';
+import postgres from 'postgres';
 
 export default class FormSubmission {
   private _formId: string;
@@ -59,5 +60,25 @@ export default class FormSubmission {
     }
 
     this._createdAt = value;
+  }
+
+  get formId(): string {
+    return this._formId;
+  }
+
+  get submissionId(): number {
+    return this._submissionId;
+  }
+
+  get userId(): number {
+    return this._userId;
+  }
+
+  get responseItems(): ResponseItem[] {
+    return this._responseItems;
+  }
+
+  get createdAt(): Date {
+    return this._createdAt;
   }
 }
