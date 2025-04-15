@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { Expose } from 'class-transformer';
 
 export default class ResponseItem {
   @ApiProperty()
@@ -8,6 +9,7 @@ export default class ResponseItem {
   @MaxLength(64, {
     message: 'type must be shorter than or equal to 64 characters',
   })
+  @Expose()
   public type: string;
 
   @ApiProperty()
@@ -16,6 +18,7 @@ export default class ResponseItem {
   @MaxLength(256, {
     message: 'field must be shorter than or equal to 256 characters',
   })
+  @Expose()
   public field: string;
 
   @ApiProperty()
@@ -24,5 +27,6 @@ export default class ResponseItem {
   @MaxLength(1024, {
     message: 'value must be shorter than or equal to 1024 characters',
   })
+  @Expose()
   public value: string;
 }

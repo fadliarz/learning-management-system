@@ -60,10 +60,6 @@ export default class GetUserAssignmentsQueryHandler {
         if (
           userAssignment.assignmentType === AssignmentType.PERSONAL_ASSIGNMENT
         ) {
-          console.log(
-            'hi',
-            strictPlainToClass(UserAssignmentResponse, userAssignment),
-          );
           userAssignmentResponses.push(
             strictPlainToClass(UserAssignmentResponse, userAssignment),
           );
