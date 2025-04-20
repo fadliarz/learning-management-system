@@ -30,7 +30,11 @@ export default class Application {
       throw new RuntimeException('CookieConfig is not defined');
     }
 
-    this._app.enableCors({ origin: '*' });
+    this._app.enableCors({
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization'],
+      credentials: true,
+    });
 
     /**
      * Global Pipe 설정q
