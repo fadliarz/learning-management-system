@@ -15,8 +15,8 @@ export default class ResponseItem {
   @ApiProperty()
   @IsString({ message: 'field must be a string' })
   @IsNotEmpty({ message: 'field is required' })
-  @MaxLength(256, {
-    message: 'field must be shorter than or equal to 256 characters',
+  @MaxLength(1024, {
+    message: 'field must be shorter than or equal to 1024 characters',
   })
   @Expose()
   public field: string;
@@ -24,8 +24,8 @@ export default class ResponseItem {
   @ApiProperty()
   @IsString({ message: 'value must be a string' })
   @IsNotEmpty({ message: 'value is required' })
-  @MaxLength(1024, {
-    message: 'value must be shorter than or equal to 1024 characters',
+  @MaxLength(5000, {
+    message: 'value must be shorter than or equal to 5000 characters',
   })
   @Expose()
   public value: string;

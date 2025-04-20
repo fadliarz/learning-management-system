@@ -9,6 +9,7 @@ import Pagination from '../../../../../../common/common-domain/repository/Pagina
 import CategoryContext from '../../../../../category/domain/application-service/ports/output/context/CategoryContext';
 import Category from '../../../../../category/domain/domain-core/entity/Category';
 import CategoryResponse from '../../../../../category/domain/application-service/features/common/CategoryResponse';
+import TimerService from '../../../../../../common/common-domain/TimerService';
 
 @Injectable()
 export default class GetCoursesQueryHandler {
@@ -22,6 +23,7 @@ export default class GetCoursesQueryHandler {
   public async execute(
     getCoursesQuery: GetCoursesQuery,
   ): Promise<CourseResponse[]> {
+    await TimerService.sleepInMilliseconds(20);
     const courses: Course[] = await this.courseContext.findMany({
       ...getCoursesQuery,
       pagination: strictPlainToClass(Pagination, getCoursesQuery),
