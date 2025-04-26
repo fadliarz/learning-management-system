@@ -1,7 +1,7 @@
 import { Transform } from 'class-transformer';
 import DomainException from '../exception/DomainException';
 
-export default function ToSet() {
+export default function ToArray() {
   return Transform(({ value }) => {
     if (value === undefined) return;
 
