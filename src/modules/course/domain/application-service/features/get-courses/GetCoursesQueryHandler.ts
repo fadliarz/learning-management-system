@@ -39,15 +39,17 @@ export default class GetCoursesQueryHandler {
         course,
       );
       courseResponse.categories = [];
-      for (const categoryId of course.categories) {
-        const category: Category | undefined =
-          await this.categoryContext.findById({
-            categoryId,
-          });
-        if (category) {
-          courseResponse.categories.push(
-            strictPlainToClass(CategoryResponse, category),
-          );
+      if (course.categories) {
+        for (const categoryId of course.categories) {
+          const category: Category | undefined =
+            await this.categoryContext.findById({
+              categoryId,
+            });
+          if (category) {
+            courseResponse.categories.push(
+              strictPlainToClass(CategoryResponse, category),
+            );
+          }
         }
       }
       courseResponses.push(courseResponse);

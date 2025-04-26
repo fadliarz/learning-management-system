@@ -39,12 +39,14 @@ export default class GetScholarshipsQueryHandler {
         scholarship,
       );
       scholarshipResponse.tags = [];
-      for (const tagId of scholarship.tags) {
-        const tag: Tag | undefined = await this.tagContext.findById({
-          tagId,
-        });
-        if (tag) {
-          scholarshipResponse.tags.push(strictPlainToClass(TagResponse, tag));
+      if (scholarship.tags) {
+        for (const tagId of scholarship.tags) {
+          const tag: Tag | undefined = await this.tagContext.findById({
+            tagId,
+          });
+          if (tag) {
+            scholarshipResponse.tags.push(strictPlainToClass(TagResponse, tag));
+          }
         }
       }
       scholarshipResponses.push(scholarshipResponse);
