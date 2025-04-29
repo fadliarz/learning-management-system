@@ -4,6 +4,7 @@ import DeleteScholarshipCommand from './dto/DeleteScholarshipCommand';
 import ScholarshipNotFoundException from '../../../domain-core/exception/ScholarshipNotFoundException';
 import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
+import ScholarshipContext from '../../ports/output/context/ScholarshipContext';
 
 @Injectable()
 export default class DeleteScholarshipCommandHandler {
@@ -11,6 +12,8 @@ export default class DeleteScholarshipCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.SCHOLARSHIP_REPOSITORY)
     private readonly scholarshipRepository: ScholarshipRepository,
+    @Inject(DependencyInjection.SCHOLARSHIP_CONTEXT)
+    private readonly scholarshipContext: ScholarshipContext,
   ) {}
 
   public async execute(
@@ -23,5 +26,6 @@ export default class DeleteScholarshipCommandHandler {
       ...deleteScholarshipCommand,
       domainException: new ScholarshipNotFoundException(),
     });
+    await this.scholarshipContext.forceLoad();
   }
 }
