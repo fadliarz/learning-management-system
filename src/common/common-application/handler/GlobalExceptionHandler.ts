@@ -40,6 +40,7 @@ export default class GlobalExceptionHandler {
       path: request.url,
       message,
       errorObj: exception,
+      body: request.body,
     });
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
