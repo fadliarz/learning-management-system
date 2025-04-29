@@ -12,7 +12,6 @@ export default class UpdateLessonDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString({ message: 'Description must be a string' })
-  @IsNotEmpty({ message: 'Description is required' })
   @MaxLength(512, { message: 'Description must be at most 512 characters' })
   public description: string;
 }

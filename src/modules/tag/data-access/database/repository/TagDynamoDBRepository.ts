@@ -139,7 +139,7 @@ export default class TagDynamoDBRepository {
   }): Promise<void> {
     const { tagEntity, domainException } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 3;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const oldTagEntity: TagEntity = await this.findByIdOrThrow({
@@ -192,17 +192,17 @@ export default class TagDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof TagNotFoundException) throw domainException;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw new DomainException();
+          if (
+            CancellationReasons[1].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new TagTitleAlreadyExistsException();
+        }
         RETRIES++;
         if (RETRIES === MAX_RETRIES) {
-          if (exception instanceof TransactionCanceledException) {
-            const { CancellationReasons } = exception;
-            if (!CancellationReasons) throw new DomainException();
-            if (
-              CancellationReasons[1].Code ===
-              DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-            )
-              throw new TagTitleAlreadyExistsException();
-          }
           throw exception;
         }
         await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
