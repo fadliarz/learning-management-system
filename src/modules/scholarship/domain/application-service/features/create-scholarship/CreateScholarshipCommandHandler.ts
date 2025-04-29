@@ -7,6 +7,7 @@ import strictPlainToClass from '../../../../../../common/common-domain/mapper/st
 import ScholarshipResponse from '../common/ScholarshipResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import DomainException from '../../../../../../common/common-domain/exception/DomainException';
+import ScholarshipContext from '../../ports/output/context/ScholarshipContext';
 
 @Injectable()
 export default class CreateScholarshipCommandHandler {
@@ -14,6 +15,8 @@ export default class CreateScholarshipCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.SCHOLARSHIP_REPOSITORY)
     private readonly scholarshipRepository: ScholarshipRepository,
+    @Inject(DependencyInjection.SCHOLARSHIP_CONTEXT)
+    private readonly scholarshipContext: ScholarshipContext,
   ) {}
 
   public async execute(
@@ -31,6 +34,7 @@ export default class CreateScholarshipCommandHandler {
       scholarship,
       domainException: new DomainException(),
     });
+    await this.scholarshipContext.forceLoad();
     return strictPlainToClass(ScholarshipResponse, scholarship);
   }
 }
