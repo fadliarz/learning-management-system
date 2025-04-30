@@ -230,7 +230,7 @@ export default class InstructorDynamoDBRepository {
                 TableName: this.dynamoDBConfig.INSTRUCTOR_TABLE,
                 Key: new InstructorKey({ userId, classId }),
                 ConditionExpression:
-                  'attribute_not_exists(userId) AND attribute_not_exists(classId)',
+                  'attribute_exists(userId) AND attribute_exists(classId)',
               },
             },
             {
