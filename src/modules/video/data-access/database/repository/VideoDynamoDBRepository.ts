@@ -239,7 +239,7 @@ export default class VideoDynamoDBRepository {
               domainException: new CourseNotFoundException(),
             });
           const durationIncrement: number =
-            videoEntity.durationInSec + oldVideoEntity.durationInSec;
+            videoEntity.durationInSec - oldVideoEntity.durationInSec;
           await this.dynamoDBDocumentClient.send(
             new TransactWriteCommand({
               TransactItems: [
