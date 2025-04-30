@@ -184,6 +184,7 @@ export default class InstructorDynamoDBRepository {
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
             TableName: this.dynamoDBConfig.INSTRUCTOR_TABLE,
+            IndexName: 'classId_userId',
             KeyConditionExpression: pagination.lastEvaluatedId
               ? '#classId = :value0 AND userId < :value1'
               : '#classId = :value0',
