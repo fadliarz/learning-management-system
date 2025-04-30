@@ -481,6 +481,17 @@ export default class VideoDynamoDBRepository {
           videoId,
           domainException: new VideoNotFoundException(),
         });
+        const courseEntity: CourseEntity =
+          await this.courseDynamoDBRepository.findByIdOrThrow({
+            courseId: videoEntity.courseId,
+            domainException: new CourseNotFoundException(),
+          });
+        const lessonEntity: LessonEntity =
+          await this.lessonDynamoDBRepository.findByIdOrThrow({
+            courseId: videoEntity.courseId,
+            lessonId,
+            domainException: new LessonNotFoundException(),
+          });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({
             TransactItems: [
@@ -506,16 +517,20 @@ export default class VideoDynamoDBRepository {
                     lessonId,
                   }),
                   ConditionExpression:
-                    'attribute_exists(courseId) AND attribute_exists(lessonId)',
+                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #version = :value0',
                   UpdateExpression:
-                    'ADD #numberOfVideos :value0 ADD #numberOfDurations :value1',
+                    'SET #numberOfVideos = :value1, #numberOfDurations = :value2',
                   ExpressionAttributeNames: {
+                    '#version': 'version',
                     '#numberOfVideos': 'numberOfVideos',
                     '#numberOfDurations': 'numberOfDurations',
                   },
                   ExpressionAttributeValues: {
-                    ':value0': -1,
-                    ':value1': -videoEntity.durationInSec,
+                    ':value0': lessonEntity.version,
+                    ':value1': lessonEntity.numberOfVideos - 1,
+                    ':value2':
+                      lessonEntity.numberOfDurations -
+                      videoEntity.durationInSec,
                   },
                 },
               },
@@ -524,16 +539,20 @@ export default class VideoDynamoDBRepository {
                   TableName: this.dynamoDBConfig.COURSE_TABLE,
                   Key: new CourseKey({ courseId: videoEntity.courseId }),
                   ConditionExpression:
-                    'attribute_exists(id) AND attribute_exists(courseId)',
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #version = :value0',
                   UpdateExpression:
-                    'ADD #numberOfVideos :value0 ADD #numberOfDurations :value1',
+                    'SET #numberOfVideos = :value1, #numberOfDurations = :value2',
                   ExpressionAttributeNames: {
+                    '#version': 'version',
                     '#numberOfVideos': 'numberOfVideos',
                     '#numberOfDurations': 'numberOfDurations',
                   },
                   ExpressionAttributeValues: {
-                    ':value0': -1,
-                    ':value1': -videoEntity.durationInSec,
+                    ':value0': courseEntity.version,
+                    ':value1': courseEntity.numberOfVideos - 1,
+                    ':value2':
+                      courseEntity.numberOfDurations -
+                      videoEntity.durationInSec,
                   },
                 },
               },
@@ -543,22 +562,24 @@ export default class VideoDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof VideoNotFoundException) throw exception;
+        if (exception instanceof CourseNotFoundException) throw exception;
+        if (exception instanceof LessonNotFoundException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw exception;
+          if (
+            CancellationReasons[1].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new LessonNotFoundException();
+          if (
+            CancellationReasons[1].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new CourseNotFoundException();
+        }
         RETRIES++;
         if (RETRIES == MAX_RETRIES) {
-          if (exception instanceof TransactionCanceledException) {
-            const { CancellationReasons } = exception;
-            if (!CancellationReasons) throw exception;
-            if (
-              CancellationReasons[1].Code ===
-              DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-            )
-              throw new LessonNotFoundException();
-            if (
-              CancellationReasons[1].Code ===
-              DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-            )
-              throw new CourseNotFoundException();
-          }
           throw exception;
         }
       }
