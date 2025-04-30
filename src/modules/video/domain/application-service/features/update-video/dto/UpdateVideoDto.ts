@@ -14,7 +14,6 @@ export default class UpdateVideoDto {
 
   @IsOptional()
   @IsString({ message: 'Description must be a string' })
-  @IsNotEmpty({ message: 'Description must not be empty' })
   public description: string;
 
   @IsOptional()
