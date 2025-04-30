@@ -35,7 +35,7 @@ export default class CreateInstructorCommandHandler {
       Instructor,
       createInstructorCommand,
     );
-    instructor.create();
+    instructor.create(user.userId);
     await this.instructorRepository.saveIfNotExistsOrThrow({
       instructor,
       domainException: new InstructorAlreadyExistsException(),
