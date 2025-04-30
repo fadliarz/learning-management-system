@@ -85,7 +85,7 @@ export default class ClassAssignmentController {
     );
   }
 
-  @Get('courseId/:courseId/classes/:classId/assignments/:assignmentId')
+  @Get('courses/:courseId/classes/:classId/assignments/:assignmentId')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Get a specific assignment' })
   @ApiResponse({
