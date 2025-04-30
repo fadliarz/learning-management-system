@@ -22,11 +22,9 @@ export default class CourseScheduleResponse {
   @Expose()
   public location: string;
 
-  @ApiProperty({ required: false })
   @Expose()
   public startDate: Date;
 
-  @ApiProperty({ required: false })
   @Expose()
   public endDate: Date;
 
