@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { CategoryRepository } from '../../../domain/application-service/ports/output/repository/CategoryRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Category from '../../../domain/domain-core/entity/Category';
 import CategoryDynamoDBRepository from '../repository/CategoryDynamoDBRepository';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -15,7 +14,6 @@ export default class CategoryRepositoryImpl implements CategoryRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     category: Category;
-    domainException: DomainException;
   }): Promise<void> {
     await this.categoryDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -25,7 +23,6 @@ export default class CategoryRepositoryImpl implements CategoryRepository {
 
   public async findByIdOrThrow(param: {
     categoryId: number;
-    domainException: DomainException;
   }): Promise<Category> {
     return strictPlainToClass(
       Category,
@@ -43,20 +40,14 @@ export default class CategoryRepositoryImpl implements CategoryRepository {
     );
   }
 
-  async saveIfExistsOrThrow(param: {
-    category: Category;
-    domainException: DomainException;
-  }): Promise<void> {
+  async saveIfExistsOrThrow(param: { category: Category }): Promise<void> {
     await this.categoryDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
       categoryEntity: strictPlainToClass(CategoryEntity, param.category),
     });
   }
 
-  async deleteIfExistsOrThrow(param: {
-    categoryId: number;
-    domainException: DomainException;
-  }): Promise<void> {
+  async deleteIfExistsOrThrow(param: { categoryId: number }): Promise<void> {
     await this.categoryDynamoDBRepository.deleteIfExistsOrThrow(param);
   }
 }

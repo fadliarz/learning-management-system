@@ -4,7 +4,6 @@ import { DependencyInjection } from '../../../../../common/common-domain/Depende
 import CategoryContext from '../../../domain/application-service/ports/output/context/CategoryContext';
 import Category from '../../../domain/domain-core/entity/Category';
 import { CategoryRepository } from '../../../domain/application-service/ports/output/repository/CategoryRepository';
-import CategoryNotFoundException from '../../../domain/domain-core/exception/CategoryNotFoundException';
 
 @Injectable()
 export default class CategoryContextImpl implements CategoryContext {
@@ -63,7 +62,6 @@ export default class CategoryContextImpl implements CategoryContext {
       const refreshedCategory: Category =
         await this.categoryRepository.findByIdOrThrow({
           categoryId,
-          domainException: new CategoryNotFoundException(),
         });
       this.categories = this.categories.map((category) =>
         category.categoryId === categoryId ? refreshedCategory : category,

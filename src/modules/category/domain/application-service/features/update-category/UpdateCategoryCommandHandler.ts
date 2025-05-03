@@ -4,7 +4,6 @@ import UpdateCategoryCommand from './dto/UpdateCategoryCommand';
 import CategoryResponse from '../common/CategoryResponse';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import Category from '../../../domain-core/entity/Category';
-import CategoryNotFoundException from '../../../domain-core/exception/CategoryNotFoundException';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
@@ -25,7 +24,6 @@ export default class UpdateCategoryCommandHandler {
     const category = strictPlainToClass(Category, updateCategoryCommand);
     await this.categoryRepository.saveIfExistsOrThrow({
       category,
-      domainException: new CategoryNotFoundException(),
     });
     return strictPlainToClass(CategoryResponse, category);
   }

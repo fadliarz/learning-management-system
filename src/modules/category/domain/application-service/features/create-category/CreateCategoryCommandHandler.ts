@@ -6,7 +6,6 @@ import strictPlainToClass from '../../../../../../common/common-domain/mapper/st
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import CategoryResponse from '../common/CategoryResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import CategoryTitleAlreadyExistsException from '../../../domain-core/exception/CategoryTitleAlreadyExistsException';
 
 @Injectable()
 export default class CreateCategoryCommandHandler {
@@ -29,7 +28,6 @@ export default class CreateCategoryCommandHandler {
     category.create();
     await this.categoryRepository.saveIfNotExistsOrThrow({
       category,
-      domainException: new CategoryTitleAlreadyExistsException(),
     });
     return strictPlainToClass(CategoryResponse, category);
   }

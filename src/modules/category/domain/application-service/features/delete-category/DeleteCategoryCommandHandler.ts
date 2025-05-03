@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CategoryRepository } from '../../ports/output/repository/CategoryRepository';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import DeleteCategoryCommand from './dto/DeleteCategoryCommand';
-import CategoryNotFoundException from '../../../domain-core/exception/CategoryNotFoundException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -21,7 +20,6 @@ export default class DeleteCategoryCommandHandler {
     );
     await this.categoryRepository.deleteIfExistsOrThrow({
       ...deleteCategoryCommand,
-      domainException: new CategoryNotFoundException(),
     });
   }
 }
