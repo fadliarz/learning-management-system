@@ -17,6 +17,7 @@ import CourseNotFoundException from '../../../../course/domain/domain-core/excep
 import EnrollmentNotFoundException from '../../../domain/domain-core/exception/EnrollmentNotFoundException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class EnrollmentDynamoDBRepository {
@@ -64,19 +65,19 @@ export default class EnrollmentDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw new DomainException();
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new EnrollmentAlreadyExistsException();
+          throw new EnrollmentAlreadyExistsException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new CourseNotFoundException();
+          throw new CourseNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
