@@ -9,7 +9,6 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -30,7 +29,6 @@ export default class CourseScheduleDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     courseScheduleEntity: CourseScheduleEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { courseScheduleEntity } = param;
     try {
@@ -97,7 +95,6 @@ export default class CourseScheduleDynamoDBRepository {
   public async findByIdOrThrow(param: {
     courseId: number;
     scheduleId: number;
-    domainException: DomainException;
   }): Promise<CourseScheduleEntity> {
     const { courseId, scheduleId } = param;
     const response = await this.dynamoDBDocumentClient.send(
@@ -114,7 +111,6 @@ export default class CourseScheduleDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     courseScheduleEntity: CourseScheduleEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { courseScheduleEntity } = param;
     try {
@@ -140,7 +136,6 @@ export default class CourseScheduleDynamoDBRepository {
   public async deleteIfExistsOrThrow(param: {
     courseId: number;
     scheduleId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { courseId, scheduleId } = param;
     try {

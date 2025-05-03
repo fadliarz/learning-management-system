@@ -1,11 +1,9 @@
 import CourseSchedule from '../../../../domain-core/entity/CourseSchedule';
-import DomainException from '../../../../../../../common/common-domain/exception/DomainException';
 import Pagination from '../../../../../../../common/common-domain/repository/Pagination';
 
 export default interface CourseScheduleRepository {
   saveIfNotExistsOrThrow(param: {
     courseSchedule: CourseSchedule;
-    domainException: DomainException;
   }): Promise<void>;
 
   findMany(param: {
@@ -16,17 +14,12 @@ export default interface CourseScheduleRepository {
   findByIdOrThrow(param: {
     courseId: number;
     scheduleId: number;
-    domainException: DomainException;
   }): Promise<CourseSchedule>;
 
-  saveIfExistsOrThrow(param: {
-    courseSchedule: CourseSchedule;
-    domainException: DomainException;
-  }): Promise<void>;
+  saveIfExistsOrThrow(param: { courseSchedule: CourseSchedule }): Promise<void>;
 
   deleteIfExistsOrThrow(param: {
     courseId: number;
     scheduleId: number;
-    domainException: DomainException;
   }): Promise<void>;
 }

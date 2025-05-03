@@ -3,7 +3,6 @@ import CourseScheduleRepository from '../../ports/output/repository/CourseSchedu
 import GetCourseScheduleQuery from './dto/GetCourseScheduleQuery';
 import CourseScheduleResponse from '../common/CourseScheduleResponse';
 import CourseSchedule from '../../../domain-core/entity/CourseSchedule';
-import CourseScheduleNotFoundException from '../../../domain-core/exception/CourseScheduleNotFoundException';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
@@ -20,7 +19,6 @@ export default class GetCourseScheduleQueryHandler {
     const courseSchedule: CourseSchedule =
       await this.courseScheduleRepository.findByIdOrThrow({
         ...getCourseScheduleQuery,
-        domainException: new CourseScheduleNotFoundException(),
       });
     return strictPlainToClass(CourseScheduleResponse, courseSchedule);
   }

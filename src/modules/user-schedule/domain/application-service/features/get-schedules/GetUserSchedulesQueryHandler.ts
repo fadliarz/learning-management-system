@@ -40,7 +40,6 @@ export default class GetUserSchedulesQueryHandler {
             await this.courseScheduleRepository.findByIdOrThrow({
               courseId: userSchedule.courseId,
               scheduleId: userSchedule.courseScheduleId,
-              domainException: new UserScheduleNotFoundException(),
             });
           userScheduleResponse.title = courseSchedule.title;
           userScheduleResponse.description = courseSchedule.description;

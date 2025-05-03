@@ -6,7 +6,6 @@ import CourseScheduleResponse from '../common/CourseScheduleResponse';
 import CourseSchedule from '../../../domain-core/entity/CourseSchedule';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import { CourseRepository } from '../../../../../course/domain/application-service/ports/output/repository/CourseRepository';
 
 @Injectable()
@@ -35,7 +34,6 @@ export default class CreateCourseScheduleCommandHandler {
     courseSchedule.create();
     await this.courseScheduleRepository.saveIfNotExistsOrThrow({
       courseSchedule,
-      domainException: new DomainException(),
     });
     return strictPlainToClass(CourseScheduleResponse, courseSchedule);
   }

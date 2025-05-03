@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import CourseScheduleRepository from '../../../domain/application-service/ports/output/repository/CourseScheduleRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import CourseSchedule from '../../../domain/domain-core/entity/CourseSchedule';
 import CourseScheduleDynamoDBRepository from '../repository/CourseScheduleDynamoDBRepository';
@@ -17,7 +16,6 @@ export default class CourseScheduleRepositoryImpl
 
   public async saveIfNotExistsOrThrow(param: {
     courseSchedule: CourseSchedule;
-    domainException: DomainException;
   }): Promise<void> {
     await this.courseScheduleDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -42,7 +40,6 @@ export default class CourseScheduleRepositoryImpl
   public async findByIdOrThrow(param: {
     courseId: number;
     scheduleId: number;
-    domainException: DomainException;
   }): Promise<CourseSchedule> {
     return strictPlainToClass(
       CourseSchedule,
@@ -52,7 +49,6 @@ export default class CourseScheduleRepositoryImpl
 
   public async saveIfExistsOrThrow(param: {
     courseSchedule: CourseSchedule;
-    domainException: DomainException;
   }): Promise<void> {
     await this.courseScheduleDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
@@ -66,7 +62,6 @@ export default class CourseScheduleRepositoryImpl
   public async deleteIfExistsOrThrow(param: {
     courseId: number;
     scheduleId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.courseScheduleDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

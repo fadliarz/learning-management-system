@@ -3,7 +3,6 @@ import CourseScheduleRepository from '../../ports/output/repository/CourseSchedu
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import DeleteCourseScheduleCommand from './dto/DeleteCourseScheduleCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
-import CourseScheduleNotFoundException from '../../../domain-core/exception/CourseScheduleNotFoundException';
 
 @Injectable()
 export default class DeleteCourseScheduleCommandHandler {
@@ -21,7 +20,6 @@ export default class DeleteCourseScheduleCommandHandler {
     );
     await this.courseScheduleRepository.deleteIfExistsOrThrow({
       ...deleteCourseScheduleCommand,
-      domainException: new CourseScheduleNotFoundException(),
     });
   }
 }

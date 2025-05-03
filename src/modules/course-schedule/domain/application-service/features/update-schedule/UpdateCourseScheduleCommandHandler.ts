@@ -6,7 +6,6 @@ import CourseScheduleResponse from '../common/CourseScheduleResponse';
 import CourseSchedule from '../../../domain-core/entity/CourseSchedule';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
-import CourseScheduleNotFoundException from '../../../domain-core/exception/CourseScheduleNotFoundException';
 
 @Injectable()
 export default class UpdateCourseScheduleCommandHandler {
@@ -29,7 +28,6 @@ export default class UpdateCourseScheduleCommandHandler {
     courseSchedule.update();
     await this.courseScheduleRepository.saveIfExistsOrThrow({
       courseSchedule,
-      domainException: new CourseScheduleNotFoundException(),
     });
     return strictPlainToClass(CourseScheduleResponse, courseSchedule);
   }

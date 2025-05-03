@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { UserScheduleRepository } from '../../ports/output/repository/UserScheduleRepository';
 import GetUserScheduleQuery from './dto/GetUserScheduleQuery';
 import UserScheduleResponse from '../common/UserScheduleResponse';
-import UserScheduleNotFoundException from '../../../domain-core/exception/UserScheduleNotFoundException';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import UserSchedule from '../../../domain-core/entity/UserSchedule';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
@@ -10,6 +9,7 @@ import CourseScheduleRepository from '../../../../../course-schedule/domain/appl
 import { ScheduleType } from '../../../domain-core/entity/ScheduleType';
 import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import CourseSchedule from '../../../../../course-schedule/domain/domain-core/entity/CourseSchedule';
+import UserScheduleNotFoundException from '../../../domain-core/exception/UserScheduleNotFoundException';
 
 @Injectable()
 export default class GetUserScheduleQueryHandler {
@@ -39,7 +39,6 @@ export default class GetUserScheduleQueryHandler {
         await this.courseScheduleRepository.findByIdOrThrow({
           courseId: userSchedule.courseId,
           scheduleId: userSchedule.courseScheduleId,
-          domainException: new UserScheduleNotFoundException(),
         });
       userScheduleResponse.title = courseSchedule.title;
       userScheduleResponse.description = courseSchedule.description;
