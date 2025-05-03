@@ -18,6 +18,32 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install dependencies
+        run: |
+          npm install -g @nestjs/cli
+          npm install --production
+
+      - name: Build application
+        run: npm run build
+
+      - name: Archive build and .env for upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-and-env
+          path: |
+            dist/
+
+  upload-file-to-s3:
+    runs-on: ubuntu-latest
+    needs: [ build ]
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-and-env
+          path: build-artifact
+
       - name: Generate .env file
         run: |
           cat > .env <<EOL
@@ -47,44 +73,17 @@ jobs:
           PORT=${{ secrets.PORT }}
           EOL
 
-      - name: Install dependencies
+      - name: Create tar.gz of the build and .env file
         run: |
-          npm install -g @nestjs/cli
-          npm install --production
-
-      - name: Build application
-        run: npm run build
-
-      - name: Archive build and .env for upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-and-env
-          path: |
-            dist/
-            .env
-
-  upload-file-to-s3:
-    runs-on: ubuntu-latest
-    needs: [ build ]
-
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-and-env
-          path: build-artifact
+          ls build-artifact -la  # Optional: Debugging line
+          
+          tar -czf build_myhmm.tar.gz build-artifact/dist .env
 
       - name: Configure AWS Credentials
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws configure set default.region ap-southeast-3
-
-      - name: Create tar.gz of the build and .env file
-        run: |
-          ls build-artifact -la  # Optional: Debugging line
-          
-          tar -czf build_myhmm.tar.gz build-artifact/dist build-artifact/.env
 
       - name: Upload to S3
         run: |
