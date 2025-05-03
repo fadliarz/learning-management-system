@@ -182,7 +182,7 @@ export default class ClassAssignmentDynamoDBRepository {
     classAssignmentEntity: ClassAssignmentEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { classAssignmentEntity, domainException } = param;
+    const { classAssignmentEntity } = param;
     try {
       const { classId, assignmentId, ...restObj } = classAssignmentEntity;
       await this.dynamoDBDocumentClient.send(
@@ -196,8 +196,8 @@ export default class ClassAssignmentDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
-      throw exception;
+        throw new ClassAssignmentNotFoundException({ throwable: exception });
+      throw new ClassAssignmentNotFoundException({ throwable: exception });
     }
   }
 
