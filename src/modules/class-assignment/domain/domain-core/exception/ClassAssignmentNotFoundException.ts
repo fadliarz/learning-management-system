@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class ClassAssignmentNotFoundException extends HttpException {
-  constructor(message: string = 'Class Assignment Not Found') {
-    super(HttpStatus.NOT_FOUND, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.NOT_FOUND,
+      param.message ?? 'Class Assignment Not Found',
+      param.throwable,
+    );
   }
 }
