@@ -5,7 +5,6 @@ import CreateClassAssignmentCommand from './dto/CreateClassAssignmentCommand';
 import ClassAssignmentResponse from '../common/ClassAssignmentResponse';
 import ClassAssignment from '../../../domain-core/entity/ClassAssignment';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -30,7 +29,6 @@ export default class CreateClassAssignmentCommandHandler {
     classAssignment.create();
     await this.classAssignmentRepository.saveIfNotExistsOrThrow({
       classAssignment,
-      domainException: new DomainException(),
     });
     return strictPlainToClass(ClassAssignmentResponse, classAssignment);
   }

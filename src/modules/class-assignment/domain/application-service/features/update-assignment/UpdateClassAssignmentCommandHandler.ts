@@ -6,7 +6,6 @@ import { ClassAssignmentRepository } from '../../ports/output/repository/ClassAs
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import ClassAssignment from '../../../domain-core/entity/ClassAssignment';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import LessonNotFoundException from '../../../../../lesson/domain/domain-core/exception/LessonNotFoundException';
 
 @Injectable()
 export default class UpdateClassAssignmentCommandHandler {
@@ -30,7 +29,6 @@ export default class UpdateClassAssignmentCommandHandler {
     classAssignment.update();
     await this.classAssignmentRepository.saveIfExistsOrThrow({
       classAssignment,
-      domainException: new LessonNotFoundException(),
     });
     return strictPlainToClass(ClassAssignmentResponse, classAssignment);
   }

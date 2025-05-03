@@ -9,7 +9,6 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
   TransactionCanceledException,
@@ -38,7 +37,6 @@ export default class ClassAssignmentDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     classAssignmentEntity: ClassAssignmentEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { classAssignmentEntity } = param;
     try {
@@ -164,7 +162,6 @@ export default class ClassAssignmentDynamoDBRepository {
   public async findByIdOrThrow(param: {
     classId: number;
     assignmentId: number;
-    domainException: DomainException;
   }): Promise<ClassAssignmentEntity> {
     const { classId, assignmentId } = param;
     const response = await this.dynamoDBDocumentClient.send(
@@ -181,7 +178,6 @@ export default class ClassAssignmentDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     classAssignmentEntity: ClassAssignmentEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { classAssignmentEntity } = param;
     try {
@@ -206,7 +202,6 @@ export default class ClassAssignmentDynamoDBRepository {
     courseId: number;
     classId: number;
     assignmentId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { courseId, classId, assignmentId } = param;
     try {

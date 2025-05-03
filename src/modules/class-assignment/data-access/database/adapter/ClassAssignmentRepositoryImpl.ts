@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ClassAssignmentRepository } from '../../../domain/application-service/ports/output/repository/ClassAssignmentRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import ClassAssignment from '../../../domain/domain-core/entity/ClassAssignment';
 import ClassAssignmentDynamoDBRepository from '../repository/ClassAssignmentDynamoDBRepository';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -17,7 +16,6 @@ export default class ClassAssignmentRepositoryImpl
 
   public async saveIfNotExistsOrThrow(param: {
     classAssignment: ClassAssignment;
-    domainException: DomainException;
   }): Promise<void> {
     await this.classAssignmentDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -42,7 +40,6 @@ export default class ClassAssignmentRepositoryImpl
   public async findByIdOrThrow(param: {
     classId: number;
     assignmentId: number;
-    domainException: DomainException;
   }): Promise<ClassAssignment> {
     return strictPlainToClass(
       ClassAssignment,
@@ -52,7 +49,6 @@ export default class ClassAssignmentRepositoryImpl
 
   public async saveIfExistsOrThrow(param: {
     classAssignment: ClassAssignment;
-    domainException: DomainException;
   }): Promise<void> {
     await this.classAssignmentDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
@@ -67,7 +63,6 @@ export default class ClassAssignmentRepositoryImpl
     courseId: number;
     classId: number;
     assignmentId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.classAssignmentDynamoDBRepository.deleteIfExistsOrThrow(param);
   }
