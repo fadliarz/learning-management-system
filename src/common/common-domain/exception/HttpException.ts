@@ -2,9 +2,15 @@ import DomainException from './DomainException';
 
 export default class HttpException extends DomainException {
   public statusCode: number;
+  public throwable: Error | null;
 
-  constructor(statusCode: number, message: string) {
+  constructor(
+    statusCode: number,
+    message: string,
+    throwable: Error | null = null,
+  ) {
     super(message);
     this.statusCode = statusCode;
+    this.throwable = throwable;
   }
 }
