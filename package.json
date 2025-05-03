@@ -24,7 +24,6 @@
     "@snaplet/copycat": "^5.0.0",
     "@snaplet/seed": "^0.97.20",
     "@types/aws-sdk": "^2.7.4",
-    "@types/bcrypt": "^5.0.2",
     "@types/compression": "^1.7.2",
     "@types/connect-pg-simple": "^7.0.3",
     "@types/cookie-parser": "^1.4.4",
@@ -52,6 +51,7 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@aws-sdk/client-dynamodb": "^3.758.0",
     "@aws-sdk/lib-dynamodb": "^3.758.0",
     "@eslint/eslintrc": "^3.3.0",
