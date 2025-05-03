@@ -1,13 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import {
+  DeleteCommand,
   DynamoDBDocumentClient,
   QueryCommand,
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
-import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  TransactionCanceledException,
+} from '@aws-sdk/client-dynamodb';
 import EnrollmentEntity from '../entity/EnrollmentEntity';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import EnrollmentKey from '../entity/EnrollmentKey';
@@ -130,7 +134,7 @@ export default class EnrollmentDynamoDBRepository {
     courseId: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { userId, classId, courseId, domainException } = param;
+    const { userId, classId, courseId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -170,19 +174,40 @@ export default class EnrollmentDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw new DomainException();
+        if (!CancellationReasons)
+          throw new InternalServerException({ throwable: exception });
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new EnrollmentNotFoundException();
+          throw new EnrollmentNotFoundException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          return;
+        ) {
+          try {
+            await this.dynamoDBDocumentClient.send(
+              new DeleteCommand({
+                TableName: this.dynamoDBConfig.ENROLLMENT_TABLE,
+                Key: new EnrollmentKey({ userId, classId }),
+                ExpressionAttributeNames: {
+                  '#courseId': 'courseId',
+                },
+                ExpressionAttributeValues: {
+                  ':value0': courseId,
+                },
+                ConditionExpression:
+                  'attribute_exists(userId) AND attribute_exists(classId) AND #courseId = :value0',
+              }),
+            );
+          } catch (exception) {
+            if (exception instanceof ConditionalCheckFailedException) {
+              throw new EnrollmentNotFoundException({ throwable: exception });
+            }
+          }
+        }
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 }
