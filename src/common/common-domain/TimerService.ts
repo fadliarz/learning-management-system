@@ -34,7 +34,7 @@ export default class TimerService {
         () => {
           resolve();
         },
-        1000 + Math.pow(2, attempt) + Math.floor(Math.random() * 1000),
+        1000 * Math.pow(2, attempt) + Math.floor(Math.random() * 1000),
       );
     });
   }
