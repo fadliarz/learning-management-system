@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class UserNotFoundException extends HttpException {
-  constructor(message: string = 'User not found') {
-    super(HttpStatus.NOT_FOUND, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.NOT_FOUND,
+      param.message ?? 'User not found',
+      param.throwable ?? null,
+    );
   }
 }
