@@ -6,7 +6,7 @@ export default class ResourceConflictException extends HttpException {
     super(
       HttpStatus.CONFLICT,
       param.message ??
-        'The resource is currently being modified by another user. Please try again in a moment!',
+        'One or more related resources are being modified by another user. Please try again shortly!',
       param.throwable ?? null,
     );
   }
