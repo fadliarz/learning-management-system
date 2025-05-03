@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class ClassNotFoundException extends HttpException {
-  constructor(message: string = 'Class not found') {
-    super(HttpStatus.NOT_FOUND, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.NOT_FOUND,
+      param.message ?? 'Class not found',
+      param.throwable ?? null,
+    );
   }
 }
