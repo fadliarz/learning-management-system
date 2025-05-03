@@ -34,23 +34,15 @@ export default class GlobalExceptionHandler {
           : 'Internal Server Error';
 
     console.log('@GlobalExceptionHandler: ', {
-      statusCode: status,
-      date: new Date().toISOString(),
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       path: request.url,
+      body: request.body,
+      date: new Date().toISOString(),
+      statusCode: status,
       message,
       errorObj: exception,
-      body: request.body,
+      throwable:
+        exception instanceof HttpException ? exception.throwable : null,
     });
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (exception && (exception as any).CancellationReasons) {
-      console.log(
-        '@GlobalExceptionHandler: CancellationReasons: ',
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-        (exception as any).CancellationReasons,
-      );
-    }
 
     if (status === 401) {
       response.clearCookie(this.cookieConfig.ACCESS_TOKEN_KEY, { path: '/' });
