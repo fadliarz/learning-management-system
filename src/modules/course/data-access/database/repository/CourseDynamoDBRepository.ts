@@ -90,14 +90,14 @@ export default class CourseDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
           throw new CourseNotFoundException();
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
