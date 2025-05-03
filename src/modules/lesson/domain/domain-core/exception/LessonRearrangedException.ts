@@ -2,9 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class LessonRearrangedException extends HttpException {
-  constructor(
-    message: string = 'Failed to update position, lessons have been rearranged, please try again!',
-  ) {
-    super(HttpStatus.BAD_REQUEST, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.BAD_REQUEST,
+      param.message ?? 'Lessons have been rearranged, please try again!',
+      param.throwable,
+    );
   }
 }
