@@ -82,6 +82,8 @@ jobs:
 
       - name: Create tar.gz of the build and .env file
         run: |
+          ls build-artifact -la  # Optional: Debugging line
+          
           tar -czf build_myhmm.tar.gz build-artifact/dist build-artifact/.env
 
       - name: Upload to S3
