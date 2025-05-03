@@ -6,7 +6,6 @@ import {
   TransactWriteCommand,
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import VideoEntity from '../entity/VideoEntity';
 import {
@@ -33,6 +32,7 @@ import CourseEntity from '../../../../course/data-access/database/entity/CourseE
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
 import ResourceConflictException from '../../../../../common/common-domain/exception/ResourceConflictException';
+import DomainException from '../../../../../common/common-domain/exception/DomainException';
 
 @Injectable()
 export default class VideoDynamoDBRepository {
@@ -196,9 +196,8 @@ export default class VideoDynamoDBRepository {
   public async findByIdOrThrow(param: {
     lessonId: number;
     videoId: number;
-    domainException: DomainException;
   }): Promise<VideoEntity> {
-    const { lessonId, videoId, domainException } = param;
+    const { lessonId, videoId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.VIDEO_TABLE,
@@ -213,7 +212,6 @@ export default class VideoDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     videoEntity: VideoEntity;
-    domainException: DomainException;
   }): Promise<void> {
     let RETRIES: number = 0;
     const MAX_RETRIES: number = 5;
@@ -227,7 +225,6 @@ export default class VideoDynamoDBRepository {
           const oldVideoEntity: VideoEntity = await this.findByIdOrThrow({
             lessonId,
             videoId,
-            domainException: new VideoNotFoundException(),
           });
           const lessonEntity: LessonEntity =
             await this.lessonDynamoDBRepository.findByIdOrThrow({
@@ -339,7 +336,6 @@ export default class VideoDynamoDBRepository {
     upperVideo: VideoEntity | null;
     lowerVideo: VideoEntity | null;
     version: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { video, upperVideo, lowerVideo, version } = param;
     const lessonId: number = video.lessonId;
@@ -357,20 +353,17 @@ export default class VideoDynamoDBRepository {
         const videoToBeDeleted: VideoEntity = await this.findByIdOrThrow({
           videoId: video.videoId,
           lessonId,
-          domainException: new VideoNotFoundException(),
         });
         if (upperVideo) {
           await this.findByIdOrThrow({
             lessonId,
             videoId: upperVideo.videoId,
-            domainException: new VideoNotFoundException(),
           });
         }
         if (lowerVideo) {
           await this.findByIdOrThrow({
             lessonId,
             videoId: lowerVideo.videoId,
-            domainException: new VideoNotFoundException(),
           });
         }
         const newPosition: number = this.calculateNewVideoPosition({
@@ -472,7 +465,6 @@ export default class VideoDynamoDBRepository {
   public async deleteIfExistsOrThrow(param: {
     lessonId: number;
     videoId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { lessonId, videoId } = param;
     let RETRIES: number = 0;
@@ -482,7 +474,6 @@ export default class VideoDynamoDBRepository {
         const videoEntity: VideoEntity = await this.findByIdOrThrow({
           lessonId,
           videoId,
-          domainException: new VideoNotFoundException(),
         });
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({

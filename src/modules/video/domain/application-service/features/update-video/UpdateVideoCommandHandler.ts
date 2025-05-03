@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import UpdateVideoCommand from './dto/UpdateVideoCommand';
 import Video from '../../../domain-core/entity/Video';
 import { VideoRepository } from '../../ports/output/repository/VideoRepository';
-import VideoNotFoundException from '../../../domain-core/exception/VideoNotFoundException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import VideoResponse from '../common/VideoResponse';
@@ -26,7 +25,6 @@ export default class UpdateVideoCommandHandler {
     video.update();
     await this.videoRepository.saveIfExistsOrThrow({
       video,
-      domainException: new VideoNotFoundException(),
     });
     return strictPlainToClass(VideoResponse, video);
   }

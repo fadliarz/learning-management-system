@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { VideoRepository } from '../../../domain/application-service/ports/output/repository/VideoRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import Video from '../../../domain/domain-core/entity/Video';
 import VideoDynamoDBRepository from '../repository/VideoDynamoDBRepository';
@@ -13,10 +12,7 @@ export default class VideoRepositoryImpl implements VideoRepository {
     private readonly videoDynamoDBRepository: VideoDynamoDBRepository,
   ) {}
 
-  public async saveIfNotExistsOrThrow(param: {
-    video: Video;
-    domainException: DomainException;
-  }): Promise<void> {
+  public async saveIfNotExistsOrThrow(param: { video: Video }): Promise<void> {
     await this.videoDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
       videoEntity: strictPlainToClass(VideoEntity, param.video),
@@ -37,7 +33,6 @@ export default class VideoRepositoryImpl implements VideoRepository {
   public async findByIdOrThrow(param: {
     lessonId: number;
     videoId: number;
-    domainException: DomainException;
   }): Promise<Video> {
     return strictPlainToClass(
       Video,
@@ -45,10 +40,7 @@ export default class VideoRepositoryImpl implements VideoRepository {
     );
   }
 
-  public async saveIfExistsOrThrow(param: {
-    video: Video;
-    domainException: DomainException;
-  }): Promise<void> {
+  public async saveIfExistsOrThrow(param: { video: Video }): Promise<void> {
     await this.videoDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
       videoEntity: strictPlainToClass(VideoEntity, param.video),
@@ -60,7 +52,6 @@ export default class VideoRepositoryImpl implements VideoRepository {
     upperVideo: Video | null;
     lowerVideo: Video | null;
     version: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.videoDynamoDBRepository.updateVideoPositionOrThrow({
       video: strictPlainToClass(VideoEntity, param.video),
@@ -71,14 +62,12 @@ export default class VideoRepositoryImpl implements VideoRepository {
         ? strictPlainToClass(VideoEntity, param.lowerVideo)
         : null,
       version: param.version,
-      domainException: param.domainException,
     });
   }
 
   public async deleteIfExistsOrThrow(param: {
     lessonId: number;
     videoId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.videoDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

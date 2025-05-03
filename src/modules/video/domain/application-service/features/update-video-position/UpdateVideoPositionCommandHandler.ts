@@ -3,7 +3,6 @@ import AuthorizationService from '../../../../../../common/common-domain/feature
 import UpdateVideoPositionCommand from './dto/UpdateVideoPositionCommand';
 import { VideoRepository } from '../../ports/output/repository/VideoRepository';
 import Video from '../../../domain-core/entity/Video';
-import VideoRearrangedException from '../../../domain-core/exception/VideoRearrangedException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -32,7 +31,6 @@ export default class UpdateVideoPositionCommandHandler {
       upperVideo,
       lowerVideo,
       version: updateVideoPositionCommand.version,
-      domainException: new VideoRearrangedException(),
     });
   }
 
