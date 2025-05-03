@@ -65,7 +65,7 @@ jobs:
 
   upload-file-to-s3:
     runs-on: ubuntu-latest
-    needs: [ build, setup-ssh ]
+    needs: [ build ]
 
     steps:
       - name: Download build artifact
