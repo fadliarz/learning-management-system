@@ -22,6 +22,9 @@ import ClassAssignmentKey from '../../../domain/domain-core/entity/ClassAssignme
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import ClassNotFoundException from '../../../../class/domain/domain-core/exception/ClassNotFoundException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 
 @Injectable()
 export default class ClassAssignmentDynamoDBRepository {
@@ -35,7 +38,7 @@ export default class ClassAssignmentDynamoDBRepository {
     classAssignmentEntity: ClassAssignmentEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { classAssignmentEntity, domainException } = param;
+    const { classAssignmentEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -89,16 +92,25 @@ export default class ClassAssignmentDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons)
+          throw new InternalServerException({ throwable: exception });
+        if (
+          CancellationReasons[0].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new DuplicateKeyException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
-            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
-          CancellationReasons[2].Code ===
-            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new ClassNotFoundException();
+          throw new CourseNotFoundException({ throwable: exception });
+        if (
+          CancellationReasons[2].Code ===
+          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          throw new ClassNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
