@@ -142,7 +142,7 @@ export default class CourseScheduleDynamoDBRepository {
     scheduleId: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { courseId, scheduleId, domainException } = param;
+    const { courseId, scheduleId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new DeleteCommand({
@@ -154,7 +154,7 @@ export default class CourseScheduleDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
+        throw new CourseScheduleNotFoundException({ throwable: exception });
       throw exception;
     }
   }
