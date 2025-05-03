@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import UpdateLessonPositionCommand from './dto/UpdateLessonPositionCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import { LessonRepository } from '../../ports/output/LessonRepository';
-import LessonRearrangedException from '../../../domain-core/exception/LessonRearrangedException';
 import Lesson from '../../../domain-core/entity/Lesson';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
@@ -31,7 +30,6 @@ export default class UpdateLessonPositionCommandHandler {
         updateLessonPositionCommand,
       ),
       version: updateLessonPositionCommand.version,
-      domainException: new LessonRearrangedException(),
     });
   }
 

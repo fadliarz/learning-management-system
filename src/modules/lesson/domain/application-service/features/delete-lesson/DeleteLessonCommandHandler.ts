@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import DeleteLessonCommand from './dto/DeleteLessonCommand';
 import { LessonRepository } from '../../ports/output/LessonRepository';
-import LessonNotFoundException from '../../../domain-core/exception/LessonNotFoundException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -21,7 +20,6 @@ export default class DeleteLessonCommandHandler {
     );
     await this.lessonRepository.deleteIfExistsOrThrow({
       ...deleteLessonCommand,
-      domainException: new LessonNotFoundException(),
     });
   }
 }

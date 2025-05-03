@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { LessonRepository } from '../../../domain/application-service/ports/output/LessonRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import Lesson from '../../../domain/domain-core/entity/Lesson';
 import LessonDynamoDBRepository from '../repository/LessonDynamoDBRepository';
@@ -15,7 +14,6 @@ export default class LessonRepositoryImpl implements LessonRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     lesson: Lesson;
-    domainException: DomainException;
   }): Promise<void> {
     await this.lessonDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -37,7 +35,6 @@ export default class LessonRepositoryImpl implements LessonRepository {
   public async findByIdOrThrow(param: {
     courseId: number;
     lessonId: number;
-    domainException: DomainException;
   }): Promise<Lesson> {
     return strictPlainToClass(
       Lesson,
@@ -45,10 +42,7 @@ export default class LessonRepositoryImpl implements LessonRepository {
     );
   }
 
-  public async saveIfExistsOrThrow(param: {
-    lesson: Lesson;
-    domainException: DomainException;
-  }): Promise<void> {
+  public async saveIfExistsOrThrow(param: { lesson: Lesson }): Promise<void> {
     await this.lessonDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
       lessonEntity: strictPlainToClass(LessonEntity, param.lesson),
@@ -60,7 +54,6 @@ export default class LessonRepositoryImpl implements LessonRepository {
     upperLesson: Lesson | null;
     lowerLesson: Lesson | null;
     version: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.lessonDynamoDBRepository.updateLessonPositionOrThrow({
       lesson: strictPlainToClass(LessonEntity, param.lesson),
@@ -71,14 +64,12 @@ export default class LessonRepositoryImpl implements LessonRepository {
         ? strictPlainToClass(LessonEntity, param.lowerLesson)
         : null,
       lessonArrangementVersion: param.version,
-      domainException: param.domainException,
     });
   }
 
   public async deleteIfExistsOrThrow(param: {
     courseId: number;
     lessonId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.lessonDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

@@ -6,7 +6,6 @@ import AuthorizationService from '../../../../../../common/common-domain/feature
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import Lesson from '../../../domain-core/entity/Lesson';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 
 @Injectable()
 export default class CreateLessonCommandHandler {
@@ -26,7 +25,6 @@ export default class CreateLessonCommandHandler {
     lesson.create();
     await this.lessonRepository.saveIfNotExistsOrThrow({
       lesson,
-      domainException: new DomainException(),
     });
     return strictPlainToClass(LessonResponse, lesson);
   }

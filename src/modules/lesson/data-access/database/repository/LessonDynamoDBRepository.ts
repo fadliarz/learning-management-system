@@ -38,7 +38,6 @@ export default class LessonDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     lessonEntity: LessonEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { lessonEntity } = param;
     let RETRIES: number = 0;
@@ -138,9 +137,8 @@ export default class LessonDynamoDBRepository {
   public async findByIdOrThrow(param: {
     courseId: number;
     lessonId: number;
-    domainException: DomainException;
   }): Promise<LessonEntity> {
-    const { courseId, lessonId, domainException } = param;
+    const { courseId, lessonId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.LESSON_TABLE,
@@ -148,14 +146,13 @@ export default class LessonDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new DomainException();
     }
     return strictPlainToClass(LessonEntity, response.Item);
   }
 
   public async saveIfExistsOrThrow(param: {
     lessonEntity: LessonEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { lessonEntity } = param;
     try {
@@ -183,7 +180,6 @@ export default class LessonDynamoDBRepository {
     upperLesson: LessonEntity | null;
     lowerLesson: LessonEntity | null;
     lessonArrangementVersion: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { lesson, upperLesson, lowerLesson, lessonArrangementVersion } =
       param;
@@ -201,24 +197,17 @@ export default class LessonDynamoDBRepository {
         const lessonToBeDeleted: LessonEntity = await this.findByIdOrThrow({
           courseId,
           lessonId: lesson.lessonId,
-          domainException: new LessonNotFoundException(),
         });
         if (upperLesson) {
           await this.findByIdOrThrow({
             courseId,
             lessonId: upperLesson.lessonId,
-            domainException: new LessonNotFoundException(
-              'Upper lesson not found',
-            ),
           });
         }
         if (lowerLesson) {
           await this.findByIdOrThrow({
             courseId,
             lessonId: lowerLesson.lessonId,
-            domainException: new LessonNotFoundException(
-              'Lower lesson not found',
-            ),
           });
         }
         const newPosition: number = this.calculateNewLessonPosition({
@@ -324,7 +313,6 @@ export default class LessonDynamoDBRepository {
   public async deleteIfExistsOrThrow(param: {
     courseId: number;
     lessonId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { courseId, lessonId } = param;
     let RETRIES: number = 0;

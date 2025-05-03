@@ -9,10 +9,7 @@ import {
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import VideoEntity from '../entity/VideoEntity';
-import {
-  ConditionalCheckFailedException,
-  TransactionCanceledException,
-} from '@aws-sdk/client-dynamodb';
+import { ConditionalCheckFailedException, TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import TimerService from '../../../../../common/common-domain/TimerService';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
@@ -39,7 +36,8 @@ export default class VideoDynamoDBRepository {
     private readonly dynamoDBConfig: DynamoDBConfig,
     private readonly lessonDynamoDBRepository: LessonDynamoDBRepository,
     private readonly courseDynamoDBRepository: CourseDynamoDBRepository,
-  ) {}
+  ) {
+  }
 
   public async saveIfNotExistsOrThrow(param: {
     videoEntity: VideoEntity;
@@ -54,7 +52,6 @@ export default class VideoDynamoDBRepository {
           await this.lessonDynamoDBRepository.findByIdOrThrow({
             lessonId: videoEntity.lessonId,
             courseId: videoEntity.courseId,
-            domainException: new LessonNotFoundException(),
           });
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({
@@ -230,7 +227,6 @@ export default class VideoDynamoDBRepository {
             await this.lessonDynamoDBRepository.findByIdOrThrow({
               courseId: videoEntity.courseId,
               lessonId,
-              domainException: new LessonNotFoundException(),
             });
           const courseEntity: CourseEntity =
             await this.courseDynamoDBRepository.findByIdOrThrow({
@@ -348,7 +344,6 @@ export default class VideoDynamoDBRepository {
           await this.lessonDynamoDBRepository.findByIdOrThrow({
             courseId: video.courseId,
             lessonId,
-            domainException: new LessonNotFoundException(),
           });
         if (lessonEntity.videoArrangementVersion !== version)
           throw new VideoRearrangedException();
@@ -487,7 +482,6 @@ export default class VideoDynamoDBRepository {
           await this.lessonDynamoDBRepository.findByIdOrThrow({
             courseId: videoEntity.courseId,
             lessonId,
-            domainException: new LessonNotFoundException(),
           });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({

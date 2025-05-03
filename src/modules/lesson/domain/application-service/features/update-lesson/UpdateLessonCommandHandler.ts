@@ -2,7 +2,6 @@ import UpdateLessonCommand from './dto/UpdateLessonCommand';
 import { Inject, Injectable } from '@nestjs/common';
 import Lesson from '../../../domain-core/entity/Lesson';
 import { LessonRepository } from '../../ports/output/LessonRepository';
-import LessonNotFoundException from '../../../domain-core/exception/LessonNotFoundException';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import LessonResponse from '../common/LessonResponse';
@@ -26,7 +25,6 @@ export default class UpdateLessonCommandHandler {
     lesson.update();
     await this.lessonRepository.saveIfExistsOrThrow({
       lesson,
-      domainException: new LessonNotFoundException(),
     });
     return strictPlainToClass(LessonResponse, lesson);
   }
