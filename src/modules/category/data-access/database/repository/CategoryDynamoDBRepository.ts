@@ -7,7 +7,6 @@ import {
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import CategoryEntity from '../entity/CategoryEntity';
 import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -18,6 +17,9 @@ import UniqueCategoryKey from '../entity/UniqueCategoryKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import CategoryTitleAlreadyExistsException from '../../../domain/domain-core/exception/CategoryTitleAlreadyExistsException';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import ResourceConflictException from '../../../../../common/common-domain/exception/ResourceConflictException';
 
 @Injectable()
 export default class CategoryDynamoDBRepository {
@@ -31,9 +33,8 @@ export default class CategoryDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     categoryEntity: CategoryEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { categoryEntity, domainException } = param;
+    const { categoryEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -60,19 +61,23 @@ export default class CategoryDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new DomainException();
+          throw new DuplicateKeyException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new CategoryTitleAlreadyExistsException();
+          throw new CategoryTitleAlreadyExistsException({
+            throwable: exception,
+          });
       }
-      throw domainException;
+      throw new InternalServerException({
+        throwable: exception,
+      });
     }
   }
 
@@ -120,9 +125,8 @@ export default class CategoryDynamoDBRepository {
 
   public async findByIdOrThrow(param: {
     categoryId: number;
-    domainException: DomainException;
   }): Promise<CategoryEntity> {
-    const { categoryId, domainException } = param;
+    const { categoryId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.CATEGORY_TABLE,
@@ -130,23 +134,21 @@ export default class CategoryDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new CategoryNotFoundException();
     }
     return strictPlainToClass(CategoryEntity, response.Item);
   }
 
   public async saveIfExistsOrThrow(param: {
     categoryEntity: CategoryEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { categoryEntity, domainException } = param;
+    const { categoryEntity } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const oldCategoryEntity: CategoryEntity = await this.findByIdOrThrow({
           categoryId: categoryEntity.categoryId,
-          domainException: new CategoryNotFoundException(),
         });
         if (categoryEntity.title === oldCategoryEntity.title) return;
         await this.dynamoDBDocumentClient.send(
@@ -193,38 +195,39 @@ export default class CategoryDynamoDBRepository {
         );
         return;
       } catch (exception) {
-        if (exception instanceof CategoryNotFoundException)
-          throw domainException;
-        RETRIES++;
-        if (RETRIES === MAX_RETRIES) {
-          if (exception instanceof TransactionCanceledException) {
-            const { CancellationReasons } = exception;
-            if (!CancellationReasons) throw new DomainException();
-            if (
-              CancellationReasons[1].Code ===
-              DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-            )
-              throw new CategoryTitleAlreadyExistsException();
-          }
-          throw exception;
+        if (exception instanceof CategoryNotFoundException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw new InternalServerException();
+          if (
+            CancellationReasons[1].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new CategoryTitleAlreadyExistsException({
+              throwable: exception,
+            });
         }
-        await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
+        RETRIES++;
+        if (RETRIES > MAX_RETRIES) {
+          throw new ResourceConflictException({ throwable: exception });
+        }
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(
+          this.BACKOFF_IN_MS,
+        );
       }
     }
   }
 
   public async deleteIfExistsOrThrow(param: {
     categoryId: number;
-    domainException: DomainException;
   }): Promise<void> {
-    const { categoryId, domainException } = param;
+    const { categoryId } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const categoryEntity: CategoryEntity = await this.findByIdOrThrow({
           categoryId,
-          domainException: new CategoryNotFoundException(),
         });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({
@@ -256,15 +259,14 @@ export default class CategoryDynamoDBRepository {
         );
         return;
       } catch (exception) {
-        if (exception instanceof CategoryNotFoundException)
-          throw domainException;
+        if (exception instanceof CategoryNotFoundException) throw exception;
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) {
-          if (exception instanceof TransactionCanceledException)
-            throw domainException;
-          throw exception;
+        if (RETRIES > MAX_RETRIES) {
+          throw new ResourceConflictException({ throwable: exception });
         }
-        await TimerService.sleepInMilliseconds(this.BACKOFF_IN_MS);
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(
+          this.BACKOFF_IN_MS,
+        );
       }
     }
   }
