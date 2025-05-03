@@ -72,7 +72,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: build-and-env
-          path: .
+          path: build-artifact
 
       - name: Configure AWS Credentials
         run: |
@@ -82,7 +82,7 @@ jobs:
 
       - name: Create tar.gz of the build and .env file
         run: |
-          tar -czf build_myhmm.tar.gz dist .env
+          tar -czf build_myhmm.tar.gz build-artifact/dist build-artifact/.env
 
       - name: Upload to S3
         run: |
