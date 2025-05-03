@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class CourseScheduleNotFoundException extends HttpException {
-  constructor(message: string = 'Course schedule not found') {
-    super(HttpStatus.NOT_FOUND, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.NOT_FOUND,
+      param.message ?? 'Course schedule not found',
+      param.throwable ?? null,
+    );
   }
 }
