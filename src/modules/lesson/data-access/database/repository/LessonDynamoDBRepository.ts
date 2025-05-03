@@ -26,6 +26,9 @@ import LessonKey from '../entity/LessonKey';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import LessonNotFoundException from '../../../domain/domain-core/exception/LessonNotFoundException';
 import LessonRearrangedException from '../../../domain/domain-core/exception/LessonRearrangedException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import ResourceConflictException from '../../../../../common/common-domain/exception/ResourceConflictException';
 
 @Injectable()
 export default class LessonDynamoDBRepository {
@@ -41,7 +44,7 @@ export default class LessonDynamoDBRepository {
   }): Promise<void> {
     const { lessonEntity } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const courseEntity: CourseEntity =
@@ -84,9 +87,21 @@ export default class LessonDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof CourseNotFoundException) throw exception;
+        if (exception instanceof TransactionCanceledException) {
+          const { CancellationReasons } = exception;
+          if (!CancellationReasons) throw new InternalServerException();
+          if (
+            CancellationReasons[0].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+          )
+            throw new DuplicateKeyException({ throwable: exception });
+        }
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) throw exception;
-        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
+        if (RETRIES > MAX_RETRIES)
+          throw new ResourceConflictException({
+            throwable: new LessonRearrangedException({ throwable: exception }),
+          });
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
