@@ -166,8 +166,8 @@ export default class ClassDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
-      throw exception;
+        throw new ClassNotFoundException();
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
