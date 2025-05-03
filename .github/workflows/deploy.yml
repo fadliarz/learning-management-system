@@ -84,10 +84,10 @@ jobs:
 
     steps:
       - name: Download build artifact
-          uses: actions/download-artifact@v3
-          with:
-            name: build-and-env
-            path: .
+        uses: actions/download-artifact@v3
+        with:
+          name: build-and-env
+          path: .
 
       - name: Configure AWS Credentials
         run: |
