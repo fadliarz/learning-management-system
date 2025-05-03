@@ -9,7 +9,10 @@ import {
 import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import VideoEntity from '../entity/VideoEntity';
-import { ConditionalCheckFailedException, TransactionCanceledException } from '@aws-sdk/client-dynamodb';
+import {
+  ConditionalCheckFailedException,
+  TransactionCanceledException,
+} from '@aws-sdk/client-dynamodb';
 import TimerService from '../../../../../common/common-domain/TimerService';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
@@ -27,6 +30,9 @@ import VideoRearrangedException from '../../../domain/domain-core/exception/Vide
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 import CourseDynamoDBRepository from '../../../../course/data-access/database/repository/CourseDynamoDBRepository';
 import CourseEntity from '../../../../course/data-access/database/entity/CourseEntity';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import ResourceConflictException from '../../../../../common/common-domain/exception/ResourceConflictException';
 
 @Injectable()
 export default class VideoDynamoDBRepository {
@@ -36,16 +42,14 @@ export default class VideoDynamoDBRepository {
     private readonly dynamoDBConfig: DynamoDBConfig,
     private readonly lessonDynamoDBRepository: LessonDynamoDBRepository,
     private readonly courseDynamoDBRepository: CourseDynamoDBRepository,
-  ) {
-  }
+  ) {}
 
   public async saveIfNotExistsOrThrow(param: {
     videoEntity: VideoEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { videoEntity } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const lessonEntity: LessonEntity =
@@ -128,17 +132,19 @@ export default class VideoDynamoDBRepository {
         return;
       } catch (exception) {
         if (exception instanceof LessonNotFoundException) throw exception;
+        if (exception instanceof CourseNotFoundException) throw exception;
         if (exception instanceof TransactionCanceledException) {
           const { CancellationReasons } = exception;
-          if (!CancellationReasons) throw exception;
+          if (!CancellationReasons) throw new InternalServerException();
           if (
             CancellationReasons[0].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
           )
-            throw exception;
+            throw new DuplicateKeyException({ throwable: exception });
         }
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) throw exception;
+        if (RETRIES > MAX_RETRIES)
+          throw new ResourceConflictException({ throwable: exception });
         await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
