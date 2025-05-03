@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import { EnrollmentRepository } from '../../../domain/application-service/ports/output/repository/EnrollmentRepository';
 import Enrollment from '../../../domain/domain-core/entity/Enrollment';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -15,7 +14,6 @@ export default class EnrollmentRepositoryImpl implements EnrollmentRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     enrollment: Enrollment;
-    domainException: DomainException;
   }): Promise<void> {
     await this.enrollmentDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -38,7 +36,6 @@ export default class EnrollmentRepositoryImpl implements EnrollmentRepository {
     userId: number;
     courseId: number;
     classId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.enrollmentDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

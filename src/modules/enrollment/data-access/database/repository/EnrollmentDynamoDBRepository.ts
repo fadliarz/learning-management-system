@@ -7,7 +7,6 @@ import {
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
   TransactionCanceledException,
@@ -33,7 +32,6 @@ export default class EnrollmentDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     enrollmentEntity: EnrollmentEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { enrollmentEntity } = param;
     try {
@@ -132,7 +130,6 @@ export default class EnrollmentDynamoDBRepository {
     userId: number;
     classId: number;
     courseId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { userId, classId, courseId } = param;
     try {

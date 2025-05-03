@@ -4,7 +4,6 @@ import CreateEnrollmentCommand from './dto/CreateEnrollmentCommand';
 import EnrollmentResponse from '../common/EnrollmentResponse';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import Enrollment from '../../../domain-core/entity/Enrollment';
-import EnrollmentAlreadyExistsException from '../../../domain-core/exception/EnrollmentAlreadyExistsException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import { ClassRepository } from '../../../../../class/domain/application-service/ports/output/repository/ClassRepository';
 
@@ -31,7 +30,6 @@ export default class CreateEnrollmentCommandHandler {
     enrollment.create(createEnrollmentCommand.executor.userId);
     await this.enrollmentRepository.saveIfNotExistsOrThrow({
       enrollment,
-      domainException: new EnrollmentAlreadyExistsException(),
     });
     return strictPlainToClass(EnrollmentResponse, enrollment);
   }
