@@ -327,7 +327,7 @@ export default class LessonDynamoDBRepository {
   }): Promise<void> {
     const { courseId, lessonId } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const courseEntity: CourseEntity =
@@ -378,12 +378,11 @@ export default class LessonDynamoDBRepository {
             CancellationReasons[0].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
           )
-            throw new LessonNotFoundException();
+            throw new LessonNotFoundException({ throwable: exception });
         }
         RETRIES++;
-        if (RETRIES > MAX_RETRIES) {
-          throw exception;
-        }
+        if (RETRIES > MAX_RETRIES)
+          throw new ResourceConflictException({ throwable: exception });
       }
     }
   }
