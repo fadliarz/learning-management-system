@@ -5,7 +5,6 @@ import AuthorizationService from '../../../../../../common/common-domain/feature
 import CourseResponse from '../common/CourseResponse';
 import { CourseRepository } from '../../ports/output/repository/CourseRepository';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
-import CourseNotFoundException from '../../../domain-core/exception/CourseNotFoundException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -26,7 +25,6 @@ export default class UpdateCourseCommandHandler {
     course.update();
     await this.courseRepository.saveIfExistsOrThrow({
       course,
-      domainException: new CourseNotFoundException(),
     });
     return strictPlainToClass(CourseResponse, course);
   }

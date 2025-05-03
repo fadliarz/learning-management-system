@@ -5,7 +5,6 @@ import CreateCourseCommand from './dto/CreateCourseCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import { CourseRepository } from '../../ports/output/repository/CourseRepository';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -26,7 +25,6 @@ export default class CreateCourseCommandHandler {
     course.create();
     await this.courseRepository.saveIfNotExistsOrThrow({
       course,
-      domainException: new DomainException(),
     });
     return strictPlainToClass(CourseResponse, course);
   }

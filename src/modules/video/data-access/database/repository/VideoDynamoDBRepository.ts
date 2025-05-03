@@ -59,7 +59,6 @@ export default class VideoDynamoDBRepository {
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({
             courseId: videoEntity.courseId,
-            domainException: new CourseNotFoundException(),
           });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({
@@ -236,7 +235,6 @@ export default class VideoDynamoDBRepository {
           const courseEntity: CourseEntity =
             await this.courseDynamoDBRepository.findByIdOrThrow({
               courseId: videoEntity.courseId,
-              domainException: new CourseNotFoundException(),
             });
           const durationIncrement: number =
             videoEntity.durationInSec - oldVideoEntity.durationInSec;
@@ -484,7 +482,6 @@ export default class VideoDynamoDBRepository {
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({
             courseId: videoEntity.courseId,
-            domainException: new CourseNotFoundException(),
           });
         const lessonEntity: LessonEntity =
           await this.lessonDynamoDBRepository.findByIdOrThrow({

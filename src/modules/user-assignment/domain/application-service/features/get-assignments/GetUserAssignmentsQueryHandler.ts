@@ -46,7 +46,6 @@ export default class GetUserAssignmentsQueryHandler {
             });
           const course: Course = await this.courseRepository.findByIdOrThrow({
             courseId: classAssignment.courseId,
-            domainException: new UserAssignmentNotFoundException(),
           });
           userAssignmentResponse.course = course.title;
           userAssignmentResponse.title = classAssignment.title;

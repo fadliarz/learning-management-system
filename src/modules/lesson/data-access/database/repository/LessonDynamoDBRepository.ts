@@ -48,7 +48,6 @@ export default class LessonDynamoDBRepository {
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({
             courseId: lessonEntity.courseId,
-            domainException: new CourseNotFoundException(),
           });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({
@@ -196,7 +195,6 @@ export default class LessonDynamoDBRepository {
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({
             courseId,
-            domainException: new CourseNotFoundException(),
           });
         if (courseEntity.lessonArrangementVersion !== lessonArrangementVersion)
           throw new LessonRearrangedException();
@@ -336,7 +334,6 @@ export default class LessonDynamoDBRepository {
         const courseEntity: CourseEntity =
           await this.courseDynamoDBRepository.findByIdOrThrow({
             courseId,
-            domainException: new CourseNotFoundException(),
           });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({

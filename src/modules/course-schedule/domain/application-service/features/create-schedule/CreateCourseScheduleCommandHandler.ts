@@ -27,7 +27,6 @@ export default class CreateCourseScheduleCommandHandler {
     );
     await this.courseRepository.findByIdOrThrow({
       courseId: createCourseScheduleCommand.courseId,
-      domainException: new DomainException(),
     });
     const courseSchedule: CourseSchedule = strictPlainToClass(
       CourseSchedule,

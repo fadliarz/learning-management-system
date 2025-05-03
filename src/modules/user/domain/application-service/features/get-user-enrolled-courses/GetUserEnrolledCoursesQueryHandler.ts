@@ -31,7 +31,6 @@ export default class GetUserEnrolledCoursesQueryHandler {
       try {
         const course: Course = await this.courseRepository.findByIdOrThrow({
           courseId: enrollment.courseId,
-          domainException: new CourseNotFoundException(),
         });
         courseResponses.push(strictPlainToClass(CourseResponse, course));
       } catch (exception) {

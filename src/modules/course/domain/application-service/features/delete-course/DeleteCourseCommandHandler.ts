@@ -1,6 +1,5 @@
 import DeleteCourseCommand from './dto/DeleteCourseCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
-import CourseNotFoundException from '../../../domain-core/exception/CourseNotFoundException';
 import { CourseRepository } from '../../ports/output/repository/CourseRepository';
 import { Inject } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
@@ -20,7 +19,6 @@ export default class DeleteCourseCommandHandler {
     );
     await this.courseRepository.deleteIfExistsOrThrow({
       ...deleteCourseCommand,
-      domainException: new CourseNotFoundException(),
     });
   }
 }
