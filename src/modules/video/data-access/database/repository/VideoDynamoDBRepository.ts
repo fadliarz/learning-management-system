@@ -206,7 +206,7 @@ export default class VideoDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new VideoNotFoundException();
     }
     return strictPlainToClass(VideoEntity, response.Item);
   }
