@@ -55,9 +55,9 @@ jobs:
       - name: Build application
         run: npm run build
 
-      - name: Create tar.gz of the build and .env file
+      - name: Create tar.gz of the file
         run: |
-          tar -czf build_myhmm.tar.gz dist .env
+          tar -czf build_myhmm.tar.gz dist node_modules .env
 
       - name: Archive build and .env for upload
         uses: actions/upload-artifact@v4
