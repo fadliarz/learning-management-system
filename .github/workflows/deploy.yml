@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -18,42 +18,114 @@ jobs:
         with:
           node-version: 22
 
-      - name: Deploy to EC2
+      - name: Generate .env file
         run: |
-          mkdir -p ~/.ssh
+          cat > .env <<EOL
+          USER_TABLE=${{ secrets.USER_TABLE }}
+          ATTACHMENT_TABLE=${{ secrets.ATTACHMENT_TABLE }}
+          CATEGORY_TABLE=${{ secrets.CATEGORY_TABLE }}
+          CLASS_TABLE=${{ secrets.CLASS_TABLE }}
+          CLASS_ASSIGNMENT_TABLE=${{ secrets.CLASS_ASSIGNMENT_TABLE }}
+          COURSE_TABLE=${{ secrets.COURSE_TABLE }}
+          COURSE_SCHEDULE_TABLE=${{ secrets.COURSE_SCHEDULE_TABLE }}
+          ENROLLMENT_TABLE=${{ secrets.ENROLLMENT_TABLE }}
+          FORM_SUBMISSION_TABLE=${{ secrets.FORM_SUBMISSION_TABLE }}
+          INSTRUCTOR_TABLE=${{ secrets.INSTRUCTOR_TABLE }}
+          LESSON_TABLE=${{ secrets.LESSON_TABLE }}
+          VIDEO_TABLE=${{ secrets.VIDEO_TABLE }}
+          PRIVILEGE_TABLE=${{ secrets.PRIVILEGE_TABLE }}
+          USER_ASSIGNMENT_TABLE=${{ secrets.USER_ASSIGNMENT_TABLE }}
+          SCHOLARSHIP_TABLE=${{ secrets.SCHOLARSHIP_TABLE }}
+          TAG_TABLE=${{ secrets.TAG_TABLE }}
+          USER_SCHEDULE_TABLE=${{ secrets.USER_SCHEDULE_TABLE }}
+          AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          COOKIE_SECRET_KEY=${{ secrets.COOKIE_SECRET_KEY }}
+          ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}
+          REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
+          SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}
+          PORT=${{ secrets.PORT }}
+          EOL
+
+      - name: Install dependencies
+        run: npm install --production
+
+      - name: Build application
+        run: npm run build
+
+  setup-ssh:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Make directory for SSH key
+        run: mkdir -p ~/.ssh
+
+      - name: Save secret SSH key
+        run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_PUBLIC_IP }} <<EOF
-          cd /home/ec2-user/learning-management-system
-          git reset --hard
-          git pull origin main
-          npm install --production
-          npm run build
-          export USER_TABLE=${{ secrets.USER_TABLE }}
-          export ATTACHMENT_TABLE=${{ secrets.ATTACHMENT_TABLE }}
-          export CATEGORY_TABLE=${{ secrets.CATEGORY_TABLE }}
-          export CLASS_TABLE=${{ secrets.CLASS_TABLE }}
-          export CLASS_ASSIGNMENT_TABLE=${{ secrets.CLASS_ASSIGNMENT_TABLE }}
-          export COURSE_TABLE=${{ secrets.COURSE_TABLE }}
-          export COURSE_SCHEDULE_TABLE=${{ secrets.COURSE_SCHEDULE_TABLE }}
-          export ENROLLMENT_TABLE=${{ secrets.ENROLLMENT_TABLE }}
-          export FORM_SUBMISSION_TABLE=${{ secrets.FORM_SUBMISSION_TABLE }}
-          export INSTRUCTOR_TABLE=${{ secrets.INSTRUCTOR_TABLE }}
-          export LESSON_TABLE=${{ secrets.LESSON_TABLE }}
-          export VIDEO_TABLE=${{ secrets.VIDEO_TABLE }}
-          export PRIVILEGE_TABLE=${{ secrets.PRIVILEGE_TABLE }}
-          export USER_ASSIGNMENT_TABLE=${{ secrets.USER_ASSIGNMENT_TABLE }}
-          export SCHOLARSHIP_TABLE=${{ secrets.SCHOLARSHIP_TABLE }}
-          export TAG_TABLE=${{ secrets.TAG_TABLE }}
-          export USER_SCHEDULE_TABLE=${{ secrets.USER_SCHEDULE_TABLE }}
-          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
-          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          export COOKIE_SECRET_KEY=${{ secrets.COOKIE_SECRET_KEY }}
-          export ACCESS_TOKEN_KEY=${{ secrets.ACCESS_TOKEN_KEY }}
-          export REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
-          export SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}
-          export PORT=${{ secrets.PORT }}
-          pm2 stop lms
-          pm2 delete lms
-          pm2 restart ecosystem.config.js
+        shell: bash
+
+      - name: Set permissions for SSH key
+        run: chmod 600 ~/.ssh/id_rsa
+
+  upload-file-to-s3:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS Credentials
+        run: |
+          aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws configure set default.region ap-southeast-3
+
+      - name: Create tar.gz of the build and .env file
+        run: |
+          tar -czf build_myhmm.tar.gz dist .env
+
+      - name: Upload to S3
+        run: |
+          aws s3 cp build_myhmm.tar.gz s3://myhmm-bucket/deploy/build_myhmm.tar.gz
+  
+  move-file-to-EC2:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Pull repository
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+              -o StrictHostKeyChecking=no \
+              ec2-user@${{ secrets.EC2_PUBLIC_IP }} <<'EOF'
+
+            APP_DIR="/home/ec2-user/myhmm-server"
+            cd "$APP_DIR"
+
+            if [ ! -d ".git" ]; then
+              git clone https://github.com/fadliarz/myhmm-server .
+            else
+              git reset --hard
+              git fetch
+            fi
+
+            git checkout main
+            git pull origin main
+          EOF
+
+      - name: Download file from s3 and extract
+        run: |
+          ssh -i ~/.ssh/id_rsa ec2-user@${{ secrets.EC2_PUBLIC_IP }} <<'EOF'
+            cd /home/ec2-user/myhmm-server
+            aws s3 cp s3://myhmm-bucket/deploy/build_myhmm.tar.gz .
+            tar -xzf build_myhmm.tar.gz
+          EOF
+
+      - name: Deploy using pm2
+        run: |
+          ssh -i ~/.ssh/id_rsa \
+              -o StrictHostKeyChecking=no \
+              ec2-user@${{ secrets.EC2_PUBLIC_IP }} <<'EOF'
+          
+            cd /home/ec2-user/myhmm-server
+          
+            pm2 stop myhmm_server 2>/dev/null
+            pm2 delete myhmm_server 2>/dev/null
+            pm2 restart ecosystem.config.js
           EOF
