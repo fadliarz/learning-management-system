@@ -16,6 +16,8 @@ import strictPlainToClass from '../../../../../common/common-domain/mapper/stric
 import CourseScheduleEntity from '../entity/CourseScheduleEntity';
 import CourseScheduleKey from '../entity/CourseScheduleKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class CourseScheduleDynamoDBRepository {
@@ -29,7 +31,7 @@ export default class CourseScheduleDynamoDBRepository {
     courseScheduleEntity: CourseScheduleEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { courseScheduleEntity, domainException } = param;
+    const { courseScheduleEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new PutCommand({
@@ -41,8 +43,8 @@ export default class CourseScheduleDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
-      throw exception;
+        throw new DuplicateKeyException({ throwable: exception });
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
