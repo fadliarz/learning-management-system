@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import CreateClassCommand from './dto/CreateClassCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import { ClassRepository } from '../../ports/output/repository/ClassRepository';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import Class from '../../../domain-core/entity/Class';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import ClassResponse from '../common/ClassResponse';
@@ -26,7 +25,6 @@ export default class CreateClassCommandHandler {
     courseClass.create();
     await this.classRepository.saveIfNotExistsOrThrow({
       courseClass,
-      domainException: new DomainException(),
     });
     return strictPlainToClass(ClassResponse, courseClass);
   }

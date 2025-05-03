@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import { ClassRepository } from '../../../domain/application-service/ports/output/repository/ClassRepository';
 import Class from '../../../domain/domain-core/entity/Class';
 import ClassDynamoDBRepository from '../repository/ClassDynamoDBRepository';
@@ -15,7 +14,6 @@ export default class ClassRepositoryImpl implements ClassRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     courseClass: Class;
-    domainException: DomainException;
   }): Promise<void> {
     await this.classDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -37,7 +35,6 @@ export default class ClassRepositoryImpl implements ClassRepository {
   public async findByIdOrThrow(param: {
     courseId: number;
     classId: number;
-    domainException: DomainException;
   }): Promise<Class> {
     return strictPlainToClass(
       Class,
@@ -47,7 +44,6 @@ export default class ClassRepositoryImpl implements ClassRepository {
 
   public async saveIfExistsOrThrow(param: {
     courseClass: Class;
-    domainException: DomainException;
   }): Promise<void> {
     await this.classDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
@@ -58,7 +54,6 @@ export default class ClassRepositoryImpl implements ClassRepository {
   public async deleteIfExistsOrThrow(param: {
     courseId: number;
     classId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.classDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

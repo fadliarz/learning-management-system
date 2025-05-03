@@ -7,7 +7,6 @@ import Enrollment from '../../../domain-core/entity/Enrollment';
 import EnrollmentAlreadyExistsException from '../../../domain-core/exception/EnrollmentAlreadyExistsException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import { ClassRepository } from '../../../../../class/domain/application-service/ports/output/repository/ClassRepository';
-import ClassNotFoundException from '../../../../../class/domain/domain-core/exception/ClassNotFoundException';
 
 @Injectable()
 export default class CreateEnrollmentCommandHandler {
@@ -24,7 +23,6 @@ export default class CreateEnrollmentCommandHandler {
     await this.classRepository.findByIdOrThrow({
       courseId: createEnrollmentCommand.courseId,
       classId: createEnrollmentCommand.classId,
-      domainException: new ClassNotFoundException(),
     });
     const enrollment: Enrollment = strictPlainToClass(
       Enrollment,

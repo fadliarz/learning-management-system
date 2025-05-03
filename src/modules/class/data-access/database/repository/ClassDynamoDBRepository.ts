@@ -8,7 +8,6 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
   TransactionCanceledException,
@@ -35,7 +34,6 @@ export default class ClassDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     classEntity: ClassEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { classEntity } = param;
     try {
@@ -133,9 +131,8 @@ export default class ClassDynamoDBRepository {
   public async findByIdOrThrow(param: {
     courseId: number;
     classId: number;
-    domainException: DomainException;
   }): Promise<ClassEntity> {
-    const { courseId, classId, domainException } = param;
+    const { courseId, classId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.CLASS_TABLE,
@@ -150,9 +147,8 @@ export default class ClassDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     classEntity: ClassEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { classEntity, domainException } = param;
+    const { classEntity } = param;
     try {
       const { courseId, classId, ...restObj } = classEntity;
       await this.dynamoDBDocumentClient.send(
@@ -174,7 +170,6 @@ export default class ClassDynamoDBRepository {
   public async deleteIfExistsOrThrow(param: {
     courseId: number;
     classId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { courseId, classId } = param;
     try {

@@ -4,7 +4,6 @@ import { ClassRepository } from '../../ports/output/repository/ClassRepository';
 import Class from '../../../domain-core/entity/Class';
 import { plainToClass } from 'class-transformer';
 import ClassResponse from '../common/ClassResponse';
-import ClassNotFoundException from '../../../domain-core/exception/ClassNotFoundException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -23,7 +22,6 @@ export default class UpdateClassCommandHandler {
     courseClass.update();
     await this.classRepository.saveIfExistsOrThrow({
       courseClass,
-      domainException: new ClassNotFoundException(),
     });
     return plainToClass(ClassResponse, courseClass, {
       excludeExtraneousValues: true,
