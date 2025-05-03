@@ -27,7 +27,6 @@ export default class AddCourseCategoryCommandHandler {
     );
     await this.categoryRepository.findByIdOrThrow({
       categoryId: addCourseCategoryCommand.categoryId,
-      domainException: new CategoryNotFoundException(),
     });
     await this.courseRepository.addCategoryIfNotExistsOrIgnore(
       addCourseCategoryCommand,

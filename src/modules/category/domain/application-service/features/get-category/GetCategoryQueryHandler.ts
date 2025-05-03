@@ -21,3 +21,4 @@ export default class GetCategoryQueryHandler {
     return strictPlainToClass(CategoryResponse, category);
   }
 }
+ 
