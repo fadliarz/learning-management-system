@@ -21,6 +21,7 @@ import ClassNotFoundException from '../../../../class/domain/domain-core/excepti
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 import UserNotFoundException from '../../../../user/domain/domain-core/exception/UserNotFoundException';
 import InstructorNotFoundException from '../../../domain/domain-core/exception/InstructorNotFoundException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class InstructorDynamoDBRepository {
@@ -34,7 +35,7 @@ export default class InstructorDynamoDBRepository {
     instructorEntity: InstructorEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { instructorEntity, domainException } = param;
+    const { instructorEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -101,29 +102,29 @@ export default class InstructorDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw new DomainException();
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new InstructorAlreadyExistsException();
+          throw new InstructorAlreadyExistsException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new ClassNotFoundException();
+          throw new ClassNotFoundException({ throwable: exception });
         if (
           CancellationReasons[2].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new CourseNotFoundException();
+          throw new CourseNotFoundException({ throwable: exception });
         if (
           CancellationReasons[3].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new UserNotFoundException();
+          throw new UserNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
