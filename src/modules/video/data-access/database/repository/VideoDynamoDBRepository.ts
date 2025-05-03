@@ -344,7 +344,7 @@ export default class VideoDynamoDBRepository {
     const { video, upperVideo, lowerVideo, version } = param;
     const lessonId: number = video.lessonId;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 6;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const lessonEntity: LessonEntity =
@@ -428,19 +428,22 @@ export default class VideoDynamoDBRepository {
           }),
         );
       } catch (exception) {
-        if (exception instanceof DomainException) throw exception;
+        if (exception instanceof VideoRearrangedException) throw exception;
+        if (exception instanceof VideoNotFoundException)
+          throw new ResourceConflictException({ throwable: exception });
         if (exception instanceof TransactionCanceledException) {
           const { CancellationReasons } = exception;
-          if (!CancellationReasons) throw exception;
+          if (!CancellationReasons) throw new InternalServerException();
           if (
-            CancellationReasons[0].Code ===
+            CancellationReasons[2].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
           )
-            throw new VideoRearrangedException();
+            throw new VideoRearrangedException({ throwable: exception });
         }
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) throw exception;
-        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
+        if (RETRIES > MAX_RETRIES)
+          throw new VideoRearrangedException({ throwable: exception });
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
