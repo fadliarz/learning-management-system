@@ -4,7 +4,6 @@ import ImmutableFieldException from '../../../../../common/common-domain/excepti
 import Deserialize from '../../../../../common/common-domain/decorator/Deserialize';
 import ISO8601ToDate from '../../../../../common/common-domain/decorator/ISO8601ToDate';
 import TimeFactory from '../../../../../common/common-domain/helper/TimeFactory';
-import postgres from 'postgres';
 
 export default class FormSubmission {
   private _formId: string;
