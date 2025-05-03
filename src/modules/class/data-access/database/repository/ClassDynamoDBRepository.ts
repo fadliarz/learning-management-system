@@ -176,7 +176,7 @@ export default class ClassDynamoDBRepository {
     classId: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { courseId, classId, domainException } = param;
+    const { courseId, classId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -210,19 +210,19 @@ export default class ClassDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new ClassNotFoundException();
+          throw new ClassNotFoundException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          return;
+          throw new CourseNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 }
