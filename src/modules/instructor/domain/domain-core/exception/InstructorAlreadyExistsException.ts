@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class InstructorAlreadyExistsException extends HttpException {
-  constructor(message: string = 'Instructor already exists') {
-    super(HttpStatus.NOT_FOUND, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.NOT_FOUND,
+      param.message ?? 'Instructor already exists',
+      param.throwable ?? null,
+    );
   }
 }
