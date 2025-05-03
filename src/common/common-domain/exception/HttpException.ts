@@ -2,7 +2,7 @@ import DomainException from './DomainException';
 
 export default class HttpException extends DomainException {
   public statusCode: number;
-  public throwable: Error | null;
+  public throwable: unknown;
 
   constructor(
     statusCode: number,
