@@ -116,7 +116,7 @@ export default class CourseScheduleDynamoDBRepository {
     courseScheduleEntity: CourseScheduleEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { courseScheduleEntity, domainException } = param;
+    const { courseScheduleEntity } = param;
     try {
       const { courseId, scheduleId, ...restObj } = courseScheduleEntity;
       const updateObj = DynamoDBBuilder.buildUpdate(restObj);
@@ -132,7 +132,7 @@ export default class CourseScheduleDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
+        throw new CourseScheduleNotFoundException({ throwable: exception });
       throw exception;
     }
   }
