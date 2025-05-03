@@ -208,9 +208,8 @@ export default class CourseDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     courseEntity: CourseEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { courseEntity, domainException } = param;
+    const { courseEntity } = param;
     try {
       const { courseId, ...restObj } = courseEntity;
       const updateObj = DynamoDBBuilder.buildUpdate(restObj);
@@ -226,8 +225,8 @@ export default class CourseDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
-      throw exception;
+        throw new CourseNotFoundException({ throwable: exception });
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
