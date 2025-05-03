@@ -18,32 +18,6 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install dependencies
-        run: |
-          npm install -g @nestjs/cli
-          npm install --production
-
-      - name: Build application
-        run: npm run build
-
-      - name: Archive build and .env for upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-and-env
-          path: |
-            dist/
-
-  upload-file-to-s3:
-    runs-on: ubuntu-latest
-    needs: [ build ]
-
-    steps:
-      - name: Download build artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: build-and-env
-          path: build-artifact
-
       - name: Generate .env file
         run: |
           cat > .env <<EOL
@@ -73,11 +47,35 @@ jobs:
           PORT=${{ secrets.PORT }}
           EOL
 
+      - name: Install dependencies
+        run: |
+          npm install -g @nestjs/cli
+          npm install --production
+
+      - name: Build application
+        run: npm run build
+
       - name: Create tar.gz of the build and .env file
         run: |
-          ls build-artifact -la  # Optional: Debugging line
-          
-          tar -czf build_myhmm.tar.gz build-artifact/dist .env
+          tar -czf build_myhmm.tar.gz dist .env
+
+      - name: Archive build and .env for upload
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-and-env
+          path: |
+            build_myhmm.tar.gz
+
+  upload-file-to-s3:
+    runs-on: ubuntu-latest
+    needs: [ build ]
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-and-env
+          path: build-artifact
 
       - name: Configure AWS Credentials
         run: |
@@ -87,7 +85,9 @@ jobs:
 
       - name: Upload to S3
         run: |
-          aws s3 cp build_myhmm.tar.gz s3://myhmm-bucket/deploy/build_myhmm.tar.gz
+          ls build-artifact -la  # Optional: Debugging line
+
+          aws s3 cp build-artifact/build_myhmm.tar.gz s3://myhmm-bucket/deploy/build_myhmm.tar.gz
   
   move-file-to-EC2:
     runs-on: ubuntu-latest
