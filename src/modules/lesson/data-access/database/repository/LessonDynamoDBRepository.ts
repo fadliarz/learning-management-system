@@ -200,7 +200,7 @@ export default class LessonDynamoDBRepository {
       param;
     const courseId: number = lesson.courseId;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const courseEntity: CourseEntity =
@@ -283,21 +283,17 @@ export default class LessonDynamoDBRepository {
         if (exception instanceof LessonNotFoundException) throw exception;
         if (exception instanceof TransactionCanceledException) {
           const { CancellationReasons } = exception;
-          if (!CancellationReasons) throw new DomainException();
-          if (
-            CancellationReasons[1].Code ===
-            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-          )
-            throw new DomainException();
+          if (!CancellationReasons) throw new InternalServerException();
           if (
             CancellationReasons[2].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
           )
-            throw new LessonRearrangedException();
+            throw new LessonRearrangedException({ throwable: exception });
         }
         RETRIES++;
-        if (RETRIES > MAX_RETRIES) throw exception;
-        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
+        if (RETRIES > MAX_RETRIES)
+          throw new ResourceConflictException({ throwable: exception });
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
