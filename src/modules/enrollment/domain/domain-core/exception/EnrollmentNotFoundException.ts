@@ -2,7 +2,7 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class EnrollmentNotFoundException extends HttpException {
-  constructor(message: string = 'Enrollment not found') {
-    super(HttpStatus.NOT_FOUND, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(HttpStatus.NOT_FOUND, param.message ?? 'Enrollment not found');
   }
 }
