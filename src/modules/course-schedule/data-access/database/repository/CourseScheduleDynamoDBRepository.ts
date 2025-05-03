@@ -18,6 +18,7 @@ import CourseScheduleKey from '../entity/CourseScheduleKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import CourseScheduleNotFoundException from '../../../domain/domain-core/exception/CourseScheduleNotFoundException';
 
 @Injectable()
 export default class CourseScheduleDynamoDBRepository {
@@ -98,7 +99,7 @@ export default class CourseScheduleDynamoDBRepository {
     scheduleId: number;
     domainException: DomainException;
   }): Promise<CourseScheduleEntity> {
-    const { courseId, scheduleId, domainException } = param;
+    const { courseId, scheduleId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.COURSE_SCHEDULE_TABLE,
@@ -106,7 +107,7 @@ export default class CourseScheduleDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new CourseScheduleNotFoundException();
     }
     return strictPlainToClass(CourseScheduleEntity, response.Item);
   }
