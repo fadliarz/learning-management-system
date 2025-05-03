@@ -48,7 +48,9 @@ jobs:
           EOL
 
       - name: Install dependencies
-        run: npm install --production
+        run: |
+          npm install -g @nestjs/cli
+          npm install --production
 
       - name: Build application
         run: npm run build
