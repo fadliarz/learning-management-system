@@ -161,7 +161,7 @@ export default class LessonDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw new DomainException();
+      throw new LessonNotFoundException();
     }
     return strictPlainToClass(LessonEntity, response.Item);
   }
