@@ -186,7 +186,7 @@ export default class LessonDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
         throw new LessonNotFoundException({ throwable: exception });
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
