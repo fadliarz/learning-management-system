@@ -22,6 +22,8 @@ import Pagination from '../../../../../common/common-domain/repository/Paginatio
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 import ClassNotFoundException from '../../../domain/domain-core/exception/ClassNotFoundException';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class ClassDynamoDBRepository {
@@ -35,7 +37,7 @@ export default class ClassDynamoDBRepository {
     classEntity: ClassEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { classEntity, domainException } = param;
+    const { classEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -69,19 +71,19 @@ export default class ClassDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw domainException;
+          throw new DuplicateKeyException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new CourseNotFoundException();
+          throw new CourseNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException();
     }
   }
 
