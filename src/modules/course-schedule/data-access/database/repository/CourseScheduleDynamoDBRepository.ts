@@ -133,7 +133,7 @@ export default class CourseScheduleDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
         throw new CourseScheduleNotFoundException({ throwable: exception });
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
