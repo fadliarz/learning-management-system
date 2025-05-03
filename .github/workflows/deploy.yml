@@ -130,7 +130,7 @@ jobs:
           
             cd /home/ec2-user/myhmm-server
           
-            pm2 stop myhmm_server 2>/dev/null
-            pm2 delete myhmm_server 2>/dev/null
+            pm2 stop lms 2>/dev/null
+            pm2 delete lms 2>/dev/null
             pm2 restart ecosystem.config.js
           EOF
