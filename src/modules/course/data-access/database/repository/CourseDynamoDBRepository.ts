@@ -192,9 +192,8 @@ export default class CourseDynamoDBRepository {
 
   public async findByIdOrThrow(param: {
     courseId: number;
-    domainException: DomainException;
   }): Promise<CourseEntity> {
-    const { courseId, domainException } = param;
+    const { courseId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.COURSE_TABLE,
@@ -202,7 +201,7 @@ export default class CourseDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new CourseNotFoundException();
     }
     return strictPlainToClass(CourseEntity, response.Item);
   }
