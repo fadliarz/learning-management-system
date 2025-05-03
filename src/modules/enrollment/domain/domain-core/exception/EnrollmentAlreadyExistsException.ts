@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class EnrollmentAlreadyExistsException extends HttpException {
-  constructor(message: string = "You're already enrolled in this course") {
-    super(HttpStatus.BAD_REQUEST, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.BAD_REQUEST,
+      param.message ?? "You're already enrolled in this course",
+      param.throwable ?? null,
+    );
   }
 }
