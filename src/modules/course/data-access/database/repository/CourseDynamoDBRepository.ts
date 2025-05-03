@@ -10,7 +10,6 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
   TransactionCanceledException,
@@ -232,9 +231,8 @@ export default class CourseDynamoDBRepository {
 
   public async deleteIfExistsOrThrow(param: {
     courseId: number;
-    domainException: DomainException;
   }): Promise<void> {
-    const { courseId, domainException } = param;
+    const { courseId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new DeleteCommand({
@@ -246,8 +244,8 @@ export default class CourseDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
-      throw exception;
+        throw new CourseNotFoundException({ throwable: exception });
+      throw new InternalServerException({ throwable: exception });
     }
   }
 }
