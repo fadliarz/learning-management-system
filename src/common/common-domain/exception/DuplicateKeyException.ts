@@ -2,7 +2,11 @@ import HttpException from './HttpException';
 import { HttpStatus } from '@nestjs/common';
 
 export default class DuplicateKeyException extends HttpException {
-  constructor(message: string = 'Something went wrong, please try again!') {
-    super(HttpStatus.INTERNAL_SERVER_ERROR, message);
+  constructor(param: { message?: string; throwable?: Error }) {
+    super(
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      param.message ?? 'Something went wrong, please try again!',
+      param.throwable ?? null,
+    );
   }
 }
