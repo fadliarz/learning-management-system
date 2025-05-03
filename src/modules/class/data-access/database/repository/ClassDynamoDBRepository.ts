@@ -143,7 +143,7 @@ export default class ClassDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new ClassNotFoundException();
     }
     return strictPlainToClass(ClassEntity, response.Item);
   }
