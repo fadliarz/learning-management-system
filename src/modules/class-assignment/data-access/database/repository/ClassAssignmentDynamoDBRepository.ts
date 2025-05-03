@@ -25,6 +25,7 @@ import ClassNotFoundException from '../../../../class/domain/domain-core/excepti
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
+import ClassAssignmentNotFoundException from '../../../domain/domain-core/exception/ClassAssignmentNotFoundException';
 
 @Injectable()
 export default class ClassAssignmentDynamoDBRepository {
@@ -164,7 +165,7 @@ export default class ClassAssignmentDynamoDBRepository {
     assignmentId: number;
     domainException: DomainException;
   }): Promise<ClassAssignmentEntity> {
-    const { classId, assignmentId, domainException } = param;
+    const { classId, assignmentId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.CLASS_ASSIGNMENT_TABLE,
@@ -172,7 +173,7 @@ export default class ClassAssignmentDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new ClassAssignmentNotFoundException();
     }
     return strictPlainToClass(ClassAssignmentEntity, response.Item);
   }
