@@ -23,6 +23,8 @@ import Pagination from '../../../../../common/common-domain/repository/Paginatio
 import CategoryLinkKey from '../../../../category/data-access/database/entity/CategoryLinkKey';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import CourseNotFoundException from '../../../domain/domain-core/exception/CourseNotFoundException';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class CourseDynamoDBRepository {
@@ -34,9 +36,8 @@ export default class CourseDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     courseEntity: CourseEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { courseEntity, domainException } = param;
+    const { courseEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new PutCommand({
@@ -48,8 +49,8 @@ export default class CourseDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
-      throw exception;
+        throw new DuplicateKeyException({ throwable: exception });
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
