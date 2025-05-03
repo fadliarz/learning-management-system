@@ -55,6 +55,14 @@ jobs:
       - name: Build application
         run: npm run build
 
+      - name: Archive build and .env for upload
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-and-env
+          path: |
+            dist/
+            .env
+
   setup-ssh:
     runs-on: ubuntu-latest
 
@@ -75,6 +83,12 @@ jobs:
     needs: [ build, setup-ssh ]
 
     steps:
+      - name: Download build artifact
+          uses: actions/download-artifact@v3
+          with:
+            name: build-and-env
+            path: .
+
       - name: Configure AWS Credentials
         run: |
           aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY_ID }}
