@@ -36,7 +36,7 @@ export default class ScholarshipDynamoDBRepository {
     scholarshipEntity: ScholarshipEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { scholarshipEntity, domainException } = param;
+    const { scholarshipEntity } = param;
     await this.dynamoDBDocumentClient.send(
       new PutCommand({
         TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,

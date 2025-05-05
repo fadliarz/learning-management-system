@@ -3,7 +3,6 @@ import AuthorizationService from '../../../../../../common/common-domain/feature
 import DeleteInstructorCommand from './dto/DeleteInstructorCommand';
 import InstructorRepository from '../../ports/output/InstructorRepository';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import InstructorNotFoundException from '../../../domain-core/exception/InstructorNotFoundException';
 
 @Injectable()
 export default class DeleteInstructorCommandHandler {
@@ -21,7 +20,6 @@ export default class DeleteInstructorCommandHandler {
     );
     await this.instructorRepository.deleteIfExistsOrThrow({
       ...deleteInstructorCommand,
-      domainException: new InstructorNotFoundException(),
     });
   }
 }

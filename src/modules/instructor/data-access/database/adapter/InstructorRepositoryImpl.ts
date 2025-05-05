@@ -5,7 +5,6 @@ import Pagination from '../../../../../common/common-domain/repository/Paginatio
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import InstructorDynamoDBRepository from '../repository/InstructorDynamoDBRepository';
 import InstructorEntity from '../entity/InstructorEntity';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 
 @Injectable()
 export default class InstructorRepositoryImpl implements InstructorRepository {
@@ -15,7 +14,6 @@ export default class InstructorRepositoryImpl implements InstructorRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     instructor: Instructor;
-    domainException: DomainException;
   }): Promise<void> {
     await this.instructorDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -49,7 +47,6 @@ export default class InstructorRepositoryImpl implements InstructorRepository {
     userId: number;
     courseId: number;
     classId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.instructorDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

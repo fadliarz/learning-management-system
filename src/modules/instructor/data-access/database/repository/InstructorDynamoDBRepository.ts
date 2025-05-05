@@ -12,7 +12,6 @@ import ClassKey from '../../../../class/data-access/database/entity/ClassKey';
 import CourseKey from '../../../../course/data-access/database/entity/CourseKey';
 import UserKey from '../../../../user/data-access/database/entity/UserKey';
 import InstructorKey from '../entity/InstructorKey';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
@@ -35,7 +34,6 @@ export default class InstructorDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     instructorEntity: InstructorEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { instructorEntity } = param;
     try {
@@ -221,7 +219,6 @@ export default class InstructorDynamoDBRepository {
     userId: number;
     courseId: number;
     classId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { userId, courseId, classId } = param;
     try {
