@@ -34,6 +34,7 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': 0,
       '@typescript-eslint/no-unsafe-assignment': 0,
       '@typescript-eslint/no-unsafe-member-access': 0,
+      '@typescript-eslint/no-empty-object-type': 0,
     },
   },
 );
