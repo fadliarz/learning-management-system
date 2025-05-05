@@ -189,6 +189,21 @@ export default class CourseDynamoDBRepository {
     return courseEntities;
   }
 
+  public async findById(param: {
+    courseId: number;
+  }): Promise<CourseEntity | null> {
+    const { courseId } = param;
+    const response = await this.dynamoDBDocumentClient.send(
+      new GetCommand({
+        TableName: this.dynamoDBConfig.COURSE_TABLE,
+        Key: new CourseKey({ courseId }),
+      }),
+    );
+    return response.Item
+      ? strictPlainToClass(CourseEntity, response.Item)
+      : null;
+  }
+
   public async findByIdOrThrow(param: {
     courseId: number;
   }): Promise<CourseEntity> {

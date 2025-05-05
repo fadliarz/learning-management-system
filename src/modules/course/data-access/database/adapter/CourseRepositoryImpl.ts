@@ -43,6 +43,15 @@ export default class CourseRepositoryImpl implements CourseRepository {
     );
   }
 
+  public async findById(param: { courseId: number }): Promise<Course | null> {
+    const courseEntity: CourseEntity | null =
+      await this.courseDynamoDBRepository.findById({
+        courseId: param.courseId,
+      });
+
+    return courseEntity ? strictPlainToClass(Course, courseEntity) : null;
+  }
+
   public async findByIdOrThrow(param: { courseId: number }): Promise<Course> {
     return strictPlainToClass(
       Course,
