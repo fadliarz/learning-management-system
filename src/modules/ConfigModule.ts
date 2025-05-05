@@ -14,6 +14,7 @@ import PrivilegeDynamoDBRepository from './privilege/data-access/database/reposi
 import CookieConfig from '../config/CookieConfig';
 import GlobalConfig from '../config/GlobalConfig';
 import GlobalExceptionHandler from '../common/common-application/handler/GlobalExceptionHandler';
+import RedisConfig from '../config/RedisConfig';
 
 @Global()
 @Module({
@@ -22,6 +23,7 @@ import GlobalExceptionHandler from '../common/common-application/handler/GlobalE
     GlobalConfig,
     DynamoDBConfig,
     CookieConfig,
+    RedisConfig,
     {
       provide: DependencyInjection.DYNAMODB_DOCUMENT_CLIENT,
       useFactory: (dynamoDBConfig: DynamoDBConfig) => {
