@@ -18,6 +18,7 @@ export enum DependencyInjection {
   CATEGORY_REPOSITORY = 'CategoryRepository',
   AUTHENTICATION_SERVICE = 'AuthenticationService',
   DYNAMODB_DOCUMENT_CLIENT = 'DynamoDBDocumentClient',
+  REDIS_CLIENT = 'RedisClient',
 
   COURSE_CONTEXT = 'CourseContext',
   SCHOLARSHIP_CONTEXT = 'ScholarshipContext',

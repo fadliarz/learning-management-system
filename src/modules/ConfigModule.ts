@@ -15,6 +15,7 @@ import CookieConfig from '../config/CookieConfig';
 import GlobalConfig from '../config/GlobalConfig';
 import GlobalExceptionHandler from '../common/common-application/handler/GlobalExceptionHandler';
 import RedisConfig from '../config/RedisConfig';
+import { Redis } from 'ioredis';
 
 @Global()
 @Module({
@@ -30,6 +31,16 @@ import RedisConfig from '../config/RedisConfig';
         return DynamoDBDocumentClient.from(
           new DynamoDBClient({ region: 'ap-southeast-3' }),
         );
+      },
+    },
+    {
+      provide: DependencyInjection.REDIS_CLIENT,
+      useFactory: (redisConfig: RedisConfig) => {
+        return new Redis({
+          host: '127.0.0.1',
+          port: redisConfig.REDIS_PORT,
+          password: redisConfig.REDIS_PASSWORD,
+        });
       },
     },
     JwtService,
