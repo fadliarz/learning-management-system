@@ -1,7 +1,9 @@
-import 'dotenv/config';
+import { config } from 'dotenv';
 import User from './modules/user/domain/domain-core/entity/User';
 import { RuntimeException } from '@nestjs/core/errors/exceptions';
 import Application from './app';
+
+config();
 
 declare module 'fastify' {
   interface FastifyRequest {

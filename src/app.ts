@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import { config } from 'dotenv';
 import { NestFactory } from '@nestjs/core';
 import {
   FastifyAdapter,
@@ -12,6 +12,8 @@ import AppModule from './AppModule';
 import { RuntimeException } from '@nestjs/core/errors/exceptions';
 import CookieConfig from './config/CookieConfig';
 import fastifyCookie from '@fastify/cookie';
+
+config();
 
 export default class Application {
   private _app: NestFastifyApplication;

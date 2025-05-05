@@ -1,5 +1,6 @@
 {
   "name": "lms",
+  "type": "commonjs",
   "version": "1.0.0",
   "description": "",
   "main": "main.js",
@@ -9,7 +10,7 @@
     "start": "nest start",
     "start:dev": "set NODE_ENV=development && nest start --watch",
     "start:debug": "nest start --debug --watch",
-    "start:prod": "node dist/main",
+    "start:prod": "node dist/src/main.js",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
