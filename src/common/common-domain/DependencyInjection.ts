@@ -24,4 +24,7 @@ export enum DependencyInjection {
   SCHOLARSHIP_CONTEXT = 'ScholarshipContext',
   CATEGORY_CONTEXT = 'CategoryContext',
   TAG_CONTEXT = 'TagContext',
+
+  COURSE_CACHE_MEMORY = 'CourseCacheMemory',
+  COURSE_REDIS_CACHE_MEMORY = 'CourseRedisCacheMemory',
 }

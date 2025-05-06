@@ -14,6 +14,8 @@ import CategoryModule from '../category/CategoryModule';
 import AddCourseCategoryCommandHandler from './domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
 import CourseContextImpl from './data-access/context/adapter/CourseContextImpl';
 import RemoveCourseCategoryCommandHandler from './domain/application-service/features/remove-category/RemoveCourseCategoryCommandHandler';
+import CourseCacheMemoryImpl from './data-access/cache/adapter/CourseCacheMemoryImpl';
+import CourseRedisCacheMemory from './data-access/cache/memory/CourseRedisCacheMemory';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule, CategoryModule],
@@ -34,6 +36,14 @@ import RemoveCourseCategoryCommandHandler from './domain/application-service/fea
     {
       provide: DependencyInjection.COURSE_CONTEXT,
       useClass: CourseContextImpl,
+    },
+    {
+      provide: DependencyInjection.COURSE_CACHE_MEMORY,
+      useClass: CourseCacheMemoryImpl,
+    },
+    {
+      provide: DependencyInjection.COURSE_REDIS_CACHE_MEMORY,
+      useClass: CourseRedisCacheMemory,
     },
   ],
   exports: [
