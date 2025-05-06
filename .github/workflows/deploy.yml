@@ -45,6 +45,10 @@ jobs:
           REFRESH_TOKEN_KEY=${{ secrets.REFRESH_TOKEN_KEY }}
           SALT_ROUNDS=${{ secrets.SALT_ROUNDS }}
           PORT=${{ secrets.PORT }}
+          REDIS_HOST=${{ secrets.REDIS_HOST }}
+          REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+          REDIS_PORT=${{ secrets.REDIS_PORT }}
+          DEFAULT_TTL_IN_SEC=${{ secrets.DEFAULT_TTL_IN_SEC }}
           EOL
 
       - name: Install dependencies
