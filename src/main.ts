@@ -30,5 +30,5 @@ async function main() {
 }
 
 main().then(() => {
-  console.log('Application started');
+  console.log('[APPLICATION] - Application started');
 });
