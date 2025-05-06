@@ -16,6 +16,8 @@ export interface CourseRepository {
 
   findMany(param: { pagination: Pagination }): Promise<Course[]>;
 
+  findById(param: { courseId: number }): Promise<Course | null>;
+
   findByIdOrThrow(param: { courseId: number }): Promise<Course>;
 
   saveIfExistsOrThrow(param: { course: Course }): Promise<void>;
