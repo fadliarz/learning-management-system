@@ -16,6 +16,7 @@ import UserKey from '../../../../user/data-access/database/entity/UserKey';
 import PrivilegeKey from '../entity/PrivilegeKey';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import UserNotFoundException from '../../../../user/domain/domain-core/exception/UserNotFoundException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class PrivilegeDynamoDBRepository {
@@ -65,7 +66,8 @@ export default class PrivilegeDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons)
+          throw new InternalServerException({ throwable: exception });
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
@@ -75,9 +77,9 @@ export default class PrivilegeDynamoDBRepository {
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new UserNotFoundException();
+          throw new UserNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
