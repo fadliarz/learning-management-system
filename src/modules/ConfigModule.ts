@@ -16,6 +16,8 @@ import GlobalConfig from '../config/GlobalConfig';
 import GlobalExceptionHandler from '../common/common-application/handler/GlobalExceptionHandler';
 import RedisConfig from '../config/RedisConfig';
 import { Redis } from 'ioredis';
+import CacheConfig from '../config/CacheConfig';
+import RedisCacheMemory from '../common/common-data-access/cache/redis/RedisCacheMemory';
 
 @Global()
 @Module({
@@ -25,6 +27,7 @@ import { Redis } from 'ioredis';
     DynamoDBConfig,
     CookieConfig,
     RedisConfig,
+    CacheConfig,
     {
       provide: DependencyInjection.DYNAMODB_DOCUMENT_CLIENT,
       useFactory: (dynamoDBConfig: DynamoDBConfig) => {
@@ -37,12 +40,14 @@ import { Redis } from 'ioredis';
       provide: DependencyInjection.REDIS_CLIENT,
       useFactory: (redisConfig: RedisConfig) => {
         return new Redis({
-          host: '127.0.0.1',
+          host: redisConfig.REDIS_HOST,
           port: redisConfig.REDIS_PORT,
           password: redisConfig.REDIS_PASSWORD,
         });
       },
+      inject: [RedisConfig],
     },
+    RedisCacheMemory,
     JwtService,
     {
       provide: DependencyInjection.AUTHENTICATION_SERVICE,
@@ -68,6 +73,8 @@ import { Redis } from 'ioredis';
     GlobalConfig,
     DynamoDBConfig,
     CookieConfig,
+    RedisConfig,
+    CookieConfig,
     {
       provide: DependencyInjection.DYNAMODB_DOCUMENT_CLIENT,
       useFactory: (dynamoDBConfig: DynamoDBConfig) => {
@@ -76,6 +83,18 @@ import { Redis } from 'ioredis';
         );
       },
     },
+    {
+      provide: DependencyInjection.REDIS_CLIENT,
+      useFactory: (redisConfig: RedisConfig) => {
+        return new Redis({
+          host: '127.0.0.1',
+          port: redisConfig.REDIS_PORT,
+          password: redisConfig.REDIS_PASSWORD,
+        });
+      },
+      inject: [RedisConfig],
+    },
+    RedisCacheMemory,
     JwtService,
     {
       provide: DependencyInjection.AUTHENTICATION_SERVICE,
