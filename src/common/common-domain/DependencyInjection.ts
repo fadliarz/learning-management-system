@@ -26,4 +26,6 @@ export enum DependencyInjection {
 
   COURSE_CACHE_MEMORY = 'CourseCacheMemory',
   COURSE_REDIS_CACHE_MEMORY = 'CourseRedisCacheMemory',
+  ATTACHMENT_CACHE_MEMORY = 'AttachmentCacheMemory',
+  ATTACHMENT_REDIS_CACHE_MEMORY = 'AttachmentRedisCacheMemory',
 }
