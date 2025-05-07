@@ -258,8 +258,7 @@ export default class CourseDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ConditionalCheckFailedException)
-        throw new CourseNotFoundException({ throwable: exception });
+      if (exception instanceof ConditionalCheckFailedException) return;
       throw new InternalServerException({ throwable: exception });
     }
   }
