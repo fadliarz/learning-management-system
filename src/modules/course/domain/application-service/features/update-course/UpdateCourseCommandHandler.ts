@@ -6,6 +6,7 @@ import CourseResponse from '../common/CourseResponse';
 import { CourseRepository } from '../../ports/output/repository/CourseRepository';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
+import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseCacheMemoryImpl';
 
 @Injectable()
 export default class UpdateCourseCommandHandler {
@@ -13,6 +14,8 @@ export default class UpdateCourseCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.COURSE_REPOSITORY)
     private readonly courseRepository: CourseRepository,
+    @Inject(DependencyInjection.COURSE_CACHE_MEMORY)
+    private readonly courseCacheMemory: CourseCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -26,6 +29,18 @@ export default class UpdateCourseCommandHandler {
     await this.courseRepository.saveIfExistsOrThrow({
       course,
     });
+    const updatedCourse: Course | null = await this.courseRepository.findById({
+      courseId: course.courseId,
+    });
+    if (updatedCourse) {
+      await this.courseCacheMemory.setAndSaveIndex({
+        key: course.courseId,
+        value: updatedCourse,
+      });
+    }
+    if (!updatedCourse) {
+      await this.courseCacheMemory.deleteAndRemoveIndex(course.courseId);
+    }
     return strictPlainToClass(CourseResponse, course);
   }
 }
