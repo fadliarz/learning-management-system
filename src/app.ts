@@ -34,7 +34,6 @@ export default class Application {
     this._app = await NestFactory.create<NestFastifyApplication>(
       AppModule,
       new FastifyAdapter(),
-      { logger: false },
     );
 
     this._app.enableCors({
