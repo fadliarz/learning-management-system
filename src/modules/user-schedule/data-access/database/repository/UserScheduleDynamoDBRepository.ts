@@ -11,6 +11,7 @@ import strictPlainToClass from '../../../../../common/common-domain/mapper/stric
 import UserScheduleEntity from '../entity/UserScheduleEntity';
 import UserScheduleKey from '../entity/UserScheduleKey';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import UserScheduleNotFoundException from '../../../domain/domain-core/exception/UserScheduleNotFoundException';
 
 @Injectable()
 export default class UserScheduleDynamoDBRepository {
@@ -76,7 +77,7 @@ export default class UserScheduleDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new UserScheduleNotFoundException();
     }
     return strictPlainToClass(UserScheduleEntity, response.Item);
   }
