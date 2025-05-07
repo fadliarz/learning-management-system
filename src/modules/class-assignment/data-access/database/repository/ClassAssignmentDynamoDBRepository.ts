@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import {
-  DeleteCommand,
   DynamoDBDocumentClient,
   GetCommand,
   QueryCommand,
@@ -253,30 +252,15 @@ export default class ClassAssignmentDynamoDBRepository {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
         if (!CancellationReasons) throw new InternalServerException();
-        if (!CancellationReasons[0].Code)
-          throw new ClassAssignmentNotFoundException({ throwable: exception });
         if (
+          CancellationReasons[0].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[1].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[2].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        ) {
-          try {
-            await this.dynamoDBDocumentClient.send(
-              new DeleteCommand({
-                TableName: this.dynamoDBConfig.CLASS_ASSIGNMENT_TABLE,
-                Key: new ClassAssignmentKey({ classId, assignmentId }),
-                ConditionExpression:
-                  'attribute_exists(classId) AND attribute_exists(assignmentId)',
-              }),
-            );
-          } catch (exception) {
-            if (exception instanceof ConditionalCheckFailedException)
-              throw new ClassAssignmentNotFoundException({
-                throwable: exception,
-              });
-          }
-        }
+        )
+          return;
       }
       throw new InternalServerException({ throwable: exception });
     }
