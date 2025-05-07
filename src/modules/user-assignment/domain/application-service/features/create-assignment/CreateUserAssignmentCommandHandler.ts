@@ -4,7 +4,6 @@ import CreateUserAssignmentCommand from './dto/CreateUserAssignmentCommand';
 import UserAssignmentResponse from '../common/UserAssignmentResponse';
 import UserAssignment from '../../../domain-core/entity/UserAssignment';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -24,7 +23,6 @@ export default class CreateUserAssignmentCommandHandler {
     userAssignment.create(userAssignmentCommand.executor.userId);
     await this.userAssignmentRepository.saveIfNotExistsOrThrow({
       userAssignment,
-      domainException: new DomainException(),
     });
     return strictPlainToClass(UserAssignmentResponse, userAssignment);
   }

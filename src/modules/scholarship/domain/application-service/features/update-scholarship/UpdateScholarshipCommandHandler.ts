@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import UpdateScholarshipCommand from './dto/UpdateScholarshipCommand';
 import Scholarship from '../../../domain-core/entity/Scholarship';
 import { ScholarshipRepository } from '../../ports/output/repository/ScholarshipRepository';
-import ScholarshipNotFoundException from '../../../domain-core/exception/ScholarshipNotFoundException';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import ScholarshipResponse from '../common/ScholarshipResponse';
@@ -29,7 +28,6 @@ export default class UpdateScholarshipCommandHandler {
     scholarship.update();
     await this.scholarshipRepository.saveIfExistsOrThrow({
       scholarship,
-      domainException: new ScholarshipNotFoundException(),
     });
     return strictPlainToClass(ScholarshipResponse, scholarship);
   }

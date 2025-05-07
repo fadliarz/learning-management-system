@@ -3,25 +3,22 @@ import DomainException from '../../../../../../../common/common-domain/exception
 import Pagination from '../../../../../../../common/common-domain/repository/Pagination';
 
 export default interface UserRepository {
-  saveIfEmailNotTakenOrThrow(param: {
-    user: User;
-    domainException: DomainException;
-  }): Promise<void>;
+  saveIfEmailNotTakenOrThrow(param: { user: User }): Promise<void>;
 
   findMany(param: { pagination: Pagination }): Promise<User[]>;
 
   findByIdOrThrow(param: {
     userId: number;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<User>;
 
   findByEmailOrThrow(param: {
     email: string;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<User>;
 
   saveIfExistsOrThrow(param: {
     user: User;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<void>;
 }

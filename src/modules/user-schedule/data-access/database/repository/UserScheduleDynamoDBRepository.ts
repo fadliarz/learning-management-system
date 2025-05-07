@@ -6,7 +6,6 @@ import {
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import UserScheduleEntity from '../entity/UserScheduleEntity';
 import UserScheduleKey from '../entity/UserScheduleKey';
@@ -67,9 +66,8 @@ export default class UserScheduleDynamoDBRepository {
   public async findByIdOrThrow(param: {
     userId: number;
     scheduleId: number;
-    domainException: DomainException;
   }): Promise<UserScheduleEntity> {
-    const { userId, scheduleId, domainException } = param;
+    const { userId, scheduleId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.USER_SCHEDULE_TABLE,

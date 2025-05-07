@@ -316,7 +316,9 @@ export default class LessonDynamoDBRepository {
       newPosition = Math.round(lowerLesson.lessonId * 0.5);
     }
     if (!newPosition) {
-      throw new DomainException('New position is not defined');
+      throw new InternalServerException({
+        throwable: new DomainException('New position is not defined'),
+      });
     }
     return newPosition;
   }

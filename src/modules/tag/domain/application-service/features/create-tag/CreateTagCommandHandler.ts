@@ -5,7 +5,6 @@ import strictPlainToClass from '../../../../../../common/common-domain/mapper/st
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import TagResponse from '../common/TagResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import TagTitleAlreadyExistsException from '../../../domain-core/exception/TagTitleAlreadyExistsException';
 import Tag from '../../../domain-core/entity/Tag';
 
 @Injectable()
@@ -26,7 +25,6 @@ export default class CreateTagCommandHandler {
     tag.create();
     await this.tagRepository.saveIfNotExistsOrThrow({
       tag,
-      domainException: new TagTitleAlreadyExistsException(),
     });
     return strictPlainToClass(TagResponse, tag);
   }

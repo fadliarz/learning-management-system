@@ -5,7 +5,6 @@ import { DependencyInjection } from '../../../../../common/common-domain/Depende
 import { TagRepository } from '../../../domain/application-service/ports/output/repository/TagRepository';
 import Tag from '../../../domain/domain-core/entity/Tag';
 import TagContext from '../../../domain/application-service/ports/output/context/TagContext';
-import TagNotFoundException from '../../../domain/domain-core/exception/TagNotFoundException';
 
 @Injectable()
 export default class TagContextImpl implements TagContext {
@@ -57,7 +56,6 @@ export default class TagContextImpl implements TagContext {
     try {
       const refreshedTag: Tag = await this.tagRepository.findByIdOrThrow({
         tagId,
-        domainException: new TagNotFoundException(),
       });
       this.tags = this.tags.map((tag) =>
         tag.tagId === tagId ? refreshedTag : tag,

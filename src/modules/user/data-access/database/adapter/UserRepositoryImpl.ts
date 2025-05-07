@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import UserRepository from '../../../domain/application-service/ports/output/repository/UserRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import User from '../../../domain/domain-core/entity/User';
 import UserDynamoDBRepository from '../repository/UserDynamoDBRepository';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -15,7 +14,6 @@ export default class UserRepositoryImpl implements UserRepository {
 
   public async saveIfEmailNotTakenOrThrow(param: {
     user: User;
-    domainException: DomainException;
   }): Promise<void> {
     await this.userDynamoDBRepository.saveIfEmailNotTakenOrThrow({
       ...param,
@@ -31,20 +29,14 @@ export default class UserRepositoryImpl implements UserRepository {
     );
   }
 
-  public async findByIdOrThrow(param: {
-    userId: number;
-    domainException: DomainException;
-  }): Promise<User> {
+  public async findByIdOrThrow(param: { userId: number }): Promise<User> {
     return strictPlainToClass(
       User,
       await this.userDynamoDBRepository.findByIdOrThrow(param),
     );
   }
 
-  public async findByEmailOrThrow(param: {
-    email: string;
-    domainException: DomainException;
-  }): Promise<User> {
+  public async findByEmailOrThrow(param: { email: string }): Promise<User> {
     const { userId } =
       await this.userDynamoDBRepository.findByEmailOrThrow(param);
     return strictPlainToClass(
@@ -53,10 +45,7 @@ export default class UserRepositoryImpl implements UserRepository {
     );
   }
 
-  public async saveIfExistsOrThrow(param: {
-    user: User;
-    domainException: DomainException;
-  }): Promise<void> {
+  public async saveIfExistsOrThrow(param: { user: User }): Promise<void> {
     await this.userDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
       userEntity: strictPlainToClass(UserEntity, param.user),

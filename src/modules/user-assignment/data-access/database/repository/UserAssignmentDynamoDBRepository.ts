@@ -9,7 +9,6 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import { ConditionalCheckFailedException } from '@aws-sdk/client-dynamodb';
 import DynamoDBBuilder from '../../../../../common/common-data-access/UpdateBuilder';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -20,8 +19,10 @@ import UserAssignmentKey from '../entity/UserAssignmentKey';
 import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 import UserAssignmentNotFoundException from '../../../domain/domain-core/exception/UserAssignmentNotFoundException';
-import ClassUserAssignmentUpdationException from '../../../domain/domain-core/exception/ClassUserAssignmentUpdationException';
-import ClassUserAssignmentDeletionException from '../../../domain/domain-core/exception/ClassUserAssignmentDeletionException';
+import ClassUserAssignmentUpdationException
+  from '../../../domain/domain-core/exception/ClassUserAssignmentUpdationException';
+import ClassUserAssignmentDeletionException
+  from '../../../domain/domain-core/exception/ClassUserAssignmentDeletionException';
 
 @Injectable()
 export default class UserAssignmentDynamoDBRepository {
@@ -29,11 +30,11 @@ export default class UserAssignmentDynamoDBRepository {
     @Inject(DependencyInjection.DYNAMODB_DOCUMENT_CLIENT)
     private readonly dynamoDBDocumentClient: DynamoDBDocumentClient,
     private readonly dynamoDBConfig: DynamoDBConfig,
-  ) {}
+  ) {
+  }
 
   public async saveIfNotExistsOrThrow(param: {
     userAssignmentEntity: UserAssignmentEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { userAssignmentEntity } = param;
     try {
@@ -100,9 +101,8 @@ export default class UserAssignmentDynamoDBRepository {
   public async findByIdOrThrow(param: {
     userId: number;
     assignmentId: number;
-    domainException: DomainException;
   }): Promise<UserAssignmentEntity> {
-    const { userId, assignmentId, domainException } = param;
+    const { userId, assignmentId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.USER_ASSIGNMENT_TABLE,
@@ -117,10 +117,8 @@ export default class UserAssignmentDynamoDBRepository {
 
   public async saveIfExistsAndAssignmentIsPersonalOrThrow(param: {
     userAssignmentEntity: UserAssignmentEntity;
-    notFoundException: DomainException;
-    domainException: DomainException;
   }): Promise<void> {
-    const { userAssignmentEntity, notFoundException, domainException } = param;
+    const { userAssignmentEntity } = param;
     const { userId, assignmentId, ...restObj } = userAssignmentEntity;
     const updateObj = DynamoDBBuilder.buildUpdate(restObj);
     if (!updateObj) return;
@@ -147,7 +145,6 @@ export default class UserAssignmentDynamoDBRepository {
         const existingAssignment = await this.findByIdOrThrow({
           userId: userAssignmentEntity.userId,
           assignmentId: userAssignmentEntity.assignmentId,
-          domainException: notFoundException,
         });
         if (
           existingAssignment.assignmentType !==
@@ -164,10 +161,8 @@ export default class UserAssignmentDynamoDBRepository {
   public async deleteIfExistsAndAssignmentIsPersonalOrThrow(param: {
     userId: number;
     assignmentId: number;
-    notFoundException: DomainException;
-    domainException: DomainException;
   }): Promise<void> {
-    const { userId, assignmentId, notFoundException, domainException } = param;
+    const { userId, assignmentId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new DeleteCommand({
@@ -189,7 +184,6 @@ export default class UserAssignmentDynamoDBRepository {
           const existingAssignment = await this.findByIdOrThrow({
             userId,
             assignmentId,
-            domainException: notFoundException,
           });
           if (
             existingAssignment.assignmentType !==

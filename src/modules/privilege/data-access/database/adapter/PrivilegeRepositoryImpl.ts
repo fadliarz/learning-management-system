@@ -3,9 +3,9 @@ import { Permission } from '../../../domain/domain-core/entity/Permission';
 import Privilege from '../../../domain/domain-core/entity/Privilege';
 import PrivilegeDynamoDBRepository from '../repository/PrivilegeDynamoDBRepository';
 import PrivilegeRepository from '../../../domain/application-service/ports/output/PrivilegeRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import PrivilegeEntity from '../entity/PrivilegeEntity';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
+import DomainException from '../../../../../common/common-domain/exception/DomainException';
 
 @Injectable()
 export default class PrivilegeRepositoryImpl implements PrivilegeRepository {
@@ -24,7 +24,7 @@ export default class PrivilegeRepositoryImpl implements PrivilegeRepository {
   public async findByIdOrThrow(param: {
     userId: number;
     permission: Permission;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<void> {
     await this.privilegeDynamoDBRepository.findByIdOrThrow(param);
   }

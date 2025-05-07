@@ -7,7 +7,6 @@ import {
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import TagNotFoundException from '../../../domain/domain-core/exception/TagNotFoundException';
@@ -32,9 +31,8 @@ export default class TagDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     tagEntity: TagEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { tagEntity, domainException } = param;
+    const { tagEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -119,11 +117,8 @@ export default class TagDynamoDBRepository {
     return tagEntities;
   }
 
-  public async findByIdOrThrow(param: {
-    tagId: number;
-    domainException: DomainException;
-  }): Promise<TagEntity> {
-    const { tagId, domainException } = param;
+  public async findByIdOrThrow(param: { tagId: number }): Promise<TagEntity> {
+    const { tagId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.TAG_TABLE,
@@ -138,16 +133,14 @@ export default class TagDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     tagEntity: TagEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { tagEntity, domainException } = param;
+    const { tagEntity } = param;
     let RETRIES: number = 0;
     const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const oldTagEntity: TagEntity = await this.findByIdOrThrow({
           tagId: tagEntity.tagId,
-          domainException: new TagNotFoundException(),
         });
         if (tagEntity.title === oldTagEntity.title) return;
         await this.dynamoDBDocumentClient.send(
@@ -214,18 +207,14 @@ export default class TagDynamoDBRepository {
     }
   }
 
-  public async deleteIfExistsOrThrow(param: {
-    tagId: number;
-    domainException: DomainException;
-  }): Promise<void> {
-    const { tagId, domainException } = param;
+  public async deleteIfExistsOrThrow(param: { tagId: number }): Promise<void> {
+    const { tagId } = param;
     let RETRIES: number = 0;
     const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const tagEntity: TagEntity = await this.findByIdOrThrow({
           tagId,
-          domainException: new TagNotFoundException(),
         });
         await this.dynamoDBDocumentClient.send(
           new TransactWriteCommand({

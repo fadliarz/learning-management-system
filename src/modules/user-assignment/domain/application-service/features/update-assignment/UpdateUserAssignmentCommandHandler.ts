@@ -5,8 +5,6 @@ import UserAssignmentResponse from '../common/UserAssignmentResponse';
 import UpdateUserAssignmentCommand from './dto/UpdateUserAssignmentCommand';
 import UserAssignment from '../../../domain-core/entity/UserAssignment';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import ClassUserAssignmentUpdationException from '../../../domain-core/exception/ClassUserAssignmentUpdationException';
-import UserAssignmentNotFoundException from '../../../domain-core/exception/UserAssignmentNotFoundException';
 
 @Injectable()
 export default class UpdateUserAssignmentCommandHandler {
@@ -26,8 +24,6 @@ export default class UpdateUserAssignmentCommandHandler {
     await this.userAssignmentRepository.saveIfExistsAndAssignmentIsPersonalOrThrow(
       {
         userAssignment,
-        notFoundException: new UserAssignmentNotFoundException(),
-        domainException: new ClassUserAssignmentUpdationException(),
       },
     );
     return strictPlainToClass(UserAssignmentResponse, userAssignment);

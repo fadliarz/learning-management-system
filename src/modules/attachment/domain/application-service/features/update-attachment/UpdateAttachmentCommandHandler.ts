@@ -5,7 +5,6 @@ import UpdateAttachmentCommand from './dto/UpdateAttachmentCommand';
 import AttachmentResponse from '../common/AttachmentResponse';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import Attachment from '../../../domain-core/entity/Attachment';
-import AttachmentNotFoundException from '../../../domain-core/exception/AttachmentNotFoundException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -30,7 +29,6 @@ export default class UpdateAttachmentCommandHandler {
     await this.attachmentRepository.saveIfExistsOrThrow({
       ...updateAttachmentCommand,
       attachment,
-      domainException: new AttachmentNotFoundException(),
     });
     return strictPlainToClass(AttachmentResponse, attachment);
   }

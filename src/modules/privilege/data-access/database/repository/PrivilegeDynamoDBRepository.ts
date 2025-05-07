@@ -9,7 +9,6 @@ import {
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
 import PrivilegeEntity from '../entity/PrivilegeEntity';
 import { Permission } from '../../../domain/domain-core/entity/Permission';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
 import { TransactionCanceledException } from '@aws-sdk/client-dynamodb';
 import UserKey from '../../../../user/data-access/database/entity/UserKey';
@@ -17,6 +16,8 @@ import PrivilegeKey from '../entity/PrivilegeKey';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import UserNotFoundException from '../../../../user/domain/domain-core/exception/UserNotFoundException';
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import DomainException from '../../../../../common/common-domain/exception/DomainException';
+import PrivilegeNotFoundException from '../../../domain/domain-core/exception/PrivilegeNotFoundException';
 
 @Injectable()
 export default class PrivilegeDynamoDBRepository {
@@ -106,7 +107,7 @@ export default class PrivilegeDynamoDBRepository {
   public async findByIdOrThrow(param: {
     userId: number;
     permission: Permission;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<PrivilegeEntity> {
     const { userId, permission, domainException } = param;
     const result = await this.dynamoDBDocumentClient.send(
@@ -115,7 +116,7 @@ export default class PrivilegeDynamoDBRepository {
         Key: new PrivilegeKey({ userId, permission }),
       }),
     );
-    if (!result.Item) throw domainException;
+    if (!result.Item) throw domainException ?? new PrivilegeNotFoundException();
     return strictPlainToClass(PrivilegeEntity, result.Item);
   }
 

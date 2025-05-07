@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import UpdateTagCommand from './dto/UpdateTagCommand';
 import TagResponse from '../common/TagResponse';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
-import TagNotFoundException from '../../../domain-core/exception/TagNotFoundException';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import Tag from '../../../domain-core/entity/Tag';
@@ -25,7 +24,6 @@ export default class UpdateTagCommandHandler {
     const tag: Tag = strictPlainToClass(Tag, updateTagCommand);
     await this.tagRepository.saveIfExistsOrThrow({
       tag,
-      domainException: new TagNotFoundException(),
     });
     return strictPlainToClass(TagResponse, tag);
   }

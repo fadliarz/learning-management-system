@@ -6,7 +6,6 @@ import { ScholarshipRepository } from '../../ports/output/repository/Scholarship
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import ScholarshipResponse from '../common/ScholarshipResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import ScholarshipContext from '../../ports/output/context/ScholarshipContext';
 
 @Injectable()
@@ -32,7 +31,6 @@ export default class CreateScholarshipCommandHandler {
     scholarship.create();
     await this.scholarshipRepository.saveIfNotExistsOrThrow({
       scholarship,
-      domainException: new DomainException(),
     });
     await this.scholarshipContext.forceLoad();
     return strictPlainToClass(ScholarshipResponse, scholarship);

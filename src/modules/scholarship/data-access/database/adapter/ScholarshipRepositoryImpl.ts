@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { ScholarshipRepository } from '../../../domain/application-service/ports/output/repository/ScholarshipRepository';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Scholarship from '../../../domain/domain-core/entity/Scholarship';
 import ScholarshipDynamoDBRepository from '../repository/ScholarshipDynamoDBRepository';
 import strictPlainToClass from '../../../../../common/common-domain/mapper/strictPlainToClass';
@@ -17,7 +16,6 @@ export default class ScholarshipRepositoryImpl
 
   public async saveIfNotExistsOrThrow(param: {
     scholarship: Scholarship;
-    domainException: DomainException;
   }): Promise<void> {
     await this.scholarshipDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -54,7 +52,6 @@ export default class ScholarshipRepositoryImpl
 
   public async findByIdOrThrow(param: {
     scholarshipId: number;
-    domainException: DomainException;
   }): Promise<Scholarship> {
     return strictPlainToClass(
       Scholarship,
@@ -64,7 +61,6 @@ export default class ScholarshipRepositoryImpl
 
   public async saveIfExistsOrThrow(param: {
     scholarship: Scholarship;
-    domainException: DomainException;
   }): Promise<void> {
     await this.scholarshipDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
@@ -77,7 +73,6 @@ export default class ScholarshipRepositoryImpl
 
   public async deleteIfExistsOrThrow(param: {
     scholarshipId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.scholarshipDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

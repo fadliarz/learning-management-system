@@ -10,7 +10,6 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import {
   ConditionalCheckFailedException,
   TransactionCanceledException,
@@ -35,7 +34,6 @@ export default class ScholarshipDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     scholarshipEntity: ScholarshipEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { scholarshipEntity } = param;
     await this.dynamoDBDocumentClient.send(
@@ -186,9 +184,8 @@ export default class ScholarshipDynamoDBRepository {
 
   public async findByIdOrThrow(param: {
     scholarshipId: number;
-    domainException: DomainException;
   }): Promise<ScholarshipEntity> {
-    const { scholarshipId, domainException } = param;
+    const { scholarshipId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,
@@ -196,16 +193,15 @@ export default class ScholarshipDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new ScholarshipNotFoundException();
     }
     return strictPlainToClass(ScholarshipEntity, response.Item);
   }
 
   public async saveIfExistsOrThrow(param: {
     scholarshipEntity: ScholarshipEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { scholarshipEntity, domainException } = param;
+    const { scholarshipEntity } = param;
     try {
       const { scholarshipId, ...restObj } = scholarshipEntity;
       const updateObj = DynamoDBBuilder.buildUpdate(restObj);
@@ -228,9 +224,8 @@ export default class ScholarshipDynamoDBRepository {
 
   public async deleteIfExistsOrThrow(param: {
     scholarshipId: number;
-    domainException: DomainException;
   }): Promise<void> {
-    const { scholarshipId, domainException } = param;
+    const { scholarshipId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new DeleteCommand({

@@ -1,4 +1,3 @@
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import { AttachmentRepository } from '../../../domain/application-service/ports/output/repository/AttachmentRepository';
 import { Injectable } from '@nestjs/common';
@@ -15,7 +14,6 @@ export default class AttachmentRepositoryImpl implements AttachmentRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     attachment: Attachment;
-    domainException: DomainException;
   }): Promise<void> {
     await this.attachmentDynamoDBRepository.saveIfNotExistsOrThrow({
       ...param,
@@ -37,7 +35,6 @@ export default class AttachmentRepositoryImpl implements AttachmentRepository {
   public async findByIdOrThrow(param: {
     lessonId: number;
     attachmentId: number;
-    domainException: DomainException;
   }): Promise<Attachment> {
     return strictPlainToClass(
       Attachment,
@@ -47,7 +44,6 @@ export default class AttachmentRepositoryImpl implements AttachmentRepository {
 
   public async saveIfExistsOrThrow(param: {
     attachment: Attachment;
-    domainException: DomainException;
   }): Promise<void> {
     await this.attachmentDynamoDBRepository.saveIfExistsOrThrow({
       ...param,
@@ -59,7 +55,6 @@ export default class AttachmentRepositoryImpl implements AttachmentRepository {
     courseId: number;
     lessonId: number;
     attachmentId: number;
-    domainException: DomainException;
   }): Promise<void> {
     await this.attachmentDynamoDBRepository.deleteIfExistsOrThrow(param);
   }

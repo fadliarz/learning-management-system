@@ -41,7 +41,6 @@ export default class GetInstructorsQueryHandler {
         );
         const user: User = await this.userRepository.findByIdOrThrow({
           userId: instructor.userId,
-          domainException: new UserNotFoundException(),
         });
         instructorResponse.name = user.name;
         instructorResponse.NIM = user.email.split('@')[0];

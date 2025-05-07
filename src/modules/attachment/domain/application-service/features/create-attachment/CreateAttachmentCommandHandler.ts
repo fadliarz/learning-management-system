@@ -1,6 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import { AttachmentRepository } from '../../ports/output/repository/AttachmentRepository';
 import CreateAttachmentCommand from './dto/CreateAttachmentCommand';
 import AttachmentResponse from '../common/AttachmentResponse';
@@ -29,7 +28,6 @@ export default class CreateAttachmentCommandHandler {
     attachment.create();
     await this.attachmentRepository.saveIfNotExistsOrThrow({
       attachment,
-      domainException: new DomainException(),
     });
     return strictPlainToClass(AttachmentResponse, attachment);
   }

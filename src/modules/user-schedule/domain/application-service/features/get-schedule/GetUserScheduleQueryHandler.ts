@@ -7,9 +7,9 @@ import UserSchedule from '../../../domain-core/entity/UserSchedule';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import CourseScheduleRepository from '../../../../../course-schedule/domain/application-service/ports/output/repository/CourseScheduleRepository';
 import { ScheduleType } from '../../../domain-core/entity/ScheduleType';
-import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 import CourseSchedule from '../../../../../course-schedule/domain/domain-core/entity/CourseSchedule';
-import UserScheduleNotFoundException from '../../../domain-core/exception/UserScheduleNotFoundException';
+import InternalServerException from '../../../../../../common/common-domain/exception/InternalServerException';
+import DomainException from '../../../../../../common/common-domain/exception/DomainException';
 
 @Injectable()
 export default class GetUserScheduleQueryHandler {
@@ -27,7 +27,6 @@ export default class GetUserScheduleQueryHandler {
       await this.userScheduleRepository.findByIdOrThrow({
         userId: getUserScheduleQuery.executor.userId,
         scheduleId: getUserScheduleQuery.scheduleId,
-        domainException: new UserScheduleNotFoundException(),
       });
 
     if (userSchedule.scheduleType === ScheduleType.COURSE_SCHEDULE) {
@@ -46,8 +45,9 @@ export default class GetUserScheduleQueryHandler {
       userScheduleResponse.startDate = courseSchedule.startDate;
       userScheduleResponse.endDate = courseSchedule.endDate;
       return userScheduleResponse;
-    } else {
-      throw new DomainException();
     }
+    throw new InternalServerException({
+      throwable: new DomainException('Unexpected scheduleType'),
+    });
   }
 }

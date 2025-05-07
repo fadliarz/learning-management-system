@@ -8,7 +8,6 @@ import strictPlainToClass from '../../../../../../common/common-domain/mapper/st
 import UserRepository from '../../../../../user/domain/application-service/ports/output/repository/UserRepository';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import User from '../../../../../user/domain/domain-core/entity/User';
-import UserNotFoundException from '../../../../../user/domain/domain-core/exception/UserNotFoundException';
 
 @Injectable()
 export default class CreateInstructorCommandHandler {
@@ -28,7 +27,6 @@ export default class CreateInstructorCommandHandler {
     );
     const user: User = await this.userRepository.findByIdOrThrow({
       userId: createInstructorCommand.userId,
-      domainException: new UserNotFoundException(),
     });
     const instructor: Instructor = strictPlainToClass(
       Instructor,

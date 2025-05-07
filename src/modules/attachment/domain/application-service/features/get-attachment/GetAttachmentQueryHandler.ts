@@ -4,7 +4,6 @@ import { AttachmentRepository } from '../../ports/output/repository/AttachmentRe
 import GetAttachmentQuery from './dto/GetAttachmentQuery';
 import AttachmentResponse from '../common/AttachmentResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import AttachmentNotFoundException from '../../../domain-core/exception/AttachmentNotFoundException';
 
 @Injectable()
 export default class GetAttachmentQueryHandler {
@@ -20,7 +19,6 @@ export default class GetAttachmentQueryHandler {
       AttachmentResponse,
       await this.attachmentRepository.findByIdOrThrow({
         ...getAttachmentQuery,
-        domainException: new AttachmentNotFoundException(),
       }),
     );
   }

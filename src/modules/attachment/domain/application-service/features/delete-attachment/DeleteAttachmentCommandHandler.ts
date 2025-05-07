@@ -3,7 +3,6 @@ import { AttachmentRepository } from '../../ports/output/repository/AttachmentRe
 import DeleteAttachmentCommand from './dto/DeleteAttachmentCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import AttachmentNotFoundException from '../../../domain-core/exception/AttachmentNotFoundException';
 
 @Injectable()
 export default class DeleteAttachmentCommandHandler {
@@ -21,7 +20,6 @@ export default class DeleteAttachmentCommandHandler {
     );
     await this.attachmentRepository.deleteIfExistsOrThrow({
       ...deleteAttachmentCommand,
-      domainException: new AttachmentNotFoundException(),
     });
   }
 }

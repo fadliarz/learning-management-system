@@ -457,7 +457,9 @@ export default class VideoDynamoDBRepository {
       newPosition = Math.round(lowerVideo.videoId * 0.5);
     }
     if (!newPosition) {
-      throw new DomainException('New position is not defined');
+      throw new InternalServerException({
+        throwable: new DomainException('New position is not defined'),
+      });
     }
     return newPosition;
   }

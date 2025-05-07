@@ -4,7 +4,6 @@ import UpdateUserProfileCommand from './dto/UpdateUserProfileCommand';
 import UserResponse from '../common/UserResponse';
 import User from '../../../domain-core/entity/User';
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
-import UserNotFoundException from '../../../domain-core/exception/UserNotFoundException';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 
 @Injectable()
@@ -22,7 +21,6 @@ export default class UpdateUserProfileCommandHandler {
     user.update();
     await this.userRepository.saveIfExistsOrThrow({
       user,
-      domainException: new UserNotFoundException(),
     });
     return strictPlainToClass(UserResponse, user);
   }

@@ -4,7 +4,6 @@ import { DependencyInjection } from '../../../../../common/common-domain/Depende
 import Scholarship from '../../../domain/domain-core/entity/Scholarship';
 import { ScholarshipRepository } from '../../../domain/application-service/ports/output/repository/ScholarshipRepository';
 import ScholarshipContext from '../../../domain/application-service/ports/output/context/ScholarshipContext';
-import ScholarshipNotFoundException from '../../../domain/domain-core/exception/ScholarshipNotFoundException';
 
 @Injectable()
 export default class ScholarshipContextImpl implements ScholarshipContext {
@@ -61,7 +60,6 @@ export default class ScholarshipContextImpl implements ScholarshipContext {
       const refreshedScholarship: Scholarship =
         await this.scholarshipRepository.findByIdOrThrow({
           scholarshipId,
-          domainException: new ScholarshipNotFoundException(),
         });
       this.scholarships = this.scholarships.map((scholarship) =>
         scholarship.scholarshipId === scholarshipId

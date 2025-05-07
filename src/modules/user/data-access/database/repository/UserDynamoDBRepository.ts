@@ -35,9 +35,8 @@ export default class UserDynamoDBRepository {
 
   public async saveIfEmailNotTakenOrThrow(param: {
     userEntity: UserEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { userEntity, domainException } = param;
+    const { userEntity } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -132,7 +131,7 @@ export default class UserDynamoDBRepository {
 
   public async findByIdOrThrow(param: {
     userId: number;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<UserEntity> {
     const { userId, domainException } = param;
     const response = await this.dynamoDBDocumentClient.send(
@@ -142,14 +141,14 @@ export default class UserDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw new UserNotFoundException();
+      throw domainException ?? new UserNotFoundException();
     }
     return strictPlainToClass(UserEntity, response.Item);
   }
 
   public async findByEmailOrThrow(param: {
     email: string;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<{ userId: number }> {
     const { email, domainException } = param;
     const response = await this.dynamoDBDocumentClient.send(
@@ -168,7 +167,7 @@ export default class UserDynamoDBRepository {
       }),
     );
     if (!response.Items || response.Items.length === 0) {
-      throw new UserNotFoundException();
+      throw domainException ?? new UserNotFoundException();
     }
     return {
       userId: (response.Items[0] as UniqueEmailKey).storedUserId,
@@ -177,7 +176,7 @@ export default class UserDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     userEntity: UserEntity;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<void> {
     const { userEntity, domainException } = param;
     try {
@@ -195,7 +194,9 @@ export default class UserDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw new UserNotFoundException({ throwable: exception });
+        throw (
+          domainException ?? new UserNotFoundException({ throwable: exception })
+        );
     }
   }
 }

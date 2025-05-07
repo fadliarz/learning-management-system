@@ -8,7 +8,6 @@ import {
   UpdateCommand,
 } from '@aws-sdk/lib-dynamodb';
 import DynamoDBConfig from '../../../../../config/DynamoDBConfig';
-import DomainException from '../../../../../common/common-domain/exception/DomainException';
 import AttachmentEntity from '../entity/AttachmentEntity';
 import {
   ConditionalCheckFailedException,
@@ -37,9 +36,8 @@ export default class AttachmentDynamoDBRepository {
 
   public async saveIfNotExistsOrThrow(param: {
     attachmentEntity: AttachmentEntity;
-    domainException: DomainException;
   }): Promise<void> {
-    const { attachmentEntity, domainException } = param;
+    const { attachmentEntity } = param;
     try {
       const { courseId, lessonId } = attachmentEntity;
       await this.dynamoDBDocumentClient.send(
@@ -156,7 +154,6 @@ export default class AttachmentDynamoDBRepository {
   public async findByIdOrThrow(param: {
     lessonId: number;
     attachmentId: number;
-    domainException: DomainException;
   }): Promise<AttachmentEntity> {
     const { lessonId, attachmentId } = param;
     const response = await this.dynamoDBDocumentClient.send(
@@ -173,7 +170,6 @@ export default class AttachmentDynamoDBRepository {
 
   public async saveIfExistsOrThrow(param: {
     attachmentEntity: AttachmentEntity;
-    domainException: DomainException;
   }): Promise<void> {
     const { attachmentEntity } = param;
     try {
@@ -200,7 +196,6 @@ export default class AttachmentDynamoDBRepository {
     courseId: number;
     lessonId: number;
     attachmentId: number;
-    domainException: DomainException;
   }): Promise<void> {
     const { courseId, lessonId, attachmentId } = param;
     try {

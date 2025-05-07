@@ -1,12 +1,8 @@
 import Scholarship from '../../../../domain-core/entity/Scholarship';
 import Pagination from '../../../../../../../common/common-domain/repository/Pagination';
-import DomainException from '../../../../../../../common/common-domain/exception/DomainException';
 
 export interface ScholarshipRepository {
-  saveIfNotExistsOrThrow(param: {
-    scholarship: Scholarship;
-    domainException: DomainException;
-  }): Promise<void>;
+  saveIfNotExistsOrThrow(param: { scholarship: Scholarship }): Promise<void>;
 
   addTagIfNotExistsOrIgnore(param: {
     scholarshipId: number;
@@ -20,18 +16,9 @@ export interface ScholarshipRepository {
 
   findMany(param: { pagination: Pagination }): Promise<Scholarship[]>;
 
-  findByIdOrThrow(param: {
-    scholarshipId: number;
-    domainException: DomainException;
-  }): Promise<Scholarship>;
+  findByIdOrThrow(param: { scholarshipId: number }): Promise<Scholarship>;
 
-  saveIfExistsOrThrow(param: {
-    scholarship: Scholarship;
-    domainException: DomainException;
-  }): Promise<void>;
+  saveIfExistsOrThrow(param: { scholarship: Scholarship }): Promise<void>;
 
-  deleteIfExistsOrThrow(param: {
-    scholarshipId: number;
-    domainException: DomainException;
-  }): Promise<void>;
+  deleteIfExistsOrThrow(param: { scholarshipId: number }): Promise<void>;
 }

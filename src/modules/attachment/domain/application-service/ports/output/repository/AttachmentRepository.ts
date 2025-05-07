@@ -1,12 +1,8 @@
-import DomainException from '../../../../../../../common/common-domain/exception/DomainException';
 import Attachment from '../../../../domain-core/entity/Attachment';
 import Pagination from '../../../../../../../common/common-domain/repository/Pagination';
 
 export interface AttachmentRepository {
-  saveIfNotExistsOrThrow(param: {
-    attachment: Attachment;
-    domainException: DomainException;
-  }): Promise<void>;
+  saveIfNotExistsOrThrow(param: { attachment: Attachment }): Promise<void>;
 
   findMany(param: {
     lessonId: number;
@@ -16,18 +12,13 @@ export interface AttachmentRepository {
   findByIdOrThrow(param: {
     lessonId: number;
     attachmentId: number;
-    domainException: DomainException;
   }): Promise<Attachment>;
 
-  saveIfExistsOrThrow(param: {
-    attachment: Attachment;
-    domainException: DomainException;
-  }): Promise<void>;
+  saveIfExistsOrThrow(param: { attachment: Attachment }): Promise<void>;
 
   deleteIfExistsOrThrow(param: {
     courseId: number;
     lessonId: number;
     attachmentId: number;
-    domainException: DomainException;
   }): Promise<void>;
 }

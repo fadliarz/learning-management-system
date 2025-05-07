@@ -8,7 +8,7 @@ export default interface PrivilegeRepository {
   findByIdOrThrow(param: {
     userId: number;
     permission: Permission;
-    domainException: DomainException;
+    domainException?: DomainException;
   }): Promise<void>;
 
   findMany(param: { userId: number }): Promise<Privilege[]>;

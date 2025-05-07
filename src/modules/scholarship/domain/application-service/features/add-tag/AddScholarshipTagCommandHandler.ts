@@ -5,7 +5,6 @@ import AuthorizationService from '../../../../../../common/common-domain/feature
 import { ScholarshipRepository } from '../../ports/output/repository/ScholarshipRepository';
 import { TagRepository } from '../../../../../tag/domain/application-service/ports/output/repository/TagRepository';
 import ScholarshipContext from '../../ports/output/context/ScholarshipContext';
-import TagNotFoundException from '../../../../../tag/domain/domain-core/exception/TagNotFoundException';
 
 @Injectable()
 export default class AddScholarshipTagCommandHandler {
@@ -27,7 +26,6 @@ export default class AddScholarshipTagCommandHandler {
     );
     await this.tagRepository.findByIdOrThrow({
       tagId: addScholarshipTagCommand.tagId,
-      domainException: new TagNotFoundException(),
     });
     await this.scholarshipRepository.addTagIfNotExistsOrIgnore(
       addScholarshipTagCommand,

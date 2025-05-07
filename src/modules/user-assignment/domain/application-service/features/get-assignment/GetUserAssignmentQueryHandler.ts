@@ -3,7 +3,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { UserAssignmentRepository } from '../../ports/output/repository/UserAssignmentRepository';
 import UserAssignmentResponse from '../common/UserAssignmentResponse';
 import GetUserAssignmentQuery from './dto/GetUserAssignmentQuery';
-import UserAssignmentNotFoundException from '../../../domain-core/exception/UserAssignmentNotFoundException';
 import UserAssignment from '../../../domain-core/entity/UserAssignment';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import { AssignmentType } from '../../../domain-core/entity/AssignmentType';
@@ -12,6 +11,7 @@ import { ClassAssignmentRepository } from '../../../../../class-assignment/domai
 import ClassAssignment from '../../../../../class-assignment/domain/domain-core/entity/ClassAssignment';
 import { CourseRepository } from '../../../../../course/domain/application-service/ports/output/repository/CourseRepository';
 import Course from '../../../../../course/domain/domain-core/entity/Course';
+import InternalServerException from '../../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class GetUserAssignmentQueryHandler {
@@ -31,7 +31,6 @@ export default class GetUserAssignmentQueryHandler {
       await this.userAssignmentRepository.findByIdOrThrow({
         userId: getUserAssignmentQuery.executor.userId,
         assignmentId: getUserAssignmentQuery.assignmentId,
-        domainException: new UserAssignmentNotFoundException(),
       });
     if (userAssignment.assignmentType === AssignmentType.CLASS_ASSIGNMENT) {
       const userAssignmentResponse: UserAssignmentResponse = strictPlainToClass(
@@ -58,6 +57,8 @@ export default class GetUserAssignmentQueryHandler {
     if (userAssignment.assignmentType === AssignmentType.PERSONAL_ASSIGNMENT) {
       return strictPlainToClass(UserAssignmentResponse, userAssignment);
     }
-    throw new DomainException();
+    throw new InternalServerException({
+      throwable: new DomainException('Unexpected assignmentType'),
+    });
   }
 }
