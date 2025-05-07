@@ -259,7 +259,7 @@ export default class CategoryDynamoDBRepository {
         );
         return;
       } catch (exception) {
-        if (exception instanceof CategoryNotFoundException) throw exception;
+        if (exception instanceof CategoryNotFoundException) return;
         RETRIES++;
         if (RETRIES > MAX_RETRIES) {
           throw new ResourceConflictException({ throwable: exception });
