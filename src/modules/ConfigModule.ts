@@ -74,7 +74,7 @@ import RedisCacheMemory from '../common/common-data-access/cache/redis/RedisCach
     DynamoDBConfig,
     CookieConfig,
     RedisConfig,
-    CookieConfig,
+    CacheConfig,
     {
       provide: DependencyInjection.DYNAMODB_DOCUMENT_CLIENT,
       useFactory: (dynamoDBConfig: DynamoDBConfig) => {
