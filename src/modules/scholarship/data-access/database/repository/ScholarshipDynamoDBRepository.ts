@@ -241,9 +241,8 @@ export default class ScholarshipDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ConditionalCheckFailedException)
-        throw new ScholarshipNotFoundException();
-      throw exception;
+      if (exception instanceof ConditionalCheckFailedException) return;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 }
