@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export default class UpdateCourseDto {
@@ -20,14 +26,15 @@ export default class UpdateCourseDto {
   @IsOptional()
   @IsString({ message: 'Title must be a string' })
   @IsNotEmpty({ message: 'Title must not be empty' })
+  @MinLength(8, { message: 'Title must be at least 8 characters long' })
   @MaxLength(128, { message: 'Title must not be longer than 128 characters' })
   public title: string;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsString({ message: 'Description must be a string' })
-  @MaxLength(512, {
-    message: 'Description must not be longer than 512 characters',
+  @MaxLength(2048, {
+    message: 'Description must not be longer than 2048 characters',
   })
   public description: string;
 }
