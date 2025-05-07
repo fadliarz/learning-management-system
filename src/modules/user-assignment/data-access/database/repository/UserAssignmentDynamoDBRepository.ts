@@ -17,6 +17,11 @@ import UserAssignmentEntity from '../entity/UserAssignmentEntity';
 import { AssignmentType } from '../../../domain/domain-core/entity/AssignmentType';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import UserAssignmentKey from '../entity/UserAssignmentKey';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import UserAssignmentNotFoundException from '../../../domain/domain-core/exception/UserAssignmentNotFoundException';
+import ClassUserAssignmentUpdationException from '../../../domain/domain-core/exception/ClassUserAssignmentUpdationException';
+import ClassUserAssignmentDeletionException from '../../../domain/domain-core/exception/ClassUserAssignmentDeletionException';
 
 @Injectable()
 export default class UserAssignmentDynamoDBRepository {
@@ -42,8 +47,8 @@ export default class UserAssignmentDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw new DomainException();
-      throw exception;
+        throw new DuplicateKeyException({ throwable: exception });
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
@@ -105,7 +110,7 @@ export default class UserAssignmentDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new UserAssignmentNotFoundException();
     }
     return strictPlainToClass(UserAssignmentEntity, response.Item);
   }
@@ -148,9 +153,11 @@ export default class UserAssignmentDynamoDBRepository {
           existingAssignment.assignmentType !==
           AssignmentType.PERSONAL_ASSIGNMENT
         )
-          throw domainException;
+          throw new ClassUserAssignmentUpdationException({
+            throwable: exception,
+          });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
@@ -187,7 +194,7 @@ export default class UserAssignmentDynamoDBRepository {
           existingAssignment.assignmentType !==
           AssignmentType.PERSONAL_ASSIGNMENT
         )
-          throw domainException;
+          throw new ClassUserAssignmentDeletionException();
       }
       throw exception;
     }
