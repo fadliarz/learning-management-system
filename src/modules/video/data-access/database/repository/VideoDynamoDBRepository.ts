@@ -145,7 +145,7 @@ export default class VideoDynamoDBRepository {
         RETRIES++;
         if (RETRIES > MAX_RETRIES)
           throw new ResourceConflictException({ throwable: exception });
-        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
