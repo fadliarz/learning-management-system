@@ -20,6 +20,10 @@ import UniqueEmailKey from '../entity/UniqueEmailKey';
 import UserKey from '../entity/UserKey';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import EmailTakenException from '../../../domain/domain-core/exception/EmailTakenException';
+import UserNotFoundException from '../../../domain/domain-core/exception/UserNotFoundException';
 
 @Injectable()
 export default class UserDynamoDBRepository {
@@ -63,19 +67,19 @@ export default class UserDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new DomainException();
+          throw new DuplicateKeyException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw domainException;
+          throw new EmailTakenException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
@@ -138,7 +142,7 @@ export default class UserDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new UserNotFoundException();
     }
     return strictPlainToClass(UserEntity, response.Item);
   }
@@ -164,7 +168,7 @@ export default class UserDynamoDBRepository {
       }),
     );
     if (!response.Items || response.Items.length === 0) {
-      throw domainException;
+      throw new UserNotFoundException();
     }
     return {
       userId: (response.Items[0] as UniqueEmailKey).storedUserId,
@@ -190,9 +194,8 @@ export default class UserDynamoDBRepository {
         }),
       );
     } catch (exception) {
-      if (exception instanceof ConditionalCheckFailedException) {
-        throw domainException;
-      }
+      if (exception instanceof ConditionalCheckFailedException)
+        throw new UserNotFoundException({ throwable: exception });
     }
   }
 }
