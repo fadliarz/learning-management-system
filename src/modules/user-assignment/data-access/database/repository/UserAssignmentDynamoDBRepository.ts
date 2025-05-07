@@ -185,18 +185,22 @@ export default class UserAssignmentDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException) {
-        const existingAssignment = await this.findByIdOrThrow({
-          userId,
-          assignmentId,
-          domainException: notFoundException,
-        });
-        if (
-          existingAssignment.assignmentType !==
-          AssignmentType.PERSONAL_ASSIGNMENT
-        )
-          throw new ClassUserAssignmentDeletionException();
+        try {
+          const existingAssignment = await this.findByIdOrThrow({
+            userId,
+            assignmentId,
+            domainException: notFoundException,
+          });
+          if (
+            existingAssignment.assignmentType !==
+            AssignmentType.PERSONAL_ASSIGNMENT
+          )
+            throw new ClassUserAssignmentDeletionException();
+        } catch (error) {
+          if (error instanceof UserAssignmentNotFoundException) return;
+        }
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 }
