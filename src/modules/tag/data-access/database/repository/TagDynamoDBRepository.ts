@@ -18,6 +18,8 @@ import { DynamoDBExceptionCode } from '../../../../../common/common-domain/Dynam
 import TagEntity from '../entity/TagEntity';
 import UniqueTagKey from '../entity/UniqueTagKey';
 import TagKey from '../entity/TagKey';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
+import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
 
 @Injectable()
 export default class TagDynamoDBRepository {
@@ -58,19 +60,19 @@ export default class TagDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new DomainException();
+          throw new DuplicateKeyException({ throwable: exception });
         if (
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new TagTitleAlreadyExistsException();
+          throw new TagTitleAlreadyExistsException({ throwable: exception });
       }
-      throw domainException;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
