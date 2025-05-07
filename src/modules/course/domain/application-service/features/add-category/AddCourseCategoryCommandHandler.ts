@@ -3,9 +3,9 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import AddCourseCategoryCommand from './dto/AddCourseCategoryCommand';
 import { CategoryRepository } from '../../../../../category/domain/application-service/ports/output/repository/CategoryRepository';
-import CategoryNotFoundException from '../../../../../category/domain/domain-core/exception/CategoryNotFoundException';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
-import CourseContext from '../../ports/output/context/CourseContext';
+import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseCacheMemoryImpl';
+import Course from '../../../domain-core/entity/Course';
 
 @Injectable()
 export default class AddCourseCategoryCommandHandler {
@@ -15,8 +15,8 @@ export default class AddCourseCategoryCommandHandler {
     private readonly courseRepository: CourseRepository,
     @Inject(DependencyInjection.CATEGORY_REPOSITORY)
     private readonly categoryRepository: CategoryRepository,
-    @Inject(DependencyInjection.COURSE_CONTEXT)
-    private readonly courseContext: CourseContext,
+    @Inject(DependencyInjection.COURSE_CACHE_MEMORY)
+    private readonly courseCacheMemory: CourseCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -31,8 +31,14 @@ export default class AddCourseCategoryCommandHandler {
     await this.courseRepository.addCategoryIfNotExistsOrIgnore(
       addCourseCategoryCommand,
     );
-    await this.courseContext.refresh({
+    const course: Course | null = await this.courseRepository.findById({
       courseId: addCourseCategoryCommand.courseId,
     });
+    if (course) {
+      await this.courseCacheMemory.setAndSaveIndex({
+        key: addCourseCategoryCommand.courseId,
+        value: course,
+      });
+    }
   }
 }
