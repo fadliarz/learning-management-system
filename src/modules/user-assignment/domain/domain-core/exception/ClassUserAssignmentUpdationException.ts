@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class ClassUserAssignmentUpdationException extends HttpException {
-  constructor(message: string = 'Class user assignment cannot be updated') {
-    super(HttpStatus.BAD_REQUEST, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.BAD_REQUEST,
+      param.message ?? 'Class user assignment cannot be updated',
+      param.throwable ?? null,
+    );
   }
 }
