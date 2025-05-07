@@ -215,7 +215,7 @@ export default class ClassDynamoDBRepository {
           CancellationReasons[1].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new CourseNotFoundException({ throwable: exception });
+          return;
       }
       throw new InternalServerException({ throwable: exception });
     }
