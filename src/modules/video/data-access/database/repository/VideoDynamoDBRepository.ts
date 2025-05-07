@@ -340,7 +340,7 @@ export default class VideoDynamoDBRepository {
     const { video, upperVideo, lowerVideo, version } = param;
     const lessonId: number = video.lessonId;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 6;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const lessonEntity: LessonEntity =
