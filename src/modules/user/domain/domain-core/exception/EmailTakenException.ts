@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class EmailTakenException extends HttpException {
-  constructor(message: string = 'Email already taken, please try another one') {
-    super(HttpStatus.CONFLICT, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.CONFLICT,
+      param.message ?? 'Email already taken, please try another one',
+      param.throwable ?? null,
+    );
   }
 }
