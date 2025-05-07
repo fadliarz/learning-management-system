@@ -25,6 +25,7 @@ import { DynamoDBExceptionCode } from '../../../../../common/common-domain/Dynam
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import AttachmentNotFoundException from '../../../domain/domain-core/exception/AttachmentNotFoundException';
 
 @Injectable()
 export default class AttachmentDynamoDBRepository {
@@ -157,7 +158,7 @@ export default class AttachmentDynamoDBRepository {
     attachmentId: number;
     domainException: DomainException;
   }): Promise<AttachmentEntity> {
-    const { lessonId, attachmentId, domainException } = param;
+    const { lessonId, attachmentId } = param;
     const response = await this.dynamoDBDocumentClient.send(
       new GetCommand({
         TableName: this.dynamoDBConfig.ATTACHMENT_TABLE,
@@ -165,7 +166,7 @@ export default class AttachmentDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new AttachmentNotFoundException();
     }
     return strictPlainToClass(AttachmentEntity, response.Item);
   }
@@ -174,7 +175,7 @@ export default class AttachmentDynamoDBRepository {
     attachmentEntity: AttachmentEntity;
     domainException: DomainException;
   }): Promise<void> {
-    const { attachmentEntity, domainException } = param;
+    const { attachmentEntity } = param;
     try {
       const { attachmentId, lessonId, ...restObj } = attachmentEntity;
       const updateObj = DynamoDBBuilder.buildUpdate(restObj);
@@ -190,8 +191,8 @@ export default class AttachmentDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw domainException;
-      throw exception;
+        throw new AttachmentNotFoundException({ throwable: exception });
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
@@ -201,7 +202,7 @@ export default class AttachmentDynamoDBRepository {
     attachmentId: number;
     domainException: DomainException;
   }): Promise<void> {
-    const { courseId, lessonId, attachmentId, domainException } = param;
+    const { courseId, lessonId, attachmentId } = param;
     try {
       await this.dynamoDBDocumentClient.send(
         new TransactWriteCommand({
@@ -250,24 +251,19 @@ export default class AttachmentDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons)
+          throw new InternalServerException({ throwable: exception });
         if (
           CancellationReasons[0].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          throw domainException;
-        if (
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          return;
-        if (
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[2].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
           return;
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 }
