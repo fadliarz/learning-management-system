@@ -12,7 +12,6 @@ import PrivilegeModule from '../privilege/PrivilegeModule';
 import CourseDynamoDBRepository from './data-access/database/repository/CourseDynamoDBRepository';
 import CategoryModule from '../category/CategoryModule';
 import AddCourseCategoryCommandHandler from './domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
-import CourseContextImpl from './data-access/context/adapter/CourseContextImpl';
 import RemoveCourseCategoryCommandHandler from './domain/application-service/features/remove-category/RemoveCourseCategoryCommandHandler';
 import CourseCacheMemoryImpl from './data-access/cache/adapter/CourseCacheMemoryImpl';
 import CourseRedisCacheMemory from './data-access/cache/memory/CourseRedisCacheMemory';
@@ -33,10 +32,6 @@ import CourseRedisCacheMemory from './data-access/cache/memory/CourseRedisCacheM
       useClass: CourseRepositoryImpl,
     },
     CourseDynamoDBRepository,
-    {
-      provide: DependencyInjection.COURSE_CONTEXT,
-      useClass: CourseContextImpl,
-    },
     {
       provide: DependencyInjection.COURSE_CACHE_MEMORY,
       useClass: CourseCacheMemoryImpl,
