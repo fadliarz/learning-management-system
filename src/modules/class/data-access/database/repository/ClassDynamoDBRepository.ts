@@ -208,12 +208,9 @@ export default class ClassDynamoDBRepository {
         if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          throw new ClassNotFoundException({ throwable: exception });
-        if (
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
           return;
       }
