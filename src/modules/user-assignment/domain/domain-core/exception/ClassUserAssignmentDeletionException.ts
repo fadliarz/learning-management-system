@@ -2,7 +2,11 @@ import HttpException from '../../../../../common/common-domain/exception/HttpExc
 import { HttpStatus } from '@nestjs/common';
 
 export default class ClassUserAssignmentDeletionException extends HttpException {
-  constructor(message: string = 'Class user assignment cannot be deleted') {
-    super(HttpStatus.FORBIDDEN, message);
+  constructor(param: { message?: string; throwable?: unknown } = {}) {
+    super(
+      HttpStatus.FORBIDDEN,
+      param.message ?? 'Class user assignment cannot be deleted',
+      param.throwable ?? null,
+    );
   }
 }
