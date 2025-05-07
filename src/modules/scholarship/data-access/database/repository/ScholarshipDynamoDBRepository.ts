@@ -23,6 +23,7 @@ import ScholarshipNotFoundException from '../../../domain/domain-core/exception/
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
 import { DynamoDBExceptionCode } from '../../../../../common/common-domain/DynamoDBExceptionCode';
 import TagLinkKey from '../../../../tag/data-access/database/entity/TagLinkKey';
+import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 
 @Injectable()
 export default class ScholarshipDynamoDBRepository {
@@ -83,14 +84,14 @@ export default class ScholarshipDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new ScholarshipNotFoundException();
+          throw new ScholarshipNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
@@ -130,19 +131,14 @@ export default class ScholarshipDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
           DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
-          throw new ScholarshipNotFoundException();
-        if (
-          CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          return;
+          throw new ScholarshipNotFoundException({ throwable: exception });
       }
-      throw exception;
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
@@ -225,8 +221,8 @@ export default class ScholarshipDynamoDBRepository {
       );
     } catch (exception) {
       if (exception instanceof ConditionalCheckFailedException)
-        throw new ScholarshipNotFoundException();
-      throw exception;
+        throw new ScholarshipNotFoundException({ throwable: exception });
+      throw new InternalServerException({ throwable: exception });
     }
   }
 
