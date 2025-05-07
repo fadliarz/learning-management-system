@@ -367,18 +367,18 @@ export default class LessonDynamoDBRepository {
             ],
           }),
         );
-
         return;
       } catch (exception) {
-        if (exception instanceof CourseNotFoundException) throw exception;
+        if (exception instanceof CourseNotFoundException) return;
         if (exception instanceof TransactionCanceledException) {
           const { CancellationReasons } = exception;
-          if (!CancellationReasons) throw exception;
+          if (!CancellationReasons)
+            throw new InternalServerException({ throwable: exception });
           if (
             CancellationReasons[0].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
           )
-            throw new LessonNotFoundException({ throwable: exception });
+            return;
         }
         RETRIES++;
         if (RETRIES > MAX_RETRIES)
