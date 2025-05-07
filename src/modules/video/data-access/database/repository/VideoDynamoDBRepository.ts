@@ -553,9 +553,12 @@ export default class VideoDynamoDBRepository {
         );
         return;
       } catch (exception) {
-        if (exception instanceof VideoNotFoundException) throw exception;
-        if (exception instanceof CourseNotFoundException) throw exception;
-        if (exception instanceof LessonNotFoundException) throw exception;
+        if (
+          exception instanceof VideoNotFoundException ||
+          exception instanceof CourseNotFoundException ||
+          exception instanceof LessonNotFoundException
+        )
+          return;
         RETRIES++;
         if (RETRIES > MAX_RETRIES)
           throw new ResourceConflictException({ throwable: exception });
