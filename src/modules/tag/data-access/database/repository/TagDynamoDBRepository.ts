@@ -20,6 +20,7 @@ import UniqueTagKey from '../entity/UniqueTagKey';
 import TagKey from '../entity/TagKey';
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
+import ResourceConflictException from '../../../../../common/common-domain/exception/ResourceConflictException';
 
 @Injectable()
 export default class TagDynamoDBRepository {
@@ -130,7 +131,7 @@ export default class TagDynamoDBRepository {
       }),
     );
     if (!response.Item) {
-      throw domainException;
+      throw new TagNotFoundException();
     }
     return strictPlainToClass(TagEntity, response.Item);
   }
@@ -141,7 +142,7 @@ export default class TagDynamoDBRepository {
   }): Promise<void> {
     const { tagEntity, domainException } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 3;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const oldTagEntity: TagEntity = await this.findByIdOrThrow({
@@ -193,10 +194,11 @@ export default class TagDynamoDBRepository {
         );
         return;
       } catch (exception) {
-        if (exception instanceof TagNotFoundException) throw domainException;
+        if (exception instanceof TagNotFoundException) throw exception;
         if (exception instanceof TransactionCanceledException) {
           const { CancellationReasons } = exception;
-          if (!CancellationReasons) throw new DomainException();
+          if (!CancellationReasons)
+            throw new InternalServerException({ throwable: exception });
           if (
             CancellationReasons[1].Code ===
             DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
@@ -204,10 +206,10 @@ export default class TagDynamoDBRepository {
             throw new TagTitleAlreadyExistsException();
         }
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) {
-          throw exception;
+        if (RETRIES > MAX_RETRIES) {
+          throw new ResourceConflictException({ throwable: exception });
         }
-        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
