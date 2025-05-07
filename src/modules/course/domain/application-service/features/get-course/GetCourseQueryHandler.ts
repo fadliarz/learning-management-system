@@ -6,13 +6,11 @@ import strictPlainToClass from '../../../../../../common/common-domain/mapper/st
 import { Inject } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseCacheMemoryImpl';
-import CacheConfig from '../../../../../../config/CacheConfig';
 
 export default class GetCourseQueryHandler {
   constructor(
     @Inject(DependencyInjection.COURSE_CACHE_MEMORY)
     private readonly courseCacheMemory: CourseCacheMemoryImpl,
-    private readonly cacheConfig: CacheConfig,
     @Inject(DependencyInjection.COURSE_REPOSITORY)
     private readonly courseRepository: CourseRepository,
   ) {}
@@ -27,8 +25,9 @@ export default class GetCourseQueryHandler {
     const course: Course = await this.courseRepository.findByIdOrThrow({
       ...getCourseQuery,
     });
-    await this.courseCacheMemory.set(course.courseId, course, {
-      ttl: this.cacheConfig.DEFAULT_TTL_IN_SEC,
+    await this.courseCacheMemory.setAndSaveIndex({
+      key: getCourseQuery.courseId,
+      value: course,
     });
     return strictPlainToClass(CourseResponse, course);
   }
