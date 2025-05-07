@@ -220,7 +220,7 @@ export default class TagDynamoDBRepository {
   }): Promise<void> {
     const { tagId, domainException } = param;
     let RETRIES: number = 0;
-    const MAX_RETRIES: number = 25;
+    const MAX_RETRIES: number = 5;
     while (RETRIES <= MAX_RETRIES) {
       try {
         const tagEntity: TagEntity = await this.findByIdOrThrow({
@@ -257,14 +257,12 @@ export default class TagDynamoDBRepository {
         );
         return;
       } catch (exception) {
-        if (exception instanceof TagNotFoundException) throw domainException;
+        if (exception instanceof TagNotFoundException) return;
         RETRIES++;
-        if (RETRIES === MAX_RETRIES) {
-          if (exception instanceof TransactionCanceledException)
-            throw domainException;
-          throw exception;
+        if (RETRIES > MAX_RETRIES) {
+          throw new ResourceConflictException({ throwable: exception });
         }
-        await TimerService.sleepWith1000MsBaseDelayExponentialBackoff(RETRIES);
+        await TimerService.sleepWith100MsBaseDelayExponentialBackoff(RETRIES);
       }
     }
   }
