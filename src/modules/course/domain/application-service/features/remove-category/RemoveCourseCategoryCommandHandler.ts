@@ -3,7 +3,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import RemoveCourseCategoryCommand from './dto/RemoveCourseCategoryCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
-import CourseContext from '../../ports/output/context/CourseContext';
+import Course from '../../../domain-core/entity/Course';
+import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseCacheMemoryImpl';
 
 @Injectable()
 export default class RemoveCourseCategoryCommandHandler {
@@ -11,8 +12,8 @@ export default class RemoveCourseCategoryCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.COURSE_REPOSITORY)
     private readonly courseRepository: CourseRepository,
-    @Inject(DependencyInjection.COURSE_CONTEXT)
-    private readonly courseContext: CourseContext,
+    @Inject(DependencyInjection.COURSE_CACHE_MEMORY)
+    private readonly courseCacheMemory: CourseCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -24,8 +25,14 @@ export default class RemoveCourseCategoryCommandHandler {
     await this.courseRepository.removeCategoryIfExistsOrIgnore(
       removeCourseCategoryCommand,
     );
-    await this.courseContext.refresh({
+    const course: Course | null = await this.courseRepository.findById({
       courseId: removeCourseCategoryCommand.courseId,
     });
+    if (course) {
+      await this.courseCacheMemory.setAndSaveIndex({
+        key: removeCourseCategoryCommand.courseId,
+        value: course,
+      });
+    }
   }
 }
