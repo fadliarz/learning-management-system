@@ -160,17 +160,14 @@ export default class PrivilegeDynamoDBRepository {
     } catch (exception) {
       if (exception instanceof TransactionCanceledException) {
         const { CancellationReasons } = exception;
-        if (!CancellationReasons) throw exception;
+        if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
+          CancellationReasons[1].Code ===
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
         )
           return;
-        if (
-          CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          throw new UserNotFoundException();
       }
       throw exception;
     }
