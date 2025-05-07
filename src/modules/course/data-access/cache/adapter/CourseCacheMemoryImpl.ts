@@ -4,6 +4,7 @@ import { CacheOptions } from '../../../../../common/common-data-access/cache/Cac
 import { Inject, Injectable } from '@nestjs/common';
 import CourseRedisCacheMemory from '../memory/CourseRedisCacheMemory';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
+import CacheConfig from '../../../../../config/CacheConfig';
 
 @Injectable()
 export default class CourseCacheMemoryImpl implements CourseCacheMemory {
@@ -12,6 +13,7 @@ export default class CourseCacheMemoryImpl implements CourseCacheMemory {
   constructor(
     @Inject(DependencyInjection.COURSE_REDIS_CACHE_MEMORY)
     private readonly courseRedisCacheMemory: CourseRedisCacheMemory,
+    private readonly cacheConfig: CacheConfig,
   ) {}
 
   public async get(key: number): Promise<Course | null> {
@@ -30,11 +32,10 @@ export default class CourseCacheMemoryImpl implements CourseCacheMemory {
     value: Course,
     options?: CacheOptions,
   ): Promise<void> {
-    await this.courseRedisCacheMemory.set(
-      this.transformKey(key),
-      value,
-      options,
-    );
+    await this.courseRedisCacheMemory.set(this.transformKey(key), value, {
+      ttl: this.cacheConfig.DEFAULT_TTL_IN_SEC,
+      ...options,
+    });
   }
 
   public async setAndSaveIndex(param: {
@@ -46,7 +47,10 @@ export default class CourseCacheMemoryImpl implements CourseCacheMemory {
     await this.courseRedisCacheMemory.setAndSaveIndex({
       key: this.transformKey(key),
       value,
-      options,
+      options: {
+        ttl: this.cacheConfig.DEFAULT_TTL_IN_SEC,
+        ...options,
+      },
       index: this.INDEX_NAME,
     });
   }
