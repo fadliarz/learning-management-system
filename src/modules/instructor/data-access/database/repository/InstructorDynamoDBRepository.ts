@@ -19,10 +19,7 @@ import InstructorAlreadyExistsException from '../../../domain/domain-core/except
 import ClassNotFoundException from '../../../../class/domain/domain-core/exception/ClassNotFoundException';
 import CourseNotFoundException from '../../../../course/domain/domain-core/exception/CourseNotFoundException';
 import UserNotFoundException from '../../../../user/domain/domain-core/exception/UserNotFoundException';
-import InstructorNotFoundException from '../../../domain/domain-core/exception/InstructorNotFoundException';
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
-import ParentResourceDeletedException from '../../../../../common/common-domain/exception/ParentResourceDeletedException';
-import { ResourceName } from '../../../../../common/common-domain/ResourceName';
 
 @Injectable()
 export default class InstructorDynamoDBRepository {
@@ -287,36 +284,15 @@ export default class InstructorDynamoDBRepository {
         if (!CancellationReasons) throw new InternalServerException();
         if (
           CancellationReasons[0].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        )
-          throw new InstructorNotFoundException({ throwable: exception });
-        if (
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[1].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        ) {
-          throw new ParentResourceDeletedException({
-            parentResource: ResourceName.CLASS,
-            throwable: exception,
-          });
-        }
-        if (
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[2].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        ) {
-          throw new ParentResourceDeletedException({
-            parentResource: ResourceName.COURSE,
-            throwable: exception,
-          });
-        }
-        if (
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED ||
           CancellationReasons[3].Code ===
-          DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
-        ) {
-          throw new ParentResourceDeletedException({
-            parentResource: ResourceName.USER,
-            throwable: exception,
-          });
-        }
+            DynamoDBExceptionCode.CONDITIONAL_CHECK_FAILED
+        )
+          return;
       }
       throw new InternalServerException({ throwable: exception });
     }
