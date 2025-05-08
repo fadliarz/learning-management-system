@@ -44,14 +44,18 @@ import CategoryHelper from './domain/application-service/CategoryHelper';
     },
   ],
   exports: [
+    CategoryDynamoDBRepository,
     {
       provide: DependencyInjection.CATEGORY_REPOSITORY,
       useClass: CategoryRepositoryImpl,
     },
-    CategoryDynamoDBRepository,
     {
       provide: DependencyInjection.CATEGORY_CONTEXT,
       useClass: CategoryContextImpl,
+    },
+    {
+      provide: DependencyInjection.CATEGORY_CACHE_MEMORY,
+      useClass: CategoryCacheMemoryImpl,
     },
   ],
 })
