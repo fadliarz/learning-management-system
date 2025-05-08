@@ -26,12 +26,19 @@ export default class GlobalExceptionHandler {
           ? exception.getStatus()
           : HttpStatus.INTERNAL_SERVER_ERROR;
 
-    const message =
+    let message =
       exception instanceof HttpException
         ? exception.message
         : exception instanceof NestHttpException
           ? exception.getResponse()
           : 'Internal Server Error';
+
+    if (typeof message === 'object' && 'message' in message) {
+      const messageObj = message as { message: string[] | string };
+      message = Array.isArray(messageObj.message)
+        ? messageObj.message[0]
+        : messageObj.message;
+    }
 
     console.log('@GlobalExceptionHandler: ', {
       path: request.url,
