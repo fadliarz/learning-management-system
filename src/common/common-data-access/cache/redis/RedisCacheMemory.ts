@@ -59,6 +59,16 @@ export default class RedisCacheMemory<
     await this.redis.multi().del(String(key)).srem(index, String(key)).exec();
   }
 
+  public async setExpiresIfNotSet(
+    key: Key,
+    expiresInSec: number,
+  ): Promise<void> {
+    const keyExpiresIn: number = await this.redis.ttl(String(key));
+    if (keyExpiresIn !== -1) {
+      await this.redis.expire(String(key), expiresInSec);
+    }
+  }
+
   private serializeValue(value: Value): string | number {
     return typeof value === 'object' ? JSON.stringify(value) : value;
   }
