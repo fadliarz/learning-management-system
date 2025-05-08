@@ -1,4 +1,3 @@
-import CourseCacheMemory from '../../../domain/application-service/ports/output/cache/CourseCache';
 import Course from '../../../domain/domain-core/entity/Course';
 import { CacheOptions } from '../../../../../common/common-data-access/cache/CacheOptions';
 import { Inject, Injectable } from '@nestjs/common';
@@ -7,6 +6,7 @@ import { DependencyInjection } from '../../../../../common/common-domain/Depende
 import CacheConfig from '../../../../../config/CacheConfig';
 import { CourseRepository } from '../../../domain/application-service/ports/output/repository/CourseRepository';
 import Pagination from '../../../../../common/common-domain/repository/Pagination';
+import CourseCacheMemory from '../../../domain/application-service/ports/output/cache/CourseCacheMemory';
 
 @Injectable()
 export default class CourseCacheMemoryImpl implements CourseCacheMemory {
