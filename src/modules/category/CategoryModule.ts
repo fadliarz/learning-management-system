@@ -10,7 +10,6 @@ import DeleteCategoryCommandHandler from './domain/application-service/features/
 import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import CategoryDynamoDBRepository from './data-access/database/repository/CategoryDynamoDBRepository';
-import CategoryContextImpl from './data-access/context/adapter/CategoryContextImpl';
 import CategoryCacheMemoryImpl from './data-access/cache/adapter/CategoryCacheMemoryImpl';
 import CategoryRedisCacheMemory from './data-access/cache/memory/CategoryRedisCacheMemory';
 import CategoryHelper from './domain/application-service/CategoryHelper';
@@ -31,10 +30,6 @@ import CategoryHelper from './domain/application-service/CategoryHelper';
     },
     CategoryDynamoDBRepository,
     {
-      provide: DependencyInjection.CATEGORY_CONTEXT,
-      useClass: CategoryContextImpl,
-    },
-    {
       provide: DependencyInjection.CATEGORY_CACHE_MEMORY,
       useClass: CategoryCacheMemoryImpl,
     },
@@ -48,10 +43,6 @@ import CategoryHelper from './domain/application-service/CategoryHelper';
     {
       provide: DependencyInjection.CATEGORY_REPOSITORY,
       useClass: CategoryRepositoryImpl,
-    },
-    {
-      provide: DependencyInjection.CATEGORY_CONTEXT,
-      useClass: CategoryContextImpl,
     },
     {
       provide: DependencyInjection.CATEGORY_CACHE_MEMORY,

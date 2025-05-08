@@ -21,7 +21,6 @@ export enum DependencyInjection {
   REDIS_CLIENT = 'RedisClient',
 
   SCHOLARSHIP_CONTEXT = 'ScholarshipContext',
-  CATEGORY_CONTEXT = 'CategoryContext',
   TAG_CONTEXT = 'TagContext',
 
   COURSE_CACHE_MEMORY = 'CourseCacheMemory',
