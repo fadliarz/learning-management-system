@@ -49,6 +49,7 @@ jobs:
           REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
           REDIS_PORT=${{ secrets.REDIS_PORT }}
           DEFAULT_TTL_IN_SEC=${{ secrets.DEFAULT_TTL_IN_SEC }}
+          DEFAULT_INDEX_TTL_IN_SEC=${{ secrets.DEFAULT_INDEX_TTL_IN_SEC }}
           EOL
 
       - name: Install dependencies
