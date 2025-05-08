@@ -5,12 +5,12 @@ import strictPlainToClass from '../../../../../../common/common-domain/mapper/st
 import CourseResponse from '../common/CourseResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
 import Pagination from '../../../../../../common/common-domain/repository/Pagination';
-import CategoryContext from '../../../../../category/domain/application-service/ports/output/context/CategoryContext';
 import Category from '../../../../../category/domain/domain-core/entity/Category';
 import CategoryResponse from '../../../../../category/domain/application-service/features/common/CategoryResponse';
 import CourseHelper from '../../CourseHelper';
 import { CourseRepository } from '../../ports/output/repository/CourseRepository';
 import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseCacheMemoryImpl';
+import CategoryCacheMemoryImpl from '../../../../../category/data-access/cache/adapter/CategoryCacheMemoryImpl';
 
 @Injectable()
 export default class GetCoursesQueryHandler {
@@ -19,8 +19,8 @@ export default class GetCoursesQueryHandler {
     private readonly courseCacheMemory: CourseCacheMemoryImpl,
     @Inject(DependencyInjection.COURSE_REPOSITORY)
     private readonly courseRepository: CourseRepository,
-    @Inject(DependencyInjection.CATEGORY_CONTEXT)
-    private readonly categoryContext: CategoryContext,
+    @Inject(DependencyInjection.CATEGORY_CACHE_MEMORY)
+    private readonly categoryCacheMemory: CategoryCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -64,10 +64,8 @@ export default class GetCoursesQueryHandler {
       courseResponse.categories = [];
       if (course.categories) {
         for (const categoryId of course.categories) {
-          const category: Category | undefined =
-            await this.categoryContext.findById({
-              categoryId,
-            });
+          const category: Category | null =
+            await this.categoryCacheMemory.get(categoryId);
           if (category) {
             courseResponse.categories.push(
               strictPlainToClass(CategoryResponse, category),
