@@ -8,7 +8,7 @@ import { DependencyInjection } from '../../../../../../common/common-domain/Depe
 import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseCacheMemoryImpl';
 import Category from '../../../../../category/domain/domain-core/entity/Category';
 import CategoryResponse from '../../../../../category/domain/application-service/features/common/CategoryResponse';
-import CategoryContext from '../../../../../category/domain/application-service/ports/output/context/CategoryContext';
+import CategoryCacheMemoryImpl from '../../../../../category/data-access/cache/adapter/CategoryCacheMemoryImpl';
 
 export default class GetCourseQueryHandler {
   constructor(
@@ -16,8 +16,8 @@ export default class GetCourseQueryHandler {
     private readonly courseCacheMemory: CourseCacheMemoryImpl,
     @Inject(DependencyInjection.COURSE_REPOSITORY)
     private readonly courseRepository: CourseRepository,
-    @Inject(DependencyInjection.CATEGORY_CONTEXT)
-    private readonly categoryContext: CategoryContext,
+    @Inject(DependencyInjection.CATEGORY_CACHE_MEMORY)
+    private readonly categoryCacheMemory: CategoryCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -45,10 +45,8 @@ export default class GetCourseQueryHandler {
     courseResponse.categories = [];
     if (course.categories) {
       for (const categoryId of course.categories) {
-        const category: Category | undefined =
-          await this.categoryContext.findById({
-            categoryId,
-          });
+        const category: Category | null =
+          await this.categoryCacheMemory.get(categoryId);
         if (category) {
           courseResponse.categories.push(
             strictPlainToClass(CategoryResponse, category),
