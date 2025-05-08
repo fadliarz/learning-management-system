@@ -4,6 +4,8 @@ import Pagination from '../../../../../../../common/common-domain/repository/Pag
 export interface CategoryRepository {
   saveIfNotExistsOrThrow(param: { category: Category }): Promise<void>;
 
+  findById(param: { categoryId: number }): Promise<Category | null>;
+
   findByIdOrThrow(param: { categoryId: number }): Promise<Category>;
 
   findMany(param: { pagination: Pagination }): Promise<Category[]>;

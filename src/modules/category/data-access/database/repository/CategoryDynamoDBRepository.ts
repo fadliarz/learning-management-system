@@ -123,6 +123,21 @@ export default class CategoryDynamoDBRepository {
     return categoryEntities;
   }
 
+  public async findById(param: {
+    categoryId: number;
+  }): Promise<CategoryEntity | null> {
+    const { categoryId } = param;
+    const response = await this.dynamoDBDocumentClient.send(
+      new GetCommand({
+        TableName: this.dynamoDBConfig.CATEGORY_TABLE,
+        Key: new CategoryKey({ categoryId }),
+      }),
+    );
+    return response.Item
+      ? strictPlainToClass(CategoryEntity, response.Item)
+      : null;
+  }
+
   public async findByIdOrThrow(param: {
     categoryId: number;
   }): Promise<CategoryEntity> {

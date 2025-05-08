@@ -21,6 +21,14 @@ export default class CategoryRepositoryImpl implements CategoryRepository {
     });
   }
 
+  public async findById(param: {
+    categoryId: number;
+  }): Promise<Category | null> {
+    const categoryEntity: CategoryEntity | null =
+      await this.categoryDynamoDBRepository.findById(param);
+    return categoryEntity ? strictPlainToClass(Category, categoryEntity) : null;
+  }
+
   public async findByIdOrThrow(param: {
     categoryId: number;
   }): Promise<Category> {
