@@ -11,6 +11,8 @@ import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import CategoryDynamoDBRepository from './data-access/database/repository/CategoryDynamoDBRepository';
 import CategoryContextImpl from './data-access/context/adapter/CategoryContextImpl';
+import CategoryCacheMemoryImpl from './data-access/cache/adapter/CategoryCacheMemoryImpl';
+import CategoryRedisCacheMemory from './data-access/cache/memory/CategoryRedisCacheMemory';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule],
@@ -29,6 +31,14 @@ import CategoryContextImpl from './data-access/context/adapter/CategoryContextIm
     {
       provide: DependencyInjection.CATEGORY_CONTEXT,
       useClass: CategoryContextImpl,
+    },
+    {
+      provide: DependencyInjection.CATEGORY_CACHE_MEMORY,
+      useClass: CategoryCacheMemoryImpl,
+    },
+    {
+      provide: DependencyInjection.CATEGORY_REDIS_CACHE_MEMORY,
+      useClass: CategoryRedisCacheMemory,
     },
   ],
   exports: [
