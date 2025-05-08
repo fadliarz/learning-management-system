@@ -9,6 +9,7 @@ import ClassRepositoryImpl from './data-access/database/adapter/ClassRepositoryI
 import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import ClassDynamoDBRepository from './data-access/database/repository/ClassDynamoDBRepository';
+import DeleteClassCommandHandler from './domain/application-service/features/delete-class/DeleteClassCommandHandler';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule],
@@ -18,6 +19,7 @@ import ClassDynamoDBRepository from './data-access/database/repository/ClassDyna
     GetClassesQueryHandler,
     GetClassQueryHandler,
     UpdateClassCommandHandler,
+    DeleteClassCommandHandler,
     {
       provide: DependencyInjection.CLASS_REPOSITORY,
       useClass: ClassRepositoryImpl,

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -25,6 +26,7 @@ import UpdateClassDto from '../../domain/application-service/features/update-cla
 import PaginationDto from '../../../../common/common-domain/PaginationDto';
 import ClassesWrapperResponse from './response/ClassesWrapperResponse';
 import ClassWrapperResponse from './response/ClassWrapperResponse';
+import DeleteClassCommandHandler from '../../domain/application-service/features/delete-class/DeleteClassCommandHandler';
 
 @Injectable()
 @Controller('api/v1')
@@ -35,6 +37,7 @@ export default class ClassController {
     private readonly getClassesQueryHandler: GetClassesQueryHandler,
     private readonly getClassQueryHandler: GetClassQueryHandler,
     private readonly updateClassCommandHandler: UpdateClassCommandHandler,
+    private readonly deleteClassCommandHandler: DeleteClassCommandHandler,
   ) {}
 
   @UseGuards(AuthenticationGuard)
@@ -123,5 +126,25 @@ export default class ClassController {
         ...updateClassDto,
       }),
     );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Delete(':courses/:courseId/classes/:classId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a class' })
+  @ApiResponse({
+    status: HttpStatus.NO_CONTENT,
+    description: 'Class deleted successfully',
+  })
+  public async deleteClass(
+    @Param('courseId', ParseIntPipe) courseId: number,
+    @Param('classId', ParseIntPipe) classId: number,
+    @Req() request: FastifyRequest,
+  ): Promise<void> {
+    await this.deleteClassCommandHandler.execute({
+      executor: request.executor,
+      classId,
+      courseId,
+    });
   }
 }
