@@ -13,6 +13,7 @@ import CategoryDynamoDBRepository from './data-access/database/repository/Catego
 import CategoryContextImpl from './data-access/context/adapter/CategoryContextImpl';
 import CategoryCacheMemoryImpl from './data-access/cache/adapter/CategoryCacheMemoryImpl';
 import CategoryRedisCacheMemory from './data-access/cache/memory/CategoryRedisCacheMemory';
+import CategoryHelper from './domain/application-service/CategoryHelper';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule],
@@ -23,6 +24,7 @@ import CategoryRedisCacheMemory from './data-access/cache/memory/CategoryRedisCa
     GetCategoryQueryHandler,
     UpdateCategoryCommandHandler,
     DeleteCategoryCommandHandler,
+    CategoryHelper,
     {
       provide: DependencyInjection.CATEGORY_REPOSITORY,
       useClass: CategoryRepositoryImpl,
