@@ -8,10 +8,10 @@ import { DependencyInjection } from '../../../../../../common/common-domain/Depe
 import Pagination from '../../../../../../common/common-domain/repository/Pagination';
 import { AssignmentType } from '../../../domain-core/entity/AssignmentType';
 import ClassAssignment from '../../../../../class-assignment/domain/domain-core/entity/ClassAssignment';
-import UserAssignmentNotFoundException from '../../../domain-core/exception/UserAssignmentNotFoundException';
 import Course from '../../../../../course/domain/domain-core/entity/Course';
 import { ClassAssignmentRepository } from '../../../../../class-assignment/domain/application-service/ports/output/repository/ClassAssignmentRepository';
 import { CourseRepository } from '../../../../../course/domain/application-service/ports/output/repository/CourseRepository';
+import ClassAssignmentNotFoundException from '../../../../../class-assignment/domain/domain-core/exception/ClassAssignmentNotFoundException';
 
 @Injectable()
 export default class GetUserAssignmentsQueryHandler {
@@ -63,7 +63,7 @@ export default class GetUserAssignmentsQueryHandler {
           );
         }
       } catch (exception) {
-        if (exception instanceof UserAssignmentNotFoundException) {
+        if (exception instanceof ClassAssignmentNotFoundException) {
           continue;
         }
         throw exception;
