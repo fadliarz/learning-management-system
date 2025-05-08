@@ -3,6 +3,7 @@ import { CategoryRepository } from '../../ports/output/repository/CategoryReposi
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import DeleteCategoryCommand from './dto/DeleteCategoryCommand';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
+import CategoryCacheMemoryImpl from '../../../../data-access/cache/adapter/CategoryCacheMemoryImpl';
 
 @Injectable()
 export default class DeleteCategoryCommandHandler {
@@ -10,6 +11,8 @@ export default class DeleteCategoryCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.CATEGORY_REPOSITORY)
     private readonly categoryRepository: CategoryRepository,
+    @Inject(DependencyInjection.CATEGORY_CACHE_MEMORY)
+    private readonly categoryCacheMemory: CategoryCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -21,5 +24,8 @@ export default class DeleteCategoryCommandHandler {
     await this.categoryRepository.deleteIfExistsOrThrow({
       ...deleteCategoryCommand,
     });
+    await this.categoryCacheMemory.deleteAndRemoveIndex(
+      deleteCategoryCommand.categoryId,
+    );
   }
 }
