@@ -11,6 +11,8 @@ import GetTagQueryHandler from './domain/application-service/features/get-tag/Ge
 import UpdateTagCommandHandler from './domain/application-service/features/update-tag/UpdateTagCommandHandler';
 import DeleteTagCommandHandler from './domain/application-service/features/delete-tag/DeleteTagCommandHandler';
 import TagContextImpl from './data-access/context/adapter/TagContextImpl';
+import TagRedisCacheMemory from './data-access/cache/memory/TagRedisCacheMemory';
+import TagCacheMemoryImpl from './data-access/cache/adapter/TagCacheMemoryImpl';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule],
@@ -21,14 +23,22 @@ import TagContextImpl from './data-access/context/adapter/TagContextImpl';
     GetTagQueryHandler,
     UpdateTagCommandHandler,
     DeleteTagCommandHandler,
+    TagDynamoDBRepository,
     {
       provide: DependencyInjection.TAG_REPOSITORY,
       useClass: TagRepositoryImpl,
     },
-    TagDynamoDBRepository,
     {
       provide: DependencyInjection.TAG_CONTEXT,
       useClass: TagContextImpl,
+    },
+    {
+      provide: DependencyInjection.TAG_REDIS_CACHE_MEMORY,
+      useClass: TagRedisCacheMemory,
+    },
+    {
+      provide: DependencyInjection.TAG_CACHE_MEMORY,
+      useClass: TagCacheMemoryImpl,
     },
   ],
   exports: [
