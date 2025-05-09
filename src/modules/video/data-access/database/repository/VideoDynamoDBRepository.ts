@@ -80,24 +80,22 @@ export default class VideoDynamoDBRepository {
                     lessonId: videoEntity.lessonId,
                   }),
                   ConditionExpression:
-                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #videoArrangementVersion = :value0 AND #version = :value1',
+                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #videoArrangementVersion = :value0 AND #numberOfVideos = :value1',
                   UpdateExpression:
-                    'SET #numberOfVideos = :value2, #numberOfDurations = :value3, #videoArrangementVersion = :value4, #version = :value5',
+                    'SET #videoArrangementVersion = :value2, #numberOfVideos = :value3, #numberOfDurations = :value4',
                   ExpressionAttributeNames: {
                     '#videoArrangementVersion': 'videoArrangementVersion',
-                    '#version': 'version',
                     '#numberOfVideos': 'numberOfVideos',
                     '#numberOfDurations': 'numberOfDurations',
                   },
                   ExpressionAttributeValues: {
                     ':value0': lessonEntity.videoArrangementVersion,
-                    ':value1': lessonEntity.version,
-                    ':value2': lessonEntity.numberOfVideos + 1,
-                    ':value3':
+                    ':value1': lessonEntity.numberOfVideos,
+                    ':value2': lessonEntity.videoArrangementVersion + 1,
+                    ':value3': lessonEntity.numberOfVideos + 1,
+                    ':value4':
                       lessonEntity.numberOfDurations +
                       videoEntity.durationInSec,
-                    ':value4': lessonEntity.videoArrangementVersion + 1,
-                    ':value5': lessonEntity.version + 1,
                   },
                 },
               },
@@ -108,21 +106,20 @@ export default class VideoDynamoDBRepository {
                     courseId: videoEntity.courseId,
                   }),
                   ConditionExpression:
-                    'attribute_exists(id) AND attribute_exists(courseId) AND #version = :value0',
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #numberOfVideos = :value0 AND #numberOfDurations = :value1',
                   UpdateExpression:
-                    'SET #numberOfVideos = :value1, #numberOfDurations = :value2, #version = :value3',
+                    'SET #numberOfVideos = :value2, #numberOfDurations = :value3',
                   ExpressionAttributeNames: {
-                    '#version': 'version',
                     '#numberOfVideos': 'numberOfVideos',
                     '#numberOfDurations': 'numberOfDurations',
                   },
                   ExpressionAttributeValues: {
-                    ':value0': courseEntity.version,
-                    ':value1': courseEntity.numberOfVideos + 1,
-                    ':value2':
+                    ':value0': courseEntity.numberOfVideos,
+                    ':value1': courseEntity.numberOfDurations,
+                    ':value2': courseEntity.numberOfVideos + 1,
+                    ':value3':
                       courseEntity.numberOfDurations +
                       videoEntity.durationInSec,
-                    ':value3': courseEntity.version + 1,
                   },
                 },
               },
