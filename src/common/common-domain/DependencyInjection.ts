@@ -29,4 +29,6 @@ export enum DependencyInjection {
   ATTACHMENT_REDIS_CACHE_MEMORY = 'AttachmentRedisCacheMemory',
   CATEGORY_CACHE_MEMORY = 'CategoryCacheMemory',
   CATEGORY_REDIS_CACHE_MEMORY = 'CategoryRedisCacheMemory',
+  SCHOLARSHIP_CACHE_MEMORY = 'ScholarshipCacheMemory',
+  SCHOLARSHIP_REDIS_CACHE_MEMORY = 'ScholarshipRedisCacheMemory',
 }

@@ -14,6 +14,8 @@ import AddScholarshipTagCommandHandler from './domain/application-service/featur
 import TagModule from '../tag/TagModule';
 import ScholarshipContextImpl from './data-access/context/adapter/ScholarshipContextImpl';
 import RemoveScholarshipTagCommandHandler from './domain/application-service/features/remove-tag/RemoveScholarshipTagCommandHandler';
+import ScholarshipRedisCacheMemory from './data-access/cache/memory/ScholarshipRedisCacheMemory';
+import ScholarshipCacheMemoryImpl from './data-access/cache/adapter/ScholarshipCacheMemoryImpl';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule, TagModule],
@@ -26,14 +28,22 @@ import RemoveScholarshipTagCommandHandler from './domain/application-service/fea
     GetScholarshipQueryHandler,
     UpdateScholarshipCommandHandler,
     DeleteScholarshipCommandHandler,
+    ScholarshipDynamoDBRepository,
     {
       provide: DependencyInjection.SCHOLARSHIP_REPOSITORY,
       useClass: ScholarshipRepositoryImpl,
     },
-    ScholarshipDynamoDBRepository,
     {
       provide: DependencyInjection.SCHOLARSHIP_CONTEXT,
       useClass: ScholarshipContextImpl,
+    },
+    {
+      provide: DependencyInjection.SCHOLARSHIP_REDIS_CACHE_MEMORY,
+      useClass: ScholarshipRedisCacheMemory,
+    },
+    {
+      provide: DependencyInjection.SCHOLARSHIP_CACHE_MEMORY,
+      useClass: ScholarshipCacheMemoryImpl,
     },
   ],
   exports: [],
