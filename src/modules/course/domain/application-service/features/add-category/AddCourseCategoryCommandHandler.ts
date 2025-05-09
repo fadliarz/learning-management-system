@@ -40,5 +40,9 @@ export default class AddCourseCategoryCommandHandler {
         value: course,
       });
     }
+    await this.courseCacheMemory.deleteAndRemoveIndex(
+      addCourseCategoryCommand.courseId,
+    );
+    return;
   }
 }
