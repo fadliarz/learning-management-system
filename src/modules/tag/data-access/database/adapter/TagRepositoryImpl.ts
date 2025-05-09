@@ -17,6 +17,17 @@ export default class TagRepositoryImpl implements TagRepository {
     });
   }
 
+  public async findById(param: { tagId: number }): Promise<Tag | null> {
+    const tagEntity: TagEntity | null =
+      await this.tagDynamoDBRepository.findById(param);
+    return tagEntity
+      ? strictPlainToClass(
+          Tag,
+          await this.tagDynamoDBRepository.findByIdOrThrow(param),
+        )
+      : null;
+  }
+
   public async findByIdOrThrow(param: { tagId: number }): Promise<Tag> {
     return strictPlainToClass(
       Tag,

@@ -4,6 +4,8 @@ import Tag from '../../../../domain-core/entity/Tag';
 export interface TagRepository {
   saveIfNotExistsOrThrow(param: { tag: Tag }): Promise<void>;
 
+  findById(param: { tagId: number }): Promise<Tag | null>;
+
   findByIdOrThrow(param: { tagId: number }): Promise<Tag>;
 
   findMany(param: { pagination: Pagination }): Promise<Tag[]>;

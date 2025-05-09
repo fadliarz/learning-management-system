@@ -117,6 +117,17 @@ export default class TagDynamoDBRepository {
     return tagEntities;
   }
 
+  public async findById(param: { tagId: number }): Promise<TagEntity | null> {
+    const { tagId } = param;
+    const response = await this.dynamoDBDocumentClient.send(
+      new GetCommand({
+        TableName: this.dynamoDBConfig.TAG_TABLE,
+        Key: new TagKey({ tagId }),
+      }),
+    );
+    return response.Item ? strictPlainToClass(TagEntity, response.Item) : null;
+  }
+
   public async findByIdOrThrow(param: { tagId: number }): Promise<TagEntity> {
     const { tagId } = param;
     const response = await this.dynamoDBDocumentClient.send(
