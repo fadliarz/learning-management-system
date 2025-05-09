@@ -20,7 +20,6 @@ export enum DependencyInjection {
   DYNAMODB_DOCUMENT_CLIENT = 'DynamoDBDocumentClient',
   REDIS_CLIENT = 'RedisClient',
 
-  SCHOLARSHIP_CONTEXT = 'ScholarshipContext',
   TAG_CONTEXT = 'TagContext',
 
   COURSE_CACHE_MEMORY = 'CourseCacheMemory',
