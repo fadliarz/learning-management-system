@@ -3,7 +3,8 @@ import { DependencyInjection } from '../../../../../../common/common-domain/Depe
 import RemoveScholarshipTagCommand from './dto/RemoveScholarshipTagCommand';
 import AuthorizationService from '../../../../../../common/common-domain/features/AuthorizationService';
 import { ScholarshipRepository } from '../../ports/output/repository/ScholarshipRepository';
-import ScholarshipContext from '../../ports/output/context/ScholarshipContext';
+import ScholarshipCacheMemoryImpl from '../../../../data-access/cache/adapter/ScholarshipCacheMemoryImpl';
+import Scholarship from '../../../domain-core/entity/Scholarship';
 
 @Injectable()
 export default class RemoveScholarshipTagCommandHandler {
@@ -11,8 +12,8 @@ export default class RemoveScholarshipTagCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.SCHOLARSHIP_REPOSITORY)
     private readonly scholarshipRepository: ScholarshipRepository,
-    @Inject(DependencyInjection.SCHOLARSHIP_CONTEXT)
-    private readonly scholarshipContext: ScholarshipContext,
+    @Inject(DependencyInjection.SCHOLARSHIP_CACHE_MEMORY)
+    private readonly scholarshipCacheMemory: ScholarshipCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -24,8 +25,15 @@ export default class RemoveScholarshipTagCommandHandler {
     await this.scholarshipRepository.removeTagIfExistsOrIgnore(
       removeScholarshipTagCommand,
     );
-    await this.scholarshipContext.refresh({
-      scholarshipId: removeScholarshipTagCommand.scholarshipId,
-    });
+    const scholarship: Scholarship | null =
+      await this.scholarshipRepository.findById({
+        scholarshipId: removeScholarshipTagCommand.scholarshipId,
+      });
+    if (scholarship) {
+      await this.scholarshipCacheMemory.setAndSaveIndex({
+        key: { scholarshipId: removeScholarshipTagCommand.scholarshipId },
+        value: scholarship,
+      });
+    }
   }
 }
