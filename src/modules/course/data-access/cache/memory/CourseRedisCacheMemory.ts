@@ -3,7 +3,4 @@ import RedisCacheMemory from '../../../../../common/common-data-access/cache/red
 import Course from '../../../domain/domain-core/entity/Course';
 
 @Injectable()
-export default class CourseRedisCacheMemory extends RedisCacheMemory<
-  string,
-  Course
-> {}
+export default class CourseRedisCacheMemory extends RedisCacheMemory<Course> {}

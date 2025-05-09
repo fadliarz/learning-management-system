@@ -3,16 +3,13 @@ import { Inject } from '@nestjs/common';
 import { DependencyInjection } from '../../../common-domain/DependencyInjection';
 import { CacheOptions } from '../CacheOptions';
 
-export default class RedisCacheMemory<
-  Key extends string | number,
-  Value extends string | number | object,
-> {
+export default class RedisCacheMemory<Value extends string | number | object> {
   public constructor(
     @Inject(DependencyInjection.REDIS_CLIENT)
     private readonly redis: Redis,
   ) {}
 
-  public async get(key: Key): Promise<Value | null> {
+  public async get(key: string): Promise<Value | null> {
     const value = await this.redis.get(String(key));
     return value ? this.parseValue(value) : null;
   }
@@ -22,7 +19,7 @@ export default class RedisCacheMemory<
   }
 
   public async set(
-    key: Key,
+    key: string,
     value: Value,
     options?: CacheOptions,
   ): Promise<void> {
@@ -34,7 +31,7 @@ export default class RedisCacheMemory<
   }
 
   public async setAndSaveIndex(param: {
-    key: Key;
+    key: string;
     value: Value;
     index: string;
     options?: { ttl?: number };
@@ -51,16 +48,16 @@ export default class RedisCacheMemory<
       .exec();
   }
 
-  public async delete(key: Key): Promise<void> {
+  public async delete(key: string): Promise<void> {
     await this.redis.del(String(key));
   }
 
-  public async deleteAndRemoveIndex(key: Key, index: string): Promise<void> {
+  public async deleteAndRemoveIndex(key: string, index: string): Promise<void> {
     await this.redis.multi().del(String(key)).srem(index, String(key)).exec();
   }
 
   public async setExpiresIfNotSet(
-    key: Key,
+    key: string,
     expiresInSec: number,
   ): Promise<void> {
     const keyExpiresIn: number = await this.redis.ttl(String(key));
