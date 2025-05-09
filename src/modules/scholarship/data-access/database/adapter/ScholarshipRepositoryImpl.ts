@@ -50,6 +50,16 @@ export default class ScholarshipRepositoryImpl
     );
   }
 
+  public async findById(param: {
+    scholarshipId: number;
+  }): Promise<Scholarship | null> {
+    const scholarshipEntity: ScholarshipEntity | null =
+      await this.scholarshipDynamoDBRepository.findById(param);
+    return scholarshipEntity
+      ? strictPlainToClass(Scholarship, scholarshipEntity)
+      : null;
+  }
+
   public async findByIdOrThrow(param: {
     scholarshipId: number;
   }): Promise<Scholarship> {

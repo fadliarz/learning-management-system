@@ -182,6 +182,21 @@ export default class ScholarshipDynamoDBRepository {
     return scholarshipEntities;
   }
 
+  public async findById(param: {
+    scholarshipId: number;
+  }): Promise<ScholarshipEntity | null> {
+    const { scholarshipId } = param;
+    const response = await this.dynamoDBDocumentClient.send(
+      new GetCommand({
+        TableName: this.dynamoDBConfig.SCHOLARSHIP_TABLE,
+        Key: new ScholarshipKey({ scholarshipId }),
+      }),
+    );
+    return response.Item
+      ? strictPlainToClass(ScholarshipEntity, response.Item)
+      : null;
+  }
+
   public async findByIdOrThrow(param: {
     scholarshipId: number;
   }): Promise<ScholarshipEntity> {

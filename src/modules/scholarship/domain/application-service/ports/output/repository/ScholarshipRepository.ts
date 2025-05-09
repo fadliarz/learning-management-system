@@ -16,6 +16,8 @@ export interface ScholarshipRepository {
 
   findMany(param: { pagination: Pagination }): Promise<Scholarship[]>;
 
+  findById(param: { scholarshipId: number }): Promise<Scholarship | null>;
+
   findByIdOrThrow(param: { scholarshipId: number }): Promise<Scholarship>;
 
   saveIfExistsOrThrow(param: { scholarship: Scholarship }): Promise<void>;
