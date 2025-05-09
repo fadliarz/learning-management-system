@@ -262,18 +262,15 @@ export default class VideoDynamoDBRepository {
                       lessonId,
                     }),
                     ConditionExpression:
-                      'attribute_exists(courseId) AND attribute_exists(lessonId) AND #version = :value0',
-                    UpdateExpression:
-                      'SET #numberOfDurations = :value1, #version = :value2',
+                      'attribute_exists(courseId) AND attribute_exists(lessonId) AND #numberOfDurations = :value0',
+                    UpdateExpression: 'SET #numberOfDurations = :value1',
                     ExpressionAttributeNames: {
-                      '#version': 'version',
                       '#numberOfDurations': 'numberOfDurations',
                     },
                     ExpressionAttributeValues: {
-                      ':value0': lessonEntity.version,
+                      ':value0': lessonEntity.numberOfDurations,
                       ':value1':
                         lessonEntity.numberOfDurations + durationIncrement,
-                      ':value2': lessonEntity.version + 1,
                     },
                   },
                 },
@@ -284,18 +281,15 @@ export default class VideoDynamoDBRepository {
                       courseId: videoEntity.courseId,
                     }),
                     ConditionExpression:
-                      'attribute_exists(id) AND attribute_exists(courseId) AND #version = :value0',
-                    UpdateExpression:
-                      'SET #numberOfDurations = :value1, #version = :value2',
+                      'attribute_exists(id) AND attribute_exists(courseId) AND #numberOfDurations = :value0',
+                    UpdateExpression: 'SET #numberOfDurations = :value1',
                     ExpressionAttributeNames: {
-                      '#version': 'version',
                       '#numberOfDurations': 'numberOfDurations',
                     },
                     ExpressionAttributeValues: {
-                      ':value0': courseEntity.version,
+                      ':value0': courseEntity.numberOfDurations,
                       ':value1':
                         courseEntity.numberOfDurations + durationIncrement,
-                      ':value2': courseEntity.version + 1,
                     },
                   },
                 },
