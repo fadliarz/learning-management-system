@@ -1,10 +1,10 @@
 import { CacheOptions } from './CacheOptions';
 
 export default interface CacheMemory<
-  Key extends string | number,
+  Key extends string | number | object,
   Value extends string | number | object,
 > {
-  get<T>(key: Key): Promise<Value | null>;
+  get(key: Key): Promise<Value | null>;
 
   getKeysByIndex(index?: {}): Promise<Key[]>;
 
