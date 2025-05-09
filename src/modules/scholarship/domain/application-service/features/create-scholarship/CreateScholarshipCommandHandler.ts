@@ -6,7 +6,7 @@ import { ScholarshipRepository } from '../../ports/output/repository/Scholarship
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import ScholarshipResponse from '../common/ScholarshipResponse';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import ScholarshipContext from '../../ports/output/context/ScholarshipContext';
+import ScholarshipCacheMemoryImpl from '../../../../data-access/cache/adapter/ScholarshipCacheMemoryImpl';
 
 @Injectable()
 export default class CreateScholarshipCommandHandler {
@@ -14,8 +14,8 @@ export default class CreateScholarshipCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.SCHOLARSHIP_REPOSITORY)
     private readonly scholarshipRepository: ScholarshipRepository,
-    @Inject(DependencyInjection.SCHOLARSHIP_CONTEXT)
-    private readonly scholarshipContext: ScholarshipContext,
+    @Inject(DependencyInjection.SCHOLARSHIP_CACHE_MEMORY)
+    private readonly scholarshipCacheMemory: ScholarshipCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -32,7 +32,10 @@ export default class CreateScholarshipCommandHandler {
     await this.scholarshipRepository.saveIfNotExistsOrThrow({
       scholarship,
     });
-    await this.scholarshipContext.forceLoad();
+    await this.scholarshipCacheMemory.setAndSaveIndex({
+      key: { scholarshipId: scholarship.scholarshipId },
+      value: scholarship,
+    });
     return strictPlainToClass(ScholarshipResponse, scholarship);
   }
 }
