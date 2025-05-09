@@ -352,17 +352,18 @@ export default class LessonDynamoDBRepository {
                   TableName: this.dynamoDBConfig.COURSE_TABLE,
                   Key: new CourseKey({ courseId }),
                   ConditionExpression:
-                    'attribute_exists(id) AND attribute_exists(courseId) AND #lessonArrangementVersion = :value0',
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #lessonArrangementVersion = :value0 AND #numberOfLessons = :value1',
                   UpdateExpression:
-                    'SET #lessonArrangementVersion = :value1, #numberOfLessons = :value2',
+                    'SET #lessonArrangementVersion = :value2, #numberOfLessons = :value3',
                   ExpressionAttributeNames: {
                     '#lessonArrangementVersion': 'lessonArrangementVersion',
                     '#numberOfLessons': 'numberOfLessons',
                   },
                   ExpressionAttributeValues: {
                     ':value0': courseEntity.lessonArrangementVersion,
-                    ':value1': courseEntity.lessonArrangementVersion + 1,
-                    ':value2': courseEntity.numberOfLessons - 1,
+                    ':value1': courseEntity.numberOfLessons,
+                    ':value2': courseEntity.lessonArrangementVersion + 1,
+                    ':value3': courseEntity.numberOfLessons - 1,
                   },
                 },
               },
