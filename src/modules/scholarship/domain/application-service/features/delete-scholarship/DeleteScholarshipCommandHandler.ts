@@ -3,7 +3,7 @@ import { ScholarshipRepository } from '../../ports/output/repository/Scholarship
 import DeleteScholarshipCommand from './dto/DeleteScholarshipCommand';
 import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import ScholarshipContext from '../../ports/output/context/ScholarshipContext';
+import ScholarshipCacheMemoryImpl from '../../../../data-access/cache/adapter/ScholarshipCacheMemoryImpl';
 
 @Injectable()
 export default class DeleteScholarshipCommandHandler {
@@ -11,8 +11,8 @@ export default class DeleteScholarshipCommandHandler {
     private readonly authorizationService: AuthorizationService,
     @Inject(DependencyInjection.SCHOLARSHIP_REPOSITORY)
     private readonly scholarshipRepository: ScholarshipRepository,
-    @Inject(DependencyInjection.SCHOLARSHIP_CONTEXT)
-    private readonly scholarshipContext: ScholarshipContext,
+    @Inject(DependencyInjection.SCHOLARSHIP_CACHE_MEMORY)
+    private readonly scholarshipCacheMemory: ScholarshipCacheMemoryImpl,
   ) {}
 
   public async execute(
@@ -24,6 +24,9 @@ export default class DeleteScholarshipCommandHandler {
     await this.scholarshipRepository.deleteIfExistsOrThrow({
       ...deleteScholarshipCommand,
     });
-    await this.scholarshipContext.forceLoad();
+    await this.scholarshipCacheMemory.deleteAndRemoveIndex(
+      { scholarshipId: deleteScholarshipCommand.scholarshipId },
+      {},
+    );
   }
 }
