@@ -502,20 +502,20 @@ export default class VideoDynamoDBRepository {
                     lessonId,
                   }),
                   ConditionExpression:
-                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #version = :value0',
+                    'attribute_exists(courseId) AND attribute_exists(lessonId) AND #numberOfDurations = :value0 AND #numberOfVideos = :value1',
                   UpdateExpression:
-                    'SET #numberOfVideos = :value1, #numberOfDurations = :value2',
+                    'SET #numberOfDurations = :value2, #numberOfVideos = :value3',
                   ExpressionAttributeNames: {
-                    '#version': 'version',
-                    '#numberOfVideos': 'numberOfVideos',
                     '#numberOfDurations': 'numberOfDurations',
+                    '#numberOfVideos': 'numberOfVideos',
                   },
                   ExpressionAttributeValues: {
-                    ':value0': lessonEntity.version,
-                    ':value1': lessonEntity.numberOfVideos - 1,
+                    ':value0': lessonEntity.numberOfDurations,
+                    ':value1': lessonEntity.numberOfVideos,
                     ':value2':
                       lessonEntity.numberOfDurations -
                       videoEntity.durationInSec,
+                    ':value3': lessonEntity.numberOfVideos - 1,
                   },
                 },
               },
@@ -524,20 +524,20 @@ export default class VideoDynamoDBRepository {
                   TableName: this.dynamoDBConfig.COURSE_TABLE,
                   Key: new CourseKey({ courseId: videoEntity.courseId }),
                   ConditionExpression:
-                    'attribute_exists(id) AND attribute_exists(courseId) AND #version = :value0',
+                    'attribute_exists(id) AND attribute_exists(courseId) AND #numberOfDurations = :value0 AND #numberOfVideos = :value1',
                   UpdateExpression:
-                    'SET #numberOfVideos = :value1, #numberOfDurations = :value2',
+                    'SET #numberOfDurations = :value2, #numberOfVideos = :value3',
                   ExpressionAttributeNames: {
-                    '#version': 'version',
                     '#numberOfVideos': 'numberOfVideos',
                     '#numberOfDurations': 'numberOfDurations',
                   },
                   ExpressionAttributeValues: {
-                    ':value0': courseEntity.version,
-                    ':value1': courseEntity.numberOfVideos - 1,
+                    ':value0': courseEntity.numberOfDurations,
+                    ':value1': courseEntity.numberOfVideos,
                     ':value2':
                       courseEntity.numberOfDurations -
                       videoEntity.durationInSec,
+                    ':value3': courseEntity.numberOfVideos - 1,
                   },
                 },
               },
