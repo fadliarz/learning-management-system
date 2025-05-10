@@ -33,6 +33,10 @@ export default class GetCategoriesQueryHandler {
       }
       category = await this.categoryRepository.findById({ categoryId });
       if (category) {
+        await this.categoryCacheMemory.setAndSaveIndex({
+          key: category.categoryId,
+          value: category,
+        });
         categories.push(category);
         continue;
       }
