@@ -8,12 +8,14 @@ import ConfigModule from '../ConfigModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import ClassModule from '../class/ClassModule';
 import EnrollmentDynamoDBRepository from './data-access/database/repository/EnrollmentDynamoDBRepository';
+import GetUserEnrollmentsQueryHandler from './domain/application-service/features/get-user-enrollments/GetUserEnrollmentsQueryHandler';
 
 @Module({
   imports: [ConfigModule, PrivilegeModule, ClassModule],
   controllers: [EnrollmentController],
   providers: [
     CreateEnrollmentCommandHandler,
+    GetUserEnrollmentsQueryHandler,
     DeleteEnrollmentCommandHandler,
     {
       provide: DependencyInjection.ENROLLMENT_REPOSITORY,

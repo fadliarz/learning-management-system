@@ -9,6 +9,11 @@ export interface EnrollmentRepository {
     pagination: Pagination;
   }): Promise<Enrollment[]>;
 
+  findById(param: {
+    userId: number;
+    classId: number;
+  }): Promise<Enrollment | null>;
+
   deleteIfExistsOrThrow(param: {
     userId: number;
     courseId: number;

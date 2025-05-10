@@ -32,6 +32,17 @@ export default class EnrollmentRepositoryImpl implements EnrollmentRepository {
     );
   }
 
+  public async findById(param: {
+    userId: number;
+    classId: number;
+  }): Promise<Enrollment | null> {
+    const enrollmentEntity: EnrollmentEntity | null =
+      await this.enrollmentDynamoDBRepository.findById(param);
+    return enrollmentEntity
+      ? strictPlainToClass(Enrollment, enrollmentEntity)
+      : null;
+  }
+
   public async deleteIfExistsOrThrow(param: {
     userId: number;
     courseId: number;

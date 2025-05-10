@@ -1,6 +1,7 @@
 import {
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Injectable,
@@ -16,6 +17,8 @@ import { AuthenticationGuard } from '../../../authentication/domain/application-
 import CreateEnrollmentCommandHandler from '../../domain/application-service/features/create-enrollment/CreateEnrollmentCommandHandler';
 import DeleteEnrollmentCommandHandler from '../../domain/application-service/features/delete-enrollment/DeleteEnrollmentCommandHandler';
 import EnrollmentWrapperResponse from './response/EnrollmentWrapperResponse';
+import GetUserEnrollmentsQueryHandler from '../../domain/application-service/features/get-user-enrollments/GetUserEnrollmentsQueryHandler';
+import EnrollmenstWrapperResponse from './response/EnrollmentsWrapperResponse';
 
 @Injectable()
 @Controller('api/v1')
@@ -23,6 +26,7 @@ import EnrollmentWrapperResponse from './response/EnrollmentWrapperResponse';
 export default class EnrollmentController {
   constructor(
     private readonly createEnrollmentCommandHandler: CreateEnrollmentCommandHandler,
+    private readonly getUserEnrollmentsQueryHandler: GetUserEnrollmentsQueryHandler,
     private readonly deleteEnrollmentCommandHandler: DeleteEnrollmentCommandHandler,
   ) {}
 
@@ -45,6 +49,27 @@ export default class EnrollmentController {
         executor: request.executor,
         courseId,
         classId,
+      }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('courses/:courseId/enrollments')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get user enrollments' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Enrollments retrieved successfully',
+    type: EnrollmenstWrapperResponse,
+  })
+  public async getAttachments(
+    @Req() request: FastifyRequest,
+    @Param('courseId', ParseIntPipe) courseId: number,
+  ): Promise<EnrollmenstWrapperResponse> {
+    return new EnrollmenstWrapperResponse(
+      await this.getUserEnrollmentsQueryHandler.execute({
+        executor: request.executor,
+        courseId,
       }),
     );
   }

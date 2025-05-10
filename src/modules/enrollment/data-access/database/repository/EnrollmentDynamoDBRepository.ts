@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 import {
   DynamoDBDocumentClient,
+  GetCommand,
   QueryCommand,
   TransactWriteCommand,
 } from '@aws-sdk/lib-dynamodb';
@@ -119,6 +120,22 @@ export default class EnrollmentDynamoDBRepository {
       }
     } while (lastEvaluatedKey);
     return enrollmentEntities;
+  }
+
+  public async findById(param: {
+    userId: number;
+    classId: number;
+  }): Promise<EnrollmentEntity | null> {
+    const { userId, classId } = param;
+    const response = await this.dynamoDBDocumentClient.send(
+      new GetCommand({
+        TableName: this.dynamoDBConfig.ENROLLMENT_TABLE,
+        Key: new EnrollmentKey({ userId, classId }),
+      }),
+    );
+    return response.Item
+      ? strictPlainToClass(EnrollmentEntity, response.Item)
+      : null;
   }
 
   public async deleteIfExistsOrThrow(param: {
