@@ -9,6 +9,7 @@ import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseC
 import Category from '../../../../../category/domain/domain-core/entity/Category';
 import CategoryResponse from '../../../../../category/domain/application-service/features/common/CategoryResponse';
 import CategoryCacheMemoryImpl from '../../../../../category/data-access/cache/adapter/CategoryCacheMemoryImpl';
+import { CategoryRepository } from '../../../../../category/domain/application-service/ports/output/repository/CategoryRepository';
 
 export default class GetCourseQueryHandler {
   constructor(
@@ -18,6 +19,8 @@ export default class GetCourseQueryHandler {
     private readonly courseRepository: CourseRepository,
     @Inject(DependencyInjection.CATEGORY_CACHE_MEMORY)
     private readonly categoryCacheMemory: CategoryCacheMemoryImpl,
+    @Inject(DependencyInjection.CATEGORY_REPOSITORY)
+    private readonly categoryRepository: CategoryRepository,
   ) {}
 
   public async execute(
@@ -43,15 +46,24 @@ export default class GetCourseQueryHandler {
       course,
     );
     courseResponse.categories = [];
-    if (course.categories) {
-      for (const categoryId of course.categories) {
-        const category: Category | null =
-          await this.categoryCacheMemory.get(categoryId);
+    for (const categoryId of course.categories ?? []) {
+      let category: Category | null =
+        await this.categoryCacheMemory.get(categoryId);
+      if (!category) {
+        category = await this.categoryRepository.findById({
+          categoryId: categoryId,
+        });
         if (category) {
-          courseResponse.categories.push(
-            strictPlainToClass(CategoryResponse, category),
-          );
+          await this.categoryCacheMemory.setAndSaveIndex({
+            key: categoryId,
+            value: category,
+          });
         }
+      }
+      if (category) {
+        courseResponse.categories.push(
+          strictPlainToClass(CategoryResponse, category),
+        );
       }
     }
     return courseResponse;
