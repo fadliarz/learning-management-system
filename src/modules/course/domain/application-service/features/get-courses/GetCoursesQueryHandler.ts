@@ -11,6 +11,7 @@ import CourseHelper from '../../CourseHelper';
 import { CourseRepository } from '../../ports/output/repository/CourseRepository';
 import CourseCacheMemoryImpl from '../../../../data-access/cache/adapter/CourseCacheMemoryImpl';
 import CategoryCacheMemoryImpl from '../../../../../category/data-access/cache/adapter/CategoryCacheMemoryImpl';
+import { CategoryRepository } from '../../../../../category/domain/application-service/ports/output/repository/CategoryRepository';
 
 @Injectable()
 export default class GetCoursesQueryHandler {
@@ -21,6 +22,8 @@ export default class GetCoursesQueryHandler {
     private readonly courseRepository: CourseRepository,
     @Inject(DependencyInjection.CATEGORY_CACHE_MEMORY)
     private readonly categoryCacheMemory: CategoryCacheMemoryImpl,
+    @Inject(DependencyInjection.CATEGORY_REPOSITORY)
+    private readonly categoryRepository: CategoryRepository,
   ) {}
 
   public async execute(
@@ -62,15 +65,24 @@ export default class GetCoursesQueryHandler {
         course,
       );
       courseResponse.categories = [];
-      if (course.categories) {
-        for (const categoryId of course.categories) {
-          const category: Category | null =
-            await this.categoryCacheMemory.get(categoryId);
+      for (const categoryId of course.categories ?? []) {
+        let category: Category | null =
+          await this.categoryCacheMemory.get(categoryId);
+        if (!category) {
+          category = await this.categoryRepository.findById({
+            categoryId: categoryId,
+          });
           if (category) {
-            courseResponse.categories.push(
-              strictPlainToClass(CategoryResponse, category),
-            );
+            await this.categoryCacheMemory.setAndSaveIndex({
+              key: categoryId,
+              value: category,
+            });
           }
+        }
+        if (category) {
+          courseResponse.categories.push(
+            strictPlainToClass(CategoryResponse, category),
+          );
         }
       }
       courseResponses.push(courseResponse);
