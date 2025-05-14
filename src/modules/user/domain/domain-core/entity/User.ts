@@ -37,6 +37,7 @@ export default class User {
   public create(): void {
     const now: Date = TimeFactory.generate();
     this._userId = TimeFactory.dateToRandomMicroseconds(now);
+    this._avatar = `profiles/${this._userId}`;
     this._createdAt = now;
     this._role = UserRole.STUDENT;
     this._numberOfManagedClasses = 0;
