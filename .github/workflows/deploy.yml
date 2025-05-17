@@ -38,6 +38,7 @@ jobs:
           SCHOLARSHIP_TABLE=${{ secrets.SCHOLARSHIP_TABLE }}
           TAG_TABLE=${{ secrets.TAG_TABLE }}
           USER_SCHEDULE_TABLE=${{ secrets.USER_SCHEDULE_TABLE }}
+          NOTIFICATION_TABLE=${{ secrets.NOTIFICATION_TABLE }}
           AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
           COOKIE_SECRET_KEY=${{ secrets.COOKIE_SECRET_KEY }}
