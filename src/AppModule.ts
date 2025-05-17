@@ -17,6 +17,7 @@ import AuthenticationModule from './modules/authentication/AuthenticationModule'
 import InstructorModule from './modules/instructor/InstructorModule';
 import PrivilegeModule from './modules/privilege/PrivilegeModule';
 import TagModule from './modules/tag/TagModule';
+import NotificationModule from './modules/notification/NotificationModule';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import TagModule from './modules/tag/TagModule';
     FormSubmissionModule,
     InstructorModule,
     LessonModule,
+    NotificationModule,
     PrivilegeModule,
     ScholarshipModule,
     TagModule,
