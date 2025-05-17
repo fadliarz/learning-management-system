@@ -51,6 +51,8 @@ jobs:
           REDIS_PORT=${{ secrets.REDIS_PORT }}
           DEFAULT_TTL_IN_SEC=${{ secrets.DEFAULT_TTL_IN_SEC }}
           DEFAULT_INDEX_TTL_IN_SEC=${{ secrets.DEFAULT_INDEX_TTL_IN_SEC }}
+          DEFAULT_PUSH_OBJECT_TTL_IN_SEC=${{ secrets.DEFAULT_PUSH_OBJECT_TTL_IN_SEC }}
+          DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC=${{ secrets.DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC }}
           EOL
 
       - name: Install dependencies
