@@ -4,6 +4,8 @@ import { Expose } from 'class-transformer';
 export default class Notification {
   private _userId: number;
   private _notificationId: number;
+  private _redirect: string;
+  private _isSeen: boolean;
   private _title: string;
   private _description: string;
 
@@ -26,6 +28,16 @@ export default class Notification {
   }
 
   @Expose()
+  set redirect(value: string) {
+    this._redirect = value;
+  }
+
+  @Expose()
+  set isSeen(value: boolean) {
+    this._isSeen = value;
+  }
+
+  @Expose()
   set title(value: string) {
     this._title = value;
   }
@@ -41,6 +53,14 @@ export default class Notification {
 
   get notificationId(): number {
     return this._notificationId;
+  }
+
+  get redirect(): string {
+    return this._redirect;
+  }
+
+  get isSeen(): boolean {
+    return this._isSeen;
   }
 
   get title(): string {
