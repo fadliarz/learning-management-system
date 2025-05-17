@@ -18,6 +18,7 @@ import InstructorModule from './modules/instructor/InstructorModule';
 import PrivilegeModule from './modules/privilege/PrivilegeModule';
 import TagModule from './modules/tag/TagModule';
 import NotificationModule from './modules/notification/NotificationModule';
+import PushObjectModule from './modules/push-object/PushObjectModule';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import NotificationModule from './modules/notification/NotificationModule';
     LessonModule,
     NotificationModule,
     PrivilegeModule,
+    PushObjectModule,
     ScholarshipModule,
     TagModule,
     UserModule,
