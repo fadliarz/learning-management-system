@@ -1,4 +1,3 @@
-import TimeFactory from '../../../../../common/common-domain/helper/TimeFactory';
 import ImmutableFieldException from '../../../../../common/common-domain/exception/ImmutableFieldException';
 import { Expose } from 'class-transformer';
 
@@ -7,11 +6,6 @@ export default class Notification {
   private _notificationId: number;
   private _title: string;
   private _description: string;
-
-  public create(): void {
-    const now: Date = TimeFactory.generate();
-    this._notificationId = TimeFactory.dateToRandomMicroseconds(now);
-  }
 
   @Expose()
   set userId(value: number) {
