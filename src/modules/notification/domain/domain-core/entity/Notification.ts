@@ -3,6 +3,7 @@ import ImmutableFieldException from '../../../../../common/common-domain/excepti
 import { Expose } from 'class-transformer';
 
 export default class Notification {
+  private _userId: number;
   private _notificationId: number;
   private _title: string;
   private _description: string;
@@ -10,6 +11,15 @@ export default class Notification {
   public create(): void {
     const now: Date = TimeFactory.generate();
     this._notificationId = TimeFactory.dateToRandomMicroseconds(now);
+  }
+
+  @Expose()
+  set userId(value: number) {
+    if (this._userId !== undefined) {
+      throw new ImmutableFieldException();
+    }
+
+    this._userId = value;
   }
 
   @Expose()
@@ -29,6 +39,10 @@ export default class Notification {
   @Expose()
   set description(value: string) {
     this._description = value;
+  }
+
+  get userId(): number {
+    return this._userId;
   }
 
   get notificationId(): number {
