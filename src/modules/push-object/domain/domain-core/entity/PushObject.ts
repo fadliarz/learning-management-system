@@ -1,6 +1,5 @@
 import { Expose } from 'class-transformer';
 import ImmutableFieldException from '../../../../../common/common-domain/exception/ImmutableFieldException';
-import postgres from 'postgres';
 
 export default class PushObject {
   private _deviceId: string;
