@@ -16,6 +16,8 @@ export enum DependencyInjection {
   USER_SCHEDULE_REPOSITORY = 'UserScheduleRepository',
   ATTACHMENT_REPOSITORY = 'AttachmentRepository',
   CATEGORY_REPOSITORY = 'CategoryRepository',
+  NOTIFICATION_REPOSITORY = 'NotificationRepository',
+
   AUTHENTICATION_SERVICE = 'AuthenticationService',
   DYNAMODB_DOCUMENT_CLIENT = 'DynamoDBDocumentClient',
   REDIS_CLIENT = 'RedisClient',

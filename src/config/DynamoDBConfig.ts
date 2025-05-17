@@ -20,6 +20,7 @@ export default class DynamoDBConfig {
   private readonly _TAG_TABLE: string;
   private readonly _USER_SCHEDULE_TABLE: string;
   private readonly _VIDEO_TABLE: string;
+  private readonly _NOTIFICATION_TABLE: string;
 
   constructor(private readonly _configService: ConfigService) {
     this._USER_TABLE = this._configService.getOrThrow<string>('USER_TABLE');
@@ -56,6 +57,8 @@ export default class DynamoDBConfig {
       'USER_SCHEDULE_TABLE',
     );
     this._VIDEO_TABLE = this._configService.getOrThrow<string>('VIDEO_TABLE');
+    this._NOTIFICATION_TABLE =
+      this._configService.getOrThrow<string>('NOTIFICATION_TABLE');
   }
 
   get USER_TABLE() {
@@ -124,6 +127,10 @@ export default class DynamoDBConfig {
 
   get VIDEO_TABLE(): string {
     return this._VIDEO_TABLE;
+  }
+
+  get NOTIFICATION_TABLE(): string {
+    return this._NOTIFICATION_TABLE;
   }
 
   get configService(): ConfigService {
