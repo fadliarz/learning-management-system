@@ -5,6 +5,8 @@ import { ConfigService } from '@nestjs/config';
 export default class CacheConfig {
   private readonly _DEFAULT_TTL_IN_SEC: number;
   private readonly _DEFAULT_INDEX_TTL_IN_SEC: number;
+  private readonly _DEFAULT_PUSH_OBJECT_TTL_IN_SEC: number;
+  private readonly _DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC: number;
 
   constructor(private readonly _configService: ConfigService) {
     this._DEFAULT_TTL_IN_SEC =
@@ -12,6 +14,12 @@ export default class CacheConfig {
     this._DEFAULT_INDEX_TTL_IN_SEC = this._configService.getOrThrow<number>(
       'DEFAULT_INDEX_TTL_IN_SEC',
     );
+    this._DEFAULT_PUSH_OBJECT_TTL_IN_SEC =
+      this._configService.getOrThrow<number>('DEFAULT_PUSH_OBJECT_TTL_IN_SEC');
+    this._DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC =
+      this._configService.getOrThrow<number>(
+        'DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC',
+      );
   }
 
   get DEFAULT_TTL_IN_SEC(): number {
@@ -20,5 +28,13 @@ export default class CacheConfig {
 
   get DEFAULT_INDEX_TTL_IN_SEC(): number {
     return this._DEFAULT_INDEX_TTL_IN_SEC;
+  }
+
+  get DEFAULT_PUSH_OBJECT_TTL_IN_SEC(): number {
+    return this._DEFAULT_PUSH_OBJECT_TTL_IN_SEC;
+  }
+
+  get DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC(): number {
+    return this._DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC;
   }
 }
