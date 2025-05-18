@@ -42,6 +42,7 @@ export default class NotificationDynamoDBRepository {
             },
             ExclusiveStartKey: lastEvaluatedKey,
             Limit: limit,
+            ScanIndexForward: false,
           }),
         );
       if (Items) {
