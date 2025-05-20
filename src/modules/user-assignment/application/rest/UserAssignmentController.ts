@@ -27,7 +27,7 @@ import CreateUserAssignmentDto from '../../domain/application-service/features/c
 import UpdateUserAssignmentDto from '../../domain/application-service/features/update-assignment/dto/UpdateUserAssignmentDto';
 import UserAssignmentWrapperResponse from './response/UserAssignmentWrapperResponse';
 import UserAssignmentsWrapperResponse from './response/UserAssignmentsWrapperResponse';
-import GetTodayUserAssignmentsQueryHandler from '../../domain/application-service/features/get-today-assignments/GetTodayUserAssignmentsQueryHandler';
+import GetUpcomingUserAssignmentsQueryHandler from '../../domain/application-service/features/get-upcoming-assignments/GetUpcomingUserAssignmentsQueryHandler';
 
 @Injectable()
 @Controller('api/v1')
@@ -36,7 +36,7 @@ export default class UserAssignmentController {
   constructor(
     private readonly createUserAssignmentCommandHandler: CreateUserAssignmentCommandHandler,
     private readonly getUserAssignmentsQueryHandler: GetUserAssignmentsQueryHandler,
-    private readonly getTodayUserAssignmentsQueryHandler: GetTodayUserAssignmentsQueryHandler,
+    private readonly getUpcomingUserAssignmentsQueryHandler: GetUpcomingUserAssignmentsQueryHandler,
     private readonly getUserAssignmentQueryHandler: GetUserAssignmentQueryHandler,
     private readonly updateUserAssignmentCommandHandler: UpdateUserAssignmentCommandHandler,
     private readonly deleteUserAssignmentCommandHandler: DeleteUserAssignmentCommandHandler,
@@ -85,20 +85,20 @@ export default class UserAssignmentController {
   }
 
   @UseGuards(AuthenticationGuard)
-  @Get('user-assignments/today')
+  @Get('user-assignments/upcoming')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Get all today user assignments' })
+  @ApiOperation({ summary: 'Get all upcoming user assignments' })
   @ApiResponse({
     status: HttpStatus.OK,
     description: 'User assignments retrieved successfully',
     type: UserAssignmentsWrapperResponse,
   })
-  public async getTodayUserAssignments(
+  public async getUpcomingUserAssignments(
     @Query() query: PaginationDto,
     @Req() request: FastifyRequest,
   ): Promise<UserAssignmentsWrapperResponse> {
     return new UserAssignmentsWrapperResponse(
-      await this.getTodayUserAssignmentsQueryHandler.execute({
+      await this.getUpcomingUserAssignmentsQueryHandler.execute({
         executor: request.executor,
         ...query,
       }),

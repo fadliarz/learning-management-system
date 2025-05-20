@@ -13,7 +13,7 @@ import PrivilegeModule from '../privilege/PrivilegeModule';
 import UserAssignmentDynamoDBRepository from './data-access/database/repository/UserAssignmentDynamoDBRepository';
 import ClassAssignmentModule from '../class-assignment/ClassAssignmentModule';
 import CourseModule from '../course/CourseModule';
-import GetTodayUserAssignmentsQueryHandler from './domain/application-service/features/get-today-assignments/GetTodayUserAssignmentsQueryHandler';
+import GetUpcomingUserAssignmentsQueryHandler from './domain/application-service/features/get-upcoming-assignments/GetUpcomingUserAssignmentsQueryHandler';
 
 @Module({
   imports: [
@@ -27,7 +27,7 @@ import GetTodayUserAssignmentsQueryHandler from './domain/application-service/fe
   providers: [
     CreateUserAssignmentCommandHandler,
     GetUserAssignmentsQueryHandler,
-    GetTodayUserAssignmentsQueryHandler,
+    GetUpcomingUserAssignmentsQueryHandler,
     GetUserAssignmentQueryHandler,
     UpdateUserAssignmentCommandHandler,
     DeleteUserAssignmentCommandHandler,

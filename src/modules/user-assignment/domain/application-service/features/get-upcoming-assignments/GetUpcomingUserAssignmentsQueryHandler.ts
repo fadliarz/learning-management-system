@@ -1,6 +1,6 @@
 import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import { Inject, Injectable } from '@nestjs/common';
-import GetTodayUserAssignmentsQuery from './dto/GetTodayUserAssignmentsQuery';
+import GetUpcomingUserAssignmentsQuery from './dto/GetUpcomingUserAssignmentsQuery';
 import UserAssignmentResponse from '../common/UserAssignmentResponse';
 import { UserAssignmentRepository } from '../../ports/output/repository/UserAssignmentRepository';
 import UserAssignment from '../../../domain-core/entity/UserAssignment';
@@ -15,7 +15,7 @@ import ClassAssignmentNotFoundException from '../../../../../class-assignment/do
 import TimeFactory from '../../../../../../common/common-domain/helper/TimeFactory';
 
 @Injectable()
-export default class GetTodayUserAssignmentsQueryHandler {
+export default class GetUpcomingUserAssignmentsQueryHandler {
   constructor(
     @Inject(DependencyInjection.USER_ASSIGNMENT_REPOSITORY)
     private readonly userAssignmentRepository: UserAssignmentRepository,
@@ -26,10 +26,9 @@ export default class GetTodayUserAssignmentsQueryHandler {
   ) {}
 
   public async execute(
-    getTodayUserAssignmentsQuery: GetTodayUserAssignmentsQuery,
+    getTodayUserAssignmentsQuery: GetUpcomingUserAssignmentsQuery,
   ): Promise<UserAssignmentResponse[]> {
-    const startAndEndOfTodayMillis =
-      TimeFactory.getGMT7StartAndEndOfTodayInMillis();
+    const startAndEndOfTodayMillis = TimeFactory.getGMT7UpcomingMillis();
     const userAssignments: UserAssignment[] =
       await this.userAssignmentRepository.findMany({
         userId: getTodayUserAssignmentsQuery.executor.userId,
