@@ -10,5 +10,11 @@ export interface UserScheduleRepository {
   findMany(param: {
     userId: number;
     pagination: Pagination;
+    rangeQuery?: {
+      id?: {
+        upper?: number;
+        lower?: number;
+      };
+    };
   }): Promise<UserSchedule[]>;
 }

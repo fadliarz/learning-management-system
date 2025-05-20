@@ -23,8 +23,49 @@ export default class UserScheduleDynamoDBRepository {
   public async findMany(param: {
     userId: number;
     pagination: Pagination;
+    rangeQuery?: {
+      id?: {
+        upper?: number;
+        lower?: number;
+      };
+    };
   }): Promise<UserScheduleEntity[]> {
     const { userId, pagination } = param;
+    let rangeQuery: string = '';
+    let expressionAttributeValuesExtension = {};
+    const upper: number | undefined = param.rangeQuery?.id?.upper;
+    const lower: number | undefined = param.rangeQuery?.id?.lower;
+    const lastEvaluatedId: number | undefined =
+      param.pagination.lastEvaluatedId;
+    if (upper && lower) {
+      rangeQuery = 'AND scheduleId BETWEEN :lower AND :upper';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':upper': upper,
+        ':lower': lower,
+      };
+    }
+    if (upper && !lower) {
+      rangeQuery = 'AND scheduleId < :upper';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':upper': upper,
+      };
+    }
+    if (!upper && lower) {
+      rangeQuery = 'AND scheduleId > :lower';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':lower': lower,
+      };
+    }
+    if (!upper && !lower && lastEvaluatedId) {
+      rangeQuery = 'AND scheduleId < :value1';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':value1': lastEvaluatedId,
+      };
+    }
     const userScheduleEntities: UserScheduleEntity[] = [];
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;
     let limit: number | undefined = pagination.limit;
@@ -34,17 +75,13 @@ export default class UserScheduleDynamoDBRepository {
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
             TableName: this.dynamoDBConfig.USER_SCHEDULE_TABLE,
-            KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#userId = :value0 AND scheduleId < :value1'
-              : '#userId = :value0',
+            KeyConditionExpression: `#userId = :value0 ${rangeQuery}`,
             ExpressionAttributeNames: {
               '#userId': 'userId',
             },
             ExpressionAttributeValues: {
               ':value0': userId,
-              ...(pagination.lastEvaluatedId
-                ? { ':value1': pagination.lastEvaluatedId }
-                : {}),
+              ...expressionAttributeValuesExtension,
             },
             ExclusiveStartKey: lastEvaluatedKey,
             Limit: limit,

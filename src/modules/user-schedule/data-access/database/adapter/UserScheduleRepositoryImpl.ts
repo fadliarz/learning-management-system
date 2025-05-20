@@ -27,6 +27,12 @@ export default class UserScheduleRepositoryImpl
   public async findMany(param: {
     userId: number;
     pagination: Pagination;
+    rangeQuery?: {
+      id?: {
+        upper?: number;
+        lower?: number;
+      };
+    };
   }): Promise<UserSchedule[]> {
     const userScheduleEntities: UserScheduleEntity[] =
       await this.userScheduleDynamoDBRepository.findMany(param);
