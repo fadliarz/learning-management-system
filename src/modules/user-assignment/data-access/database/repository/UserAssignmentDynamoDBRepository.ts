@@ -62,7 +62,6 @@ export default class UserAssignmentDynamoDBRepository {
   }): Promise<UserAssignmentEntity[]> {
     const { userId, pagination } = param;
     const userAssignmentEntities: UserAssignmentEntity[] = [];
-
     let rangeQuery: string = '';
     let expressionAttributeValuesExtension = {};
     const upper: number | undefined = param.rangeQuery?.id?.upper;
@@ -98,9 +97,6 @@ export default class UserAssignmentDynamoDBRepository {
         ':value1': lastEvaluatedId,
       };
     }
-
-    console.log(expressionAttributeValuesExtension);
-
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;
     let limit: number | undefined = pagination.limit;
     do {
