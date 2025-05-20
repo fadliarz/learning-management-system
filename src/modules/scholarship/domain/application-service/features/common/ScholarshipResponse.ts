@@ -11,6 +11,10 @@ export default class ScholarshipResponse {
   @Expose()
   public title: string;
 
+  @ApiProperty()
+  @Expose()
+  public image: string;
+
   @ApiProperty({ required: false })
   @Expose()
   public description: string;
