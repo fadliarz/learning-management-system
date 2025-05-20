@@ -27,6 +27,7 @@ import CreateUserAssignmentDto from '../../domain/application-service/features/c
 import UpdateUserAssignmentDto from '../../domain/application-service/features/update-assignment/dto/UpdateUserAssignmentDto';
 import UserAssignmentWrapperResponse from './response/UserAssignmentWrapperResponse';
 import UserAssignmentsWrapperResponse from './response/UserAssignmentsWrapperResponse';
+import GetTodayUserAssignmentsQueryHandler from '../../domain/application-service/features/get-today-assignments/GetTodayUserAssignmentsQueryHandler';
 
 @Injectable()
 @Controller('api/v1')
@@ -35,6 +36,7 @@ export default class UserAssignmentController {
   constructor(
     private readonly createUserAssignmentCommandHandler: CreateUserAssignmentCommandHandler,
     private readonly getUserAssignmentsQueryHandler: GetUserAssignmentsQueryHandler,
+    private readonly getTodayUserAssignmentsQueryHandler: GetTodayUserAssignmentsQueryHandler,
     private readonly getUserAssignmentQueryHandler: GetUserAssignmentQueryHandler,
     private readonly updateUserAssignmentCommandHandler: UpdateUserAssignmentCommandHandler,
     private readonly deleteUserAssignmentCommandHandler: DeleteUserAssignmentCommandHandler,
@@ -76,6 +78,27 @@ export default class UserAssignmentController {
   ): Promise<UserAssignmentsWrapperResponse> {
     return new UserAssignmentsWrapperResponse(
       await this.getUserAssignmentsQueryHandler.execute({
+        executor: request.executor,
+        ...query,
+      }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('user-assignments/today')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all today user assignments' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User assignments retrieved successfully',
+    type: UserAssignmentsWrapperResponse,
+  })
+  public async getTodayUserAssignments(
+    @Query() query: PaginationDto,
+    @Req() request: FastifyRequest,
+  ): Promise<UserAssignmentsWrapperResponse> {
+    return new UserAssignmentsWrapperResponse(
+      await this.getTodayUserAssignmentsQueryHandler.execute({
         executor: request.executor,
         ...query,
       }),
