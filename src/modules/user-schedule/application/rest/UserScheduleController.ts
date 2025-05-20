@@ -18,6 +18,7 @@ import GetUserSchedulesQueryHandler from '../../domain/application-service/featu
 import GetUserScheduleQueryHandler from '../../domain/application-service/features/get-schedule/GetUserScheduleQueryHandler';
 import { FastifyRequest } from 'fastify';
 import { AuthenticationGuard } from '../../../authentication/domain/application-service/AuthenticationGuard';
+import GetUpcomingUserSchedulesQueryHandler from '../../domain/application-service/features/get-upcoming-schedules/GetUpcomingUserSchedulesQueryHandler';
 
 @Injectable()
 @Controller('api/v1/user-schedules')
@@ -25,6 +26,7 @@ import { AuthenticationGuard } from '../../../authentication/domain/application-
 export default class UserScheduleController {
   constructor(
     private readonly getUserSchedulesQueryHandler: GetUserSchedulesQueryHandler,
+    private readonly getUpcomingUserSchedulesQueryHandler: GetUpcomingUserSchedulesQueryHandler,
     private readonly getUserScheduleQueryHandler: GetUserScheduleQueryHandler,
   ) {}
 
@@ -43,6 +45,27 @@ export default class UserScheduleController {
   ): Promise<WrapperResponse<UserScheduleResponse[]>> {
     return new WrapperResponse(
       await this.getUserSchedulesQueryHandler.execute({
+        executor: request.executor,
+        ...query,
+      }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('upcoming')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get all upcoming user schedules' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User schedules retrieved successfully',
+    type: WrapperResponse<UserScheduleResponse[]>,
+  })
+  public async getUpcomingUserSchedules(
+    @Query() query: PaginationDto,
+    @Req() request: FastifyRequest,
+  ): Promise<WrapperResponse<UserScheduleResponse[]>> {
+    return new WrapperResponse(
+      await this.getUpcomingUserSchedulesQueryHandler.execute({
         executor: request.executor,
         ...query,
       }),

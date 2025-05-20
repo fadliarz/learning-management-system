@@ -9,6 +9,7 @@ import UserModule from '../user/UserModule';
 import PrivilegeModule from '../privilege/PrivilegeModule';
 import UserScheduleDynamoDBRepository from './data-access/database/repository/UserScheduleDynamoDBRepository';
 import CourseScheduleModule from '../course-schedule/CourseScheduleModule';
+import GetUpcomingUserSchedulesQueryHandler from './domain/application-service/features/get-upcoming-schedules/GetUpcomingUserSchedulesQueryHandler';
 
 @Module({
   imports: [ConfigModule, UserModule, PrivilegeModule, CourseScheduleModule],
@@ -16,6 +17,7 @@ import CourseScheduleModule from '../course-schedule/CourseScheduleModule';
   providers: [
     UserScheduleController,
     GetUserSchedulesQueryHandler,
+    GetUpcomingUserSchedulesQueryHandler,
     GetUserScheduleQueryHandler,
     {
       provide: DependencyInjection.USER_SCHEDULE_REPOSITORY,
