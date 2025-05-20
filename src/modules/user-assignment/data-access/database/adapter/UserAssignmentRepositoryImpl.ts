@@ -29,6 +29,12 @@ export default class UserAssignmentRepositoryImpl
   public async findMany(param: {
     userId: number;
     pagination: Pagination;
+    rangeQuery?: {
+      id?: {
+        upper?: number;
+        lower?: number;
+      };
+    };
   }): Promise<UserAssignment[]> {
     const userAssignmentEntities: UserAssignmentEntity[] =
       await this.userAssignmentDynamoDBRepository.findMany(param);

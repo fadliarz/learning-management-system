@@ -9,6 +9,12 @@ export interface UserAssignmentRepository {
   findMany(param: {
     userId: number;
     pagination: Pagination;
+    rangeQuery?: {
+      id?: {
+        upper?: number;
+        lower?: number;
+      };
+    };
   }): Promise<UserAssignment[]>;
 
   findByIdOrThrow(param: {

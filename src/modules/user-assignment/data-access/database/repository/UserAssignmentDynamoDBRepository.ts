@@ -19,10 +19,8 @@ import UserAssignmentKey from '../entity/UserAssignmentKey';
 import DuplicateKeyException from '../../../../../common/common-domain/exception/DuplicateKeyException';
 import InternalServerException from '../../../../../common/common-domain/exception/InternalServerException';
 import UserAssignmentNotFoundException from '../../../domain/domain-core/exception/UserAssignmentNotFoundException';
-import ClassUserAssignmentUpdationException
-  from '../../../domain/domain-core/exception/ClassUserAssignmentUpdationException';
-import ClassUserAssignmentDeletionException
-  from '../../../domain/domain-core/exception/ClassUserAssignmentDeletionException';
+import ClassUserAssignmentUpdationException from '../../../domain/domain-core/exception/ClassUserAssignmentUpdationException';
+import ClassUserAssignmentDeletionException from '../../../domain/domain-core/exception/ClassUserAssignmentDeletionException';
 
 @Injectable()
 export default class UserAssignmentDynamoDBRepository {
@@ -30,8 +28,7 @@ export default class UserAssignmentDynamoDBRepository {
     @Inject(DependencyInjection.DYNAMODB_DOCUMENT_CLIENT)
     private readonly dynamoDBDocumentClient: DynamoDBDocumentClient,
     private readonly dynamoDBConfig: DynamoDBConfig,
-  ) {
-  }
+  ) {}
 
   public async saveIfNotExistsOrThrow(param: {
     userAssignmentEntity: UserAssignmentEntity;
@@ -56,9 +53,54 @@ export default class UserAssignmentDynamoDBRepository {
   public async findMany(param: {
     userId: number;
     pagination: Pagination;
+    rangeQuery?: {
+      id?: {
+        upper?: number;
+        lower?: number;
+      };
+    };
   }): Promise<UserAssignmentEntity[]> {
     const { userId, pagination } = param;
     const userAssignmentEntities: UserAssignmentEntity[] = [];
+
+    let rangeQuery: string = '';
+    let expressionAttributeValuesExtension = {};
+    const upper: number | undefined = param.rangeQuery?.id?.upper;
+    const lower: number | undefined = param.rangeQuery?.id?.lower;
+    const lastEvaluatedId: number | undefined =
+      param.pagination.lastEvaluatedId;
+    if (upper && lower) {
+      rangeQuery = 'AND assignmentId BETWEEN :lower AND :upper';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':upper': upper,
+        ':lower': lower,
+      };
+    }
+    if (upper && !lower) {
+      rangeQuery = 'AND assignmentId < :upper';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':upper': upper,
+      };
+    }
+    if (!upper && lower) {
+      rangeQuery = 'AND assignmentId > :lower';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':lower': lower,
+      };
+    }
+    if (!upper && !lower && lastEvaluatedId) {
+      rangeQuery = 'AND assignmentId < :value1';
+      expressionAttributeValuesExtension = {
+        ...expressionAttributeValuesExtension,
+        ':value1': lastEvaluatedId,
+      };
+    }
+
+    console.log(expressionAttributeValuesExtension);
+
     let lastEvaluatedKey: Record<string, any> | undefined = undefined;
     let limit: number | undefined = pagination.limit;
     do {
@@ -67,17 +109,13 @@ export default class UserAssignmentDynamoDBRepository {
         await this.dynamoDBDocumentClient.send(
           new QueryCommand({
             TableName: this.dynamoDBConfig.USER_ASSIGNMENT_TABLE,
-            KeyConditionExpression: pagination.lastEvaluatedId
-              ? '#userId = :value0 AND assignmentId < :value1'
-              : '#userId = :value0',
+            KeyConditionExpression: `#userId = :value0 ${rangeQuery}`,
             ExpressionAttributeNames: {
               '#userId': 'userId',
             },
             ExpressionAttributeValues: {
               ':value0': userId,
-              ...(pagination.lastEvaluatedId
-                ? { ':value1': pagination.lastEvaluatedId }
-                : {}),
+              ...expressionAttributeValuesExtension,
             },
             ExclusiveStartKey: lastEvaluatedKey,
             Limit: limit,
