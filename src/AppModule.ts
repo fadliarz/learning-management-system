@@ -19,6 +19,7 @@ import PrivilegeModule from './modules/privilege/PrivilegeModule';
 import TagModule from './modules/tag/TagModule';
 import NotificationModule from './modules/notification/NotificationModule';
 import PushObjectModule from './modules/push-object/PushObjectModule';
+import CourseScheduleModule from './modules/course-schedule/CourseScheduleModule';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import PushObjectModule from './modules/push-object/PushObjectModule';
     ClassModule,
     ClassAssignmentModule,
     CourseModule,
+    CourseScheduleModule,
     EnrollmentModule,
     FormSubmissionModule,
     InstructorModule,
