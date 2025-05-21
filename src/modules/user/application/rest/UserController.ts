@@ -36,6 +36,7 @@ import UserCalendarWrapperResponse from './response/UserCalendarWrapperResponse'
 import GetUserCalendarRequestQueryDto from '../../domain/application-service/features/get-user-calendar/dto/GetUserCalendarRequestQueryDto';
 import GetUserManagedClassesQueryHandler from '../../domain/application-service/features/get-user-managed-classes/GetUserManagedClassesQueryHandler';
 import UserManagedClassesWrapperResponse from './response/UserManagedClassesWrapperResponse';
+import GetAdminStatusQueryHandler from '../../domain/application-service/features/get-admin-status/GetAdminStatusQueryHandler';
 
 @Injectable()
 @Controller('api/v1/users')
@@ -44,6 +45,7 @@ export default class UserController {
   constructor(
     private readonly cookieConfig: CookieConfig,
     private readonly createUserCommandHandler: CreateUserCommandHandler,
+    private readonly getAdminStatusQueryHandler: GetAdminStatusQueryHandler,
     private readonly getMeQueryHandler: GetMeQueryHandler,
     private readonly getUserPrivilegesQueryHandler: GetUserPrivilegesQueryHandler,
     private readonly getPublicUsersQueryHandler: GetPublicUsersQueryHandler,
@@ -76,6 +78,24 @@ export default class UserController {
       tokens.refreshToken,
     );
     return new UserWrapperResponse(userResponse);
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('is-admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get admin status' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Admin status retrieved successfully',
+  })
+  public async getAdminStatus(
+    @Req() request: FastifyRequest,
+  ): Promise<{ isAdmin: boolean }> {
+    return {
+      isAdmin: await this.getAdminStatusQueryHandler.execute({
+        executor: request.executor,
+      }),
+    };
   }
 
   @UseGuards(AuthenticationGuard)

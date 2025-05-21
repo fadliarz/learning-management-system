@@ -11,12 +11,14 @@ import GetUserEnrolledCoursesQueryHandler from './domain/application-service/fea
 import GetUserCalendarQueryHandler from './domain/application-service/features/get-user-calendar/GetUserCalendarQueryHandler';
 import DataAccessModule from '../DataAccessModule';
 import GetUserManagedClassesQueryHandler from './domain/application-service/features/get-user-managed-classes/GetUserManagedClassesQueryHandler';
+import GetAdminStatusQueryHandler from './domain/application-service/features/get-admin-status/GetAdminStatusQueryHandler';
 
 @Module({
   imports: [ConfigModule, DataAccessModule],
   controllers: [UserController],
   providers: [
     CreateUserCommandHandler,
+    GetAdminStatusQueryHandler,
     GetMeQueryHandler,
     GetUserPrivilegesQueryHandler,
     GetUserCalendarQueryHandler,
