@@ -1,34 +1,19 @@
 import { Module } from '@nestjs/common';
-import { DependencyInjection } from '../../common/common-domain/DependencyInjection';
 import EnrollmentController from './application/rest/EnrollmentController';
 import CreateEnrollmentCommandHandler from './domain/application-service/features/create-enrollment/CreateEnrollmentCommandHandler';
 import DeleteEnrollmentCommandHandler from './domain/application-service/features/delete-enrollment/DeleteEnrollmentCommandHandler';
-import EnrollmentRepositoryImpl from './data-access/database/adapter/EnrollmentRepositoryImpl';
 import ConfigModule from '../ConfigModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
-import ClassModule from '../class/ClassModule';
-import EnrollmentDynamoDBRepository from './data-access/database/repository/EnrollmentDynamoDBRepository';
 import GetUserEnrollmentsQueryHandler from './domain/application-service/features/get-user-enrollments/GetUserEnrollmentsQueryHandler';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule, ClassModule],
+  imports: [ConfigModule, DataAccessModule],
   controllers: [EnrollmentController],
   providers: [
     CreateEnrollmentCommandHandler,
     GetUserEnrollmentsQueryHandler,
     DeleteEnrollmentCommandHandler,
-    {
-      provide: DependencyInjection.ENROLLMENT_REPOSITORY,
-      useClass: EnrollmentRepositoryImpl,
-    },
-    EnrollmentDynamoDBRepository,
   ],
-  exports: [
-    {
-      provide: DependencyInjection.ENROLLMENT_REPOSITORY,
-      useClass: EnrollmentRepositoryImpl,
-    },
-    EnrollmentDynamoDBRepository,
-  ],
+  exports: [],
 })
 export default class EnrollmentModule {}

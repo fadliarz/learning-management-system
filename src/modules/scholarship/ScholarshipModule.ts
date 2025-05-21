@@ -6,18 +6,16 @@ import GetScholarshipsQueryHandler from './domain/application-service/features/g
 import GetScholarshipQueryHandler from './domain/application-service/features/get-scholarship/GetScholarshipQueryHandler';
 import UpdateScholarshipCommandHandler from './domain/application-service/features/update-scholarship/UpdateScholarshipCommandHandler';
 import DeleteScholarshipCommandHandler from './domain/application-service/features/delete-scholarship/DeleteScholarshipCommandHandler';
-import ScholarshipRepositoryImpl from './data-access/database/adapter/ScholarshipRepositoryImpl';
 import ConfigModule from '../ConfigModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
-import ScholarshipDynamoDBRepository from './data-access/database/repository/ScholarshipDynamoDBRepository';
 import AddScholarshipTagCommandHandler from './domain/application-service/features/add-tag/AddScholarshipTagCommandHandler';
 import TagModule from '../tag/TagModule';
 import RemoveScholarshipTagCommandHandler from './domain/application-service/features/remove-tag/RemoveScholarshipTagCommandHandler';
 import ScholarshipRedisCacheMemory from './data-access/cache/memory/ScholarshipRedisCacheMemory';
 import ScholarshipCacheMemoryImpl from './data-access/cache/adapter/ScholarshipCacheMemoryImpl';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule, TagModule],
+  imports: [ConfigModule, TagModule, DataAccessModule],
   controllers: [ScholarshipController],
   providers: [
     CreateScholarshipCommandHandler,
@@ -27,11 +25,6 @@ import ScholarshipCacheMemoryImpl from './data-access/cache/adapter/ScholarshipC
     GetScholarshipQueryHandler,
     UpdateScholarshipCommandHandler,
     DeleteScholarshipCommandHandler,
-    ScholarshipDynamoDBRepository,
-    {
-      provide: DependencyInjection.SCHOLARSHIP_REPOSITORY,
-      useClass: ScholarshipRepositoryImpl,
-    },
     {
       provide: DependencyInjection.SCHOLARSHIP_REDIS_CACHE_MEMORY,
       useClass: ScholarshipRedisCacheMemory,

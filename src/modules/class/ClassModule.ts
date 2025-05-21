@@ -1,18 +1,15 @@
 import { Module } from '@nestjs/common';
-import { DependencyInjection } from '../../common/common-domain/DependencyInjection';
 import ClassController from './application/rest/ClassController';
 import CreateClassCommandHandler from './domain/application-service/features/create-class/CreateClassCommandHandler';
 import GetClassesQueryHandler from './domain/application-service/features/get-classes/GetClassesQueryHandler';
 import GetClassQueryHandler from './domain/application-service/features/get-class/GetClassQueryHandler';
 import UpdateClassCommandHandler from './domain/application-service/features/update-class/UpdateClassCommandHandler';
-import ClassRepositoryImpl from './data-access/database/adapter/ClassRepositoryImpl';
 import ConfigModule from '../ConfigModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
-import ClassDynamoDBRepository from './data-access/database/repository/ClassDynamoDBRepository';
 import DeleteClassCommandHandler from './domain/application-service/features/delete-class/DeleteClassCommandHandler';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule],
+  imports: [ConfigModule, DataAccessModule],
   controllers: [ClassController],
   providers: [
     CreateClassCommandHandler,
@@ -20,17 +17,7 @@ import DeleteClassCommandHandler from './domain/application-service/features/del
     GetClassQueryHandler,
     UpdateClassCommandHandler,
     DeleteClassCommandHandler,
-    {
-      provide: DependencyInjection.CLASS_REPOSITORY,
-      useClass: ClassRepositoryImpl,
-    },
-    ClassDynamoDBRepository,
   ],
-  exports: [
-    {
-      provide: DependencyInjection.CLASS_REPOSITORY,
-      useClass: ClassRepositoryImpl,
-    },
-  ],
+  exports: [],
 })
 export default class ClassModule {}

@@ -2,14 +2,14 @@ import { Module } from '@nestjs/common';
 import { DependencyInjection } from '../../common/common-domain/DependencyInjection';
 import PushObjectController from './application/rest/PushObjectController';
 import ConfigModule from '../ConfigModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
 import PushObjectRedisCacheMemory from './data-access/cache/memory/PushObjectRedisCacheMemory';
 import PushObjectCacheMemoryImpl from './data-access/cache/adapter/PushObjectCacheMemoryImpl';
 import CreatePushObjectCommandHandler from './domain/application-service/features/create-push-object/CreatePushObjectCommandHandler';
 import GetPushObjectsQueryHandler from './domain/application-service/features/get-push-objects/GetPushObjectsQueryHandler';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule],
+  imports: [ConfigModule, DataAccessModule],
   controllers: [PushObjectController],
   providers: [
     CreatePushObjectCommandHandler,

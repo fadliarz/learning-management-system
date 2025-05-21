@@ -6,18 +6,16 @@ import GetCoursesQueryHandler from './domain/application-service/features/get-co
 import GetCourseQueryHandler from './domain/application-service/features/get-course/GetCourseQueryHandler';
 import UpdateCourseCommandHandler from './domain/application-service/features/update-course/UpdateCourseCommandHandler';
 import DeleteCourseCommandHandler from './domain/application-service/features/delete-course/DeleteCourseCommandHandler';
-import CourseRepositoryImpl from './data-access/database/adapter/CourseRepositoryImpl';
 import ConfigModule from '../ConfigModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
-import CourseDynamoDBRepository from './data-access/database/repository/CourseDynamoDBRepository';
 import CategoryModule from '../category/CategoryModule';
 import AddCourseCategoryCommandHandler from './domain/application-service/features/add-category/AddCourseCategoryCommandHandler';
 import RemoveCourseCategoryCommandHandler from './domain/application-service/features/remove-category/RemoveCourseCategoryCommandHandler';
 import CourseCacheMemoryImpl from './data-access/cache/adapter/CourseCacheMemoryImpl';
 import CourseRedisCacheMemory from './data-access/cache/memory/CourseRedisCacheMemory';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule, CategoryModule],
+  imports: [ConfigModule, CategoryModule, DataAccessModule],
   controllers: [CourseController],
   providers: [
     CreateCourseCommandHandler,
@@ -28,11 +26,6 @@ import CourseRedisCacheMemory from './data-access/cache/memory/CourseRedisCacheM
     UpdateCourseCommandHandler,
     DeleteCourseCommandHandler,
     {
-      provide: DependencyInjection.COURSE_REPOSITORY,
-      useClass: CourseRepositoryImpl,
-    },
-    CourseDynamoDBRepository,
-    {
       provide: DependencyInjection.COURSE_CACHE_MEMORY,
       useClass: CourseCacheMemoryImpl,
     },
@@ -41,12 +34,6 @@ import CourseRedisCacheMemory from './data-access/cache/memory/CourseRedisCacheM
       useClass: CourseRedisCacheMemory,
     },
   ],
-  exports: [
-    {
-      provide: DependencyInjection.COURSE_REPOSITORY,
-      useClass: CourseRepositoryImpl,
-    },
-    CourseDynamoDBRepository,
-  ],
+  exports: [],
 })
 export default class CourseModule {}

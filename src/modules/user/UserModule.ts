@@ -7,17 +7,18 @@ import UpdateUserPasswordCommandHandler from './domain/application-service/featu
 import ConfigModule from '../ConfigModule';
 import GetUserPrivilegesQueryHandler from './domain/application-service/features/get-user-privileges/GetUserPrivilegesQueryHandler';
 import GetPublicUsersQueryHandler from './domain/application-service/features/get-public-users/GetPublicUsersQueryHandler';
-import CourseModule from '../course/CourseModule';
-import EnrollmentModule from '../enrollment/EnrollmentModule';
 import GetUserEnrolledCoursesQueryHandler from './domain/application-service/features/get-user-enrolled-courses/GetUserEnrolledCoursesQueryHandler';
+import GetUserCalendarQueryHandler from './domain/application-service/features/get-user-calendar/GetUserCalendarQueryHandler';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, CourseModule, EnrollmentModule],
+  imports: [ConfigModule, DataAccessModule],
   controllers: [UserController],
   providers: [
     CreateUserCommandHandler,
     GetMeQueryHandler,
     GetUserPrivilegesQueryHandler,
+    GetUserCalendarQueryHandler,
     GetPublicUsersQueryHandler,
     GetUserEnrolledCoursesQueryHandler,
     UpdateUserProfileCommandHandler,

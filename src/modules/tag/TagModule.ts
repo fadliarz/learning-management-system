@@ -1,10 +1,7 @@
 import { Module } from '@nestjs/common';
 import { DependencyInjection } from '../../common/common-domain/DependencyInjection';
-import TagRepositoryImpl from './data-access/database/adapter/TagRepositoryImpl';
 import TagController from './application/rest/TagController';
 import ConfigModule from '../ConfigModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
-import TagDynamoDBRepository from './data-access/database/repository/TagDynamoDBRepository';
 import CreateTagCommandHandler from './domain/application-service/features/create-tag/CreateTagCommandHandler';
 import GetTagsQueryHandler from './domain/application-service/features/get-tags/GetTagsQueryHandler';
 import GetTagQueryHandler from './domain/application-service/features/get-tag/GetTagQueryHandler';
@@ -13,9 +10,10 @@ import DeleteTagCommandHandler from './domain/application-service/features/delet
 import TagContextImpl from './data-access/context/adapter/TagContextImpl';
 import TagRedisCacheMemory from './data-access/cache/memory/TagRedisCacheMemory';
 import TagCacheMemoryImpl from './data-access/cache/adapter/TagCacheMemoryImpl';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule],
+  imports: [ConfigModule, DataAccessModule],
   controllers: [TagController],
   providers: [
     CreateTagCommandHandler,
@@ -23,11 +21,6 @@ import TagCacheMemoryImpl from './data-access/cache/adapter/TagCacheMemoryImpl';
     GetTagQueryHandler,
     UpdateTagCommandHandler,
     DeleteTagCommandHandler,
-    TagDynamoDBRepository,
-    {
-      provide: DependencyInjection.TAG_REPOSITORY,
-      useClass: TagRepositoryImpl,
-    },
     {
       provide: DependencyInjection.TAG_CONTEXT,
       useClass: TagContextImpl,
@@ -42,11 +35,6 @@ import TagCacheMemoryImpl from './data-access/cache/adapter/TagCacheMemoryImpl';
     },
   ],
   exports: [
-    {
-      provide: DependencyInjection.TAG_REPOSITORY,
-      useClass: TagRepositoryImpl,
-    },
-    TagDynamoDBRepository,
     {
       provide: DependencyInjection.TAG_CONTEXT,
       useClass: TagContextImpl,

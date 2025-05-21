@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { DependencyInjection } from '../../common/common-domain/DependencyInjection';
-import CategoryRepositoryImpl from './data-access/database/adapter/CategoryRepositoryImpl';
 import CategoryController from './application/rest/CategoryController';
 import CreateCategoryCommandHandler from './domain/application-service/features/create-category/CreateCategoryCommandHandler';
 import GetCategoriesQueryHandler from './domain/application-service/features/get-categories/GetCategoriesQueryHandler';
@@ -8,14 +7,13 @@ import GetCategoryQueryHandler from './domain/application-service/features/get-c
 import UpdateCategoryCommandHandler from './domain/application-service/features/update-category/UpdateCategoryCommandHandler';
 import DeleteCategoryCommandHandler from './domain/application-service/features/delete-category/DeleteCategoryCommandHandler';
 import ConfigModule from '../ConfigModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
-import CategoryDynamoDBRepository from './data-access/database/repository/CategoryDynamoDBRepository';
 import CategoryCacheMemoryImpl from './data-access/cache/adapter/CategoryCacheMemoryImpl';
 import CategoryRedisCacheMemory from './data-access/cache/memory/CategoryRedisCacheMemory';
 import CategoryHelper from './domain/application-service/CategoryHelper';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [ConfigModule, PrivilegeModule],
+  imports: [ConfigModule, DataAccessModule],
   controllers: [CategoryController],
   providers: [
     CreateCategoryCommandHandler,
@@ -24,11 +22,6 @@ import CategoryHelper from './domain/application-service/CategoryHelper';
     UpdateCategoryCommandHandler,
     DeleteCategoryCommandHandler,
     CategoryHelper,
-    {
-      provide: DependencyInjection.CATEGORY_REPOSITORY,
-      useClass: CategoryRepositoryImpl,
-    },
-    CategoryDynamoDBRepository,
     {
       provide: DependencyInjection.CATEGORY_CACHE_MEMORY,
       useClass: CategoryCacheMemoryImpl,
@@ -39,11 +32,6 @@ import CategoryHelper from './domain/application-service/CategoryHelper';
     },
   ],
   exports: [
-    CategoryDynamoDBRepository,
-    {
-      provide: DependencyInjection.CATEGORY_REPOSITORY,
-      useClass: CategoryRepositoryImpl,
-    },
     {
       provide: DependencyInjection.CATEGORY_CACHE_MEMORY,
       useClass: CategoryCacheMemoryImpl,

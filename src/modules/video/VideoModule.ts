@@ -1,27 +1,15 @@
 import { Module } from '@nestjs/common';
-import { DependencyInjection } from '../../common/common-domain/DependencyInjection';
 import CreateVideoCommandHandler from './domain/application-service/features/create-video/CreateVideoCommandHandler';
 import GetVideoQueryHandler from './domain/application-service/features/get-video/GetVideoQueryHandler';
 import UpdateVideoCommandHandler from './domain/application-service/features/update-video/UpdateVideoCommandHandler';
 import DeleteVideoCommandHandler from './domain/application-service/features/delete-video/DeleteVideoCommandHandler';
 import GetVideosQueryHandler from './domain/application-service/features/get-videos/GetVideosQueryHandler';
-import VideoRepositoryImpl from './data-access/database/adapter/VideoRepositoryImpl';
 import VideoController from './application/rest/VideoController';
 import ConfigModule from '../ConfigModule';
-import UserModule from '../user/UserModule';
-import VideoDynamoDBRepository from './data-access/database/repository/VideoDynamoDBRepository';
-import LessonModule from '../lesson/LessonModule';
-import CourseModule from '../course/CourseModule';
-import PrivilegeModule from '../privilege/PrivilegeModule';
+import DataAccessModule from '../DataAccessModule';
 
 @Module({
-  imports: [
-    ConfigModule,
-    UserModule,
-    PrivilegeModule,
-    LessonModule,
-    CourseModule,
-  ],
+  imports: [ConfigModule, DataAccessModule],
   controllers: [VideoController],
   providers: [
     CreateVideoCommandHandler,
@@ -29,11 +17,6 @@ import PrivilegeModule from '../privilege/PrivilegeModule';
     GetVideoQueryHandler,
     UpdateVideoCommandHandler,
     DeleteVideoCommandHandler,
-    {
-      provide: DependencyInjection.VIDEO_REPOSITORY,
-      useClass: VideoRepositoryImpl,
-    },
-    VideoDynamoDBRepository,
   ],
   exports: [],
 })
