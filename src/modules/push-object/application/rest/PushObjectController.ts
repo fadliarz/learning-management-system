@@ -15,6 +15,8 @@ import PushObjectsWrapperResponse from './response/PushObjectsWrapperResponse';
 import CreatePushObjectCommandHandler from '../../domain/application-service/features/create-push-object/CreatePushObjectCommandHandler';
 import GetPushObjectsQueryHandler from '../../domain/application-service/features/get-push-objects/GetPushObjectsQueryHandler';
 import CreatePushObjectDto from '../../domain/application-service/features/create-push-object/dto/CreatePushObjectDto';
+import GetMonitorRegistrationQueryHandler from '../../domain/application-service/features/get-monitor-registration/GetMonitorRegistrationQueryHandler';
+import { MonitorDetail } from '../../domain/domain-core/MonitorDetail';
 
 @Injectable()
 @Controller('api/v1/push-objects')
@@ -23,6 +25,7 @@ export default class PushObjectController {
   constructor(
     private readonly createPushObjectCommandHandler: CreatePushObjectCommandHandler,
     private readonly getPushObjectsQueryHandler: GetPushObjectsQueryHandler,
+    private readonly getMonitorRegistrationQueryHandler: GetMonitorRegistrationQueryHandler,
   ) {}
 
   @Post()
@@ -57,5 +60,17 @@ export default class PushObjectController {
         userId,
       }),
     );
+  }
+
+  @Get('monitor')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Monitor push object registrations' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Monitor registrations retrieved successfully',
+    type: PushObjectsWrapperResponse,
+  })
+  public async getMonitorRegistration(): Promise<{ data: MonitorDetail[] }> {
+    return { data: await this.getMonitorRegistrationQueryHandler.execute() };
   }
 }

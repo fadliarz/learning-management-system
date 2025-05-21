@@ -1,9 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import PushObjectCacheMemory from '../../../domain/application-service/ports/output/cache/PushObjectCacheMemory';
 import { CacheOptions } from '../../../../../common/common-data-access/cache/CacheOptions';
 import RedisCacheMemory from '../../../../../common/common-data-access/cache/redis/RedisCacheMemory';
 import CacheConfig from '../../../../../config/CacheConfig';
 import PushObject from '../../../domain/domain-core/entity/PushObject';
+import { MonitorDetail } from '../../../domain/domain-core/MonitorDetail';
+import PushObjectRedisCacheMemory from '../memory/PushObjectRedisCacheMemory';
+import { DependencyInjection } from '../../../../../common/common-domain/DependencyInjection';
 
 type ResourceId = { deviceId: string };
 type Value = PushObject;
@@ -16,6 +19,8 @@ export default class PushObjectCacheMemoryImpl
   public constructor(
     protected redisCacheMemory: RedisCacheMemory<Value>,
     protected cacheConfig: CacheConfig,
+    @Inject(DependencyInjection.PUSH_OBJECT_REDIS_CACHE_MEMORY)
+    private readonly pushObjectRedisCacheMemory: PushObjectRedisCacheMemory,
   ) {}
 
   public async get(resourceId: ResourceId): Promise<Value | null> {
@@ -31,6 +36,10 @@ export default class PushObjectCacheMemoryImpl
       this.cacheConfig.DEFAULT_PUSH_OBJECT_ARRAY_TTL_IN_SEC,
     );
     return keys.map((key) => this.keyToResourceId(key));
+  }
+
+  public async getMonitorRegistration(): Promise<MonitorDetail[]> {
+    return await this.pushObjectRedisCacheMemory.getMonitorRegistration();
   }
 
   public async set(

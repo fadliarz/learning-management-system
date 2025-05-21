@@ -2,11 +2,14 @@ import { Redis } from 'ioredis';
 import { Inject } from '@nestjs/common';
 import { DependencyInjection } from '../../../common-domain/DependencyInjection';
 import { CacheOptions } from '../CacheOptions';
+import UserRepository from '../../../../modules/user/domain/application-service/ports/output/repository/UserRepository';
 
 export default class RedisCacheMemory<Value extends string | number | object> {
   public constructor(
     @Inject(DependencyInjection.REDIS_CLIENT)
-    private readonly redis: Redis,
+    protected readonly redis: Redis,
+    @Inject(DependencyInjection.USER_REPOSITORY)
+    protected readonly userRepository: UserRepository,
   ) {}
 
   public async get(key: string): Promise<Value | null> {

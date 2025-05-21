@@ -1,5 +1,6 @@
 import { CacheOptions } from '../../../../../../../common/common-data-access/cache/CacheOptions';
 import PushObject from '../../../../domain-core/entity/PushObject';
+import { MonitorDetail } from '../../../../domain-core/MonitorDetail';
 
 type Key = { deviceId: string };
 type Value = PushObject;
@@ -9,6 +10,8 @@ export default interface PushObjectCacheMemory {
   get(key: Key): Promise<Value | null>;
 
   getKeysByIndex(index: Index): Promise<Key[]>;
+
+  getMonitorRegistration(): Promise<MonitorDetail[]>;
 
   set(key: Key, value: Value, options?: CacheOptions): Promise<void>;
 
