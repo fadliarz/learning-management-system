@@ -31,6 +31,9 @@ import PublicUsersWrapperResponse from './response/PublicUsersWrapperResponse';
 import PaginationDto from '../../../../common/common-domain/PaginationDto';
 import GetUserEnrolledCoursesQueryHandler from '../../domain/application-service/features/get-user-enrolled-courses/GetUserEnrolledCoursesQueryHandler';
 import CoursesWrapperResponse from '../../../course/application/rest/response/CoursesWrapperResponse';
+import GetUserCalendarQueryHandler from '../../domain/application-service/features/get-user-calendar/GetUserCalendarQueryHandler';
+import UserCalendarWrapperResponse from './response/UserCalendarWrapperResponse';
+import GetUserCalendarRequestQueryDto from '../../domain/application-service/features/get-user-calendar/dto/GetUserCalendarRequestQueryDto';
 
 @Injectable()
 @Controller('api/v1/users')
@@ -42,6 +45,7 @@ export default class UserController {
     private readonly getMeQueryHandler: GetMeQueryHandler,
     private readonly getUserPrivilegesQueryHandler: GetUserPrivilegesQueryHandler,
     private readonly getPublicUsersQueryHandler: GetPublicUsersQueryHandler,
+    private readonly getUserCalendarQueryHandler: GetUserCalendarQueryHandler,
     private readonly getUserEnrolledCoursesQueryHandler: GetUserEnrolledCoursesQueryHandler,
     private readonly updateUserProfileCommandHandler: UpdateUserProfileCommandHandler,
     private readonly updateUserPasswordCommandHandler: UpdateUserPasswordCommandHandler,
@@ -122,6 +126,27 @@ export default class UserController {
   ): Promise<PublicUsersWrapperResponse> {
     return new PublicUsersWrapperResponse(
       await this.getPublicUsersQueryHandler.execute({
+        ...query,
+      }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('calendar')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get user calendar' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User calendar retrieved successfully',
+    type: PublicUsersWrapperResponse,
+  })
+  public async getUserCalendar(
+    @Req() request: FastifyRequest,
+    @Query() query: GetUserCalendarRequestQueryDto,
+  ): Promise<UserCalendarWrapperResponse> {
+    return new UserCalendarWrapperResponse(
+      await this.getUserCalendarQueryHandler.execute({
+        executor: request.executor,
         ...query,
       }),
     );
