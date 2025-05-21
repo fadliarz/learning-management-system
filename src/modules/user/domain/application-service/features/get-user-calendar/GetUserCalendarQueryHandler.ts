@@ -1,6 +1,5 @@
 import { Inject } from '@nestjs/common';
 import { DependencyInjection } from '../../../../../../common/common-domain/DependencyInjection';
-import strictPlainToClass from '../../../../../../common/common-domain/mapper/strictPlainToClass';
 import { CourseRepository } from '../../../../../course/domain/application-service/ports/output/repository/CourseRepository';
 import GetUserCalendarQuery from './dto/GetUserCalendarQuery';
 import { UserAssignmentRepository } from '../../../../../user-assignment/domain/application-service/ports/output/repository/UserAssignmentRepository';
@@ -36,19 +35,45 @@ export default class GetUserCalendarQueryHandler {
   public async execute(
     getUserCalendarQuery: GetUserCalendarQuery,
   ): Promise<UserCalendarResponse[]> {
-    const date: Date = new Date();
     const userCalendarResponses: UserCalendarResponse[] = [];
     const startAndEndOfMonthMillis =
       TimeFactory.getGMT7StartAndEndOfMonthMillis(getUserCalendarQuery.month);
+    await Promise.allSettled([
+      this.pushFromUserAssignments({
+        userCalendarResponses,
+        userId: getUserCalendarQuery.executor.userId,
+        id: {
+          upper: startAndEndOfMonthMillis.end * 1000,
+          lower: startAndEndOfMonthMillis.start * 1000,
+        },
+      }),
+      await this.pushFromUserSchedules({
+        userCalendarResponses,
+        userId: getUserCalendarQuery.executor.userId,
+        id: {
+          upper: startAndEndOfMonthMillis.end * 1000,
+          lower: startAndEndOfMonthMillis.start * 1000,
+        },
+      }),
+    ]);
+    return userCalendarResponses;
+  }
+
+  private async pushFromUserAssignments(param: {
+    userCalendarResponses: UserCalendarResponse[];
+    userId: number;
+    id: {
+      upper: number;
+      lower: number;
+    };
+  }): Promise<void> {
+    const { userCalendarResponses, userId, id } = param;
     const userAssignments: UserAssignment[] =
       await this.userAssignmentRepository.findMany({
-        userId: getUserCalendarQuery.executor.userId,
-        pagination: strictPlainToClass(Pagination, getUserCalendarQuery),
+        userId,
+        pagination: new Pagination(),
         rangeQuery: {
-          id: {
-            upper: startAndEndOfMonthMillis.end,
-            lower: startAndEndOfMonthMillis.start,
-          },
+          id,
         },
       });
     for (const userAssignment of userAssignments) {
@@ -79,15 +104,23 @@ export default class GetUserCalendarQueryHandler {
         throw exception;
       }
     }
+  }
+
+  private async pushFromUserSchedules(param: {
+    userCalendarResponses: UserCalendarResponse[];
+    userId: number;
+    id: {
+      upper: number;
+      lower: number;
+    };
+  }): Promise<void> {
+    const { userCalendarResponses, userId, id } = param;
     const userSchedules: UserSchedule[] =
       await this.userScheduleRepository.findMany({
-        userId: getUserCalendarQuery.executor.userId,
-        pagination: strictPlainToClass(Pagination, getUserCalendarQuery),
+        userId,
+        pagination: new Pagination(),
         rangeQuery: {
-          id: {
-            upper: startAndEndOfMonthMillis.end,
-            lower: startAndEndOfMonthMillis.start,
-          },
+          id,
         },
       });
     for (const userSchedule of userSchedules) {
@@ -124,7 +157,6 @@ export default class GetUserCalendarQueryHandler {
         throw exception;
       }
     }
-    return userCalendarResponses;
   }
 
   private getDate(theDate: Date | string): number {

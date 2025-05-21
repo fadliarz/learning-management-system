@@ -38,8 +38,8 @@ export default class GetUpcomingUserAssignmentsQueryHandler {
         ),
         rangeQuery: {
           id: {
-            upper: startAndEndOfTodayMillis.end,
-            lower: startAndEndOfTodayMillis.start,
+            upper: startAndEndOfTodayMillis.end * 1000,
+            lower: startAndEndOfTodayMillis.start * 1000,
           },
         },
       });

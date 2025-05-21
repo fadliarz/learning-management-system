@@ -31,8 +31,8 @@ export default class GetUpcomingUserSchedulesQueryHandler {
         pagination: strictPlainToClass(Pagination, getUserSchedulesQuery),
         rangeQuery: {
           id: {
-            upper: startAndEndOfTodayMillis.end,
-            lower: startAndEndOfTodayMillis.start,
+            upper: startAndEndOfTodayMillis.end * 1000,
+            lower: startAndEndOfTodayMillis.start * 1000,
           },
         },
       });
