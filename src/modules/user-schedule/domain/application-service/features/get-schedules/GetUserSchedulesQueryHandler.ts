@@ -9,7 +9,7 @@ import { DependencyInjection } from '../../../../../../common/common-domain/Depe
 import CourseScheduleRepository from '../../../../../course-schedule/domain/application-service/ports/output/repository/CourseScheduleRepository';
 import { ScheduleType } from '../../../domain-core/entity/ScheduleType';
 import CourseSchedule from '../../../../../course-schedule/domain/domain-core/entity/CourseSchedule';
-import UserScheduleNotFoundException from '../../../domain-core/exception/UserScheduleNotFoundException';
+import CourseScheduleNotFoundException from '../../../../../course-schedule/domain/domain-core/exception/CourseScheduleNotFoundException';
 
 @Injectable()
 export default class GetUserSchedulesQueryHandler {
@@ -49,7 +49,7 @@ export default class GetUserSchedulesQueryHandler {
           userScheduleResponses.push(userScheduleResponse);
         }
       } catch (exception) {
-        if (exception instanceof UserScheduleNotFoundException) {
+        if (exception instanceof CourseScheduleNotFoundException) {
           continue;
         }
         throw exception;
