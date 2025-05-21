@@ -34,6 +34,8 @@ import CoursesWrapperResponse from '../../../course/application/rest/response/Co
 import GetUserCalendarQueryHandler from '../../domain/application-service/features/get-user-calendar/GetUserCalendarQueryHandler';
 import UserCalendarWrapperResponse from './response/UserCalendarWrapperResponse';
 import GetUserCalendarRequestQueryDto from '../../domain/application-service/features/get-user-calendar/dto/GetUserCalendarRequestQueryDto';
+import GetUserManagedClassesQueryHandler from '../../domain/application-service/features/get-user-managed-classes/GetUserManagedClassesQueryHandler';
+import UserManagedClassesWrapperResponse from './response/UserManagedClassesWrapperResponse';
 
 @Injectable()
 @Controller('api/v1/users')
@@ -47,6 +49,7 @@ export default class UserController {
     private readonly getPublicUsersQueryHandler: GetPublicUsersQueryHandler,
     private readonly getUserCalendarQueryHandler: GetUserCalendarQueryHandler,
     private readonly getUserEnrolledCoursesQueryHandler: GetUserEnrolledCoursesQueryHandler,
+    private readonly getUserManagedClassesQueryHandler: GetUserManagedClassesQueryHandler,
     private readonly updateUserProfileCommandHandler: UpdateUserProfileCommandHandler,
     private readonly updateUserPasswordCommandHandler: UpdateUserPasswordCommandHandler,
   ) {}
@@ -168,6 +171,25 @@ export default class UserController {
     return new CoursesWrapperResponse(
       await this.getUserEnrolledCoursesQueryHandler.execute({
         ...query,
+        executor: request.executor,
+      }),
+    );
+  }
+
+  @UseGuards(AuthenticationGuard)
+  @Get('managed-classes')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Get user managed classes' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'User manage classes retrieved successfully',
+    type: CoursesWrapperResponse,
+  })
+  public async getUserManagedClasses(
+    @Req() request: FastifyRequest,
+  ): Promise<UserManagedClassesWrapperResponse> {
+    return new UserManagedClassesWrapperResponse(
+      await this.getUserManagedClassesQueryHandler.execute({
         executor: request.executor,
       }),
     );
