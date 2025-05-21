@@ -36,6 +36,8 @@ import UserAssignmentDynamoDBRepository from './user-assignment/data-access/data
 import UserScheduleDynamoDBRepository from './user-schedule/data-access/database/repository/UserScheduleDynamoDBRepository';
 import VideoDynamoDBRepository from './video/data-access/database/repository/VideoDynamoDBRepository';
 import VideoRepositoryImpl from './video/data-access/database/adapter/VideoRepositoryImpl';
+import CourseCacheMemoryImpl from './course/data-access/cache/adapter/CourseCacheMemoryImpl';
+import CourseRedisCacheMemory from './course/data-access/cache/memory/CourseRedisCacheMemory';
 
 @Global()
 @Module({
@@ -131,6 +133,15 @@ import VideoRepositoryImpl from './video/data-access/database/adapter/VideoRepos
       provide: DependencyInjection.VIDEO_REPOSITORY,
       useClass: VideoRepositoryImpl,
     },
+
+    {
+      provide: DependencyInjection.COURSE_CACHE_MEMORY,
+      useClass: CourseCacheMemoryImpl,
+    },
+    {
+      provide: DependencyInjection.COURSE_REDIS_CACHE_MEMORY,
+      useClass: CourseRedisCacheMemory,
+    },
   ],
   exports: [
     AttachmentDynamoDBRepository,
@@ -222,6 +233,15 @@ import VideoRepositoryImpl from './video/data-access/database/adapter/VideoRepos
     {
       provide: DependencyInjection.VIDEO_REPOSITORY,
       useClass: VideoRepositoryImpl,
+    },
+
+    {
+      provide: DependencyInjection.COURSE_CACHE_MEMORY,
+      useClass: CourseCacheMemoryImpl,
+    },
+    {
+      provide: DependencyInjection.COURSE_REDIS_CACHE_MEMORY,
+      useClass: CourseRedisCacheMemory,
     },
   ],
 })

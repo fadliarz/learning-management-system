@@ -10,6 +10,7 @@ import GetPublicUsersQueryHandler from './domain/application-service/features/ge
 import GetUserEnrolledCoursesQueryHandler from './domain/application-service/features/get-user-enrolled-courses/GetUserEnrolledCoursesQueryHandler';
 import GetUserCalendarQueryHandler from './domain/application-service/features/get-user-calendar/GetUserCalendarQueryHandler';
 import DataAccessModule from '../DataAccessModule';
+import GetUserManagedClassesQueryHandler from './domain/application-service/features/get-user-managed-classes/GetUserManagedClassesQueryHandler';
 
 @Module({
   imports: [ConfigModule, DataAccessModule],
@@ -21,6 +22,7 @@ import DataAccessModule from '../DataAccessModule';
     GetUserCalendarQueryHandler,
     GetPublicUsersQueryHandler,
     GetUserEnrolledCoursesQueryHandler,
+    GetUserManagedClassesQueryHandler,
     UpdateUserProfileCommandHandler,
     UpdateUserPasswordCommandHandler,
   ],
