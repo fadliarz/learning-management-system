@@ -19,9 +19,8 @@ export default class CourseSchedule {
   }
 
   public create(): void {
-    const now: Date = TimeFactory.generate();
-    this._scheduleId = TimeFactory.dateToRandomMicroseconds(now);
-    this._createdAt = now;
+    this._scheduleId = TimeFactory.dateToRandomMicroseconds(this.startDate);
+    this._createdAt = TimeFactory.generate();
   }
 
   @Expose()
