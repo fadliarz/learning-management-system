@@ -162,14 +162,12 @@ export default class UserAssignmentDynamoDBRepository {
           TableName: this.dynamoDBConfig.USER_ASSIGNMENT_TABLE,
           Key: new UserAssignmentKey({ userId, assignmentId }),
           ConditionExpression:
-            'attribute_exists(userId) AND attribute_exists(assignmentId) AND #assignmentType = :value0',
+            'attribute_exists(userId) AND attribute_exists(assignmentId)',
           UpdateExpression: updateObj.UpdateExpression,
           ExpressionAttributeNames: {
-            '#assignmentType': 'assignmentType',
             ...updateObj.ExpressionAttributeNames,
           },
           ExpressionAttributeValues: {
-            ':value0': AssignmentType.PERSONAL_ASSIGNMENT,
             ...updateObj.ExpressionAttributeValues,
           },
         }),
