@@ -30,7 +30,7 @@ export default class TimeFactory {
     const startOfDay = new Date(now);
     startOfDay.setUTCHours(-7, 0, 0, 0);
     const endOfDay = new Date(now);
-    endOfDay.setUTCHours(48 - 7, 59, 59, 999);
+    endOfDay.setUTCHours(47 - 7, 59, 59, 999);
     return {
       start: startOfDay.getTime(),
       end: endOfDay.getTime(),

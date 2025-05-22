@@ -22,7 +22,7 @@ export default class ClassAssignment {
 
   public create(): void {
     const now: Date = TimeFactory.generate();
-    this._assignmentId = TimeFactory.dateToRandomMicroseconds(now);
+    this._assignmentId = TimeFactory.dateToRandomMicroseconds(this._deadline);
     this._createdAt = now;
   }
 
